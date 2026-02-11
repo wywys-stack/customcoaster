@@ -286,10 +286,6 @@
     .tex-meta span{font-size:12px;color:var(--muted)}
     .tex-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
   </style>
-
-  <!-- Uploadcare (hosts files) -->
-  <script>UPLOADCARE_LOCALE="en";</script>
-  <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
 </head>
 
 <body>
@@ -365,6 +361,10 @@
           <!-- Hosted artwork upload -->
           <div>
             <label>Logo / Artwork overlay</label>
+
+            <!-- Hidden file input (no Uploadcare widget required) -->
+            <input id="artFile" class="sr" type="file" accept="image/*,.svg,.pdf" />
+
             <div class="uploader">
               <div class="meta">
                 <b id="artName">No file uploaded yet</b>
@@ -534,7 +534,7 @@
 /* =========================================================
    CONFIG — REQUIRED
    ========================================================= */
-const UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8" // <-- set this
+const UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8"; // must be a string
 
 /* =========================================================
    APP
@@ -560,6 +560,7 @@ const elSize  = $("size");
 const summary = $("summary");
 
 const artPick = $("artPick");
+const artFile = $("artFile");
 const artName = $("artName");
 
 const elLogoPos = $("logoPos");
@@ -612,11 +613,6 @@ const state = {
   textureMap: loadTextureMap(),        // { materialId: dataURL }
   textureImgCache: {}                  // { materialId: Image() }
 };
-
-// Init Uploadcare
-if (UPLOADCARE_PUBLIC_KEY && !UPLOADCARE_PUBLIC_KEY.includes("PASTE_")) {
-  uploadcare.publicKey = UPLOADCARE_PUBLIC_KEY;
-}
 
 // Build material chips
 const materialsWrap = $("materials");
@@ -708,43 +704,96 @@ t2Font.addEventListener("change", ()=>{ state.line2.font = t2Font.value; render(
 t2Pos .addEventListener("change", ()=>{ state.line2.pos  = t2Pos.value; render(); });
 t2Size.addEventListener("input", ()=>{ state.line2.size = clamp(parseInt(t2Size.value||"28",10),10,90); render(); });
 
+/* =========================================================
+   Uploadcare DIRECT UPLOAD (no widget)
+   ========================================================= */
+function requireKey(){
+  const k = (UPLOADCARE_PUBLIC_KEY || "").trim();
+  if(!k) return false;
+  if(k.includes("PASTE_")) return false;
+  return true;
+}
+
+async function uploadToUploadcare(fileOrBlob, filename){
+  if(!requireKey()){
+    throw new Error("Missing Uploadcare public key.");
+  }
+  const fd = new FormData();
+  fd.append("UPLOADCARE_PUB_KEY", UPLOADCARE_PUBLIC_KEY.trim());
+  fd.append("UPLOADCARE_STORE", "1");
+  fd.append("file", fileOrBlob, filename || (fileOrBlob && fileOrBlob.name) || "upload.bin");
+
+  const res = await fetch("https://upload.uploadcare.com/base/", {
+    method: "POST",
+    body: fd
+  });
+
+  if(!res.ok){
+    const txt = await res.text().catch(()=> "");
+    throw new Error(`Uploadcare upload failed (${res.status}). ${txt.slice(0,200)}`);
+  }
+
+  const data = await res.json();
+  if(!data || !data.file){
+    throw new Error("Uploadcare response missing file UUID.");
+  }
+  const uuid = data.file;
+  return `https://ucarecdn.com/${uuid}/`;
+}
+
+function dataURLToBlob(dataURL){
+  const [head, body] = dataURL.split(",");
+  const mime = (head.match(/data:(.*?);base64/)||[])[1] || "application/octet-stream";
+  const bin = atob(body);
+  const len = bin.length;
+  const bytes = new Uint8Array(len);
+  for(let i=0;i<len;i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
 // Hosted artwork upload
-artPick.addEventListener("click", async (e)=>{
+artPick.addEventListener("click", (e)=>{
   e.preventDefault();
-  if (!UPLOADCARE_PUBLIC_KEY || UPLOADCARE_PUBLIC_KEY.includes("PASTE_")) {
+  if(!requireKey()){
     setStatus("Add your Uploadcare public key in CONFIG and reload.", true);
     return;
   }
-
-  setStatus("Opening uploader…", false);
-
-  const dialog = uploadcare.openDialog(null, {
-    publicKey: UPLOADCARE_PUBLIC_KEY,
-    imagesOnly: false,
-    multiple: false
-  });
-
-  dialog.done((file)=>{
-    setStatus("Uploading artwork…", false);
-    file.done(async (info)=>{
-      state.artUrl = info.cdnUrl;
-      state.artPreviewUrl = info.cdnUrl + "-/preview/1024x1024/";
-      artName.textContent = info.name || "Artwork uploaded";
-
-      // show links immediately
-      linkBox.style.display = "grid";
-      artUrlVal.textContent = state.artUrl;
-
-      await loadImageIntoState(state.artPreviewUrl);
-      setStatus("Artwork uploaded & hosted. Preview updated.", false);
-      render();
-    }).fail(()=>{
-      setStatus("Upload failed. Try again.", true);
-    });
-  }).fail(()=>{
-    setStatus("Upload canceled.", false);
-  });
+  artFile.value = "";
+  artFile.click();
 });
+
+artFile.addEventListener("change", async ()=>{
+  const file = artFile.files && artFile.files[0];
+  if(!file) return;
+
+  try{
+    setStatus("Uploading artwork…", false);
+    const cdn = await uploadToUploadcare(file, file.name || "artwork");
+    state.artUrl = cdn;
+    state.artPreviewUrl = cdn + "-/preview/1024x1024/";
+    artName.textContent = file.name || "Artwork uploaded";
+
+    linkBox.style.display = "grid";
+    artUrlVal.textContent = state.artUrl;
+
+    await loadImageIntoState(state.artPreviewUrl);
+    setStatus("Artwork uploaded & hosted. Preview updated.", false);
+    render();
+  }catch(err){
+    console.error(err);
+    setStatus(err.message || "Upload failed. Check console.", true);
+  }
+});
+
+async function loadImageIntoState(url){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = ()=>{ state.artImage = img; resolve(); };
+    img.onerror = ()=>reject(new Error("Could not load hosted preview image."));
+    img.src = url;
+  });
+}
 
 // Preview export
 downloadPng.addEventListener("click", ()=>{
@@ -759,9 +808,9 @@ copyArtUrl.addEventListener("click", ()=> copyText(state.artUrl || "", copyArtUr
 copyProofUrl.addEventListener("click", ()=> copyText(proofUrlVal.textContent || "", copyProofUrl, "Copied!"));
 copyCode2.addEventListener("click", ()=> copyText(buildDesignCode(), copyCode2, "Copied!"));
 
-// Submit: upload proof PNG to Uploadcare
+// Submit: upload proof PNG to Uploadcare (direct)
 submitDesign.addEventListener("click", async ()=>{
-  if (!UPLOADCARE_PUBLIC_KEY || UPLOADCARE_PUBLIC_KEY.includes("PASTE_")) {
+  if(!requireKey()){
     setStatus("Add your Uploadcare public key in CONFIG and reload.", true);
     return;
   }
@@ -773,11 +822,9 @@ submitDesign.addEventListener("click", async ()=>{
   try{
     setStatus("Uploading proof PNG…", false);
 
-    // Create proof and upload to Uploadcare
     const proofDataUrl = cv.toDataURL("image/png");
-    const proofFile = uploadcare.fileFrom("base64", proofDataUrl, "coaster-proof.png");
-    const proofInfo = await proofFile.done();
-    const proofUrl = proofInfo.cdnUrl;
+    const proofBlob = dataURLToBlob(proofDataUrl);
+    const proofUrl = await uploadToUploadcare(proofBlob, "coaster-proof.png");
 
     linkBox.style.display = "grid";
     proofUrlVal.textContent = proofUrl;
@@ -786,19 +833,9 @@ submitDesign.addEventListener("click", async ()=>{
     setStatus("Done. Proof hosted — copy the links below.", false);
   }catch(err){
     console.error(err);
-    setStatus("Proof upload failed. Check console and Uploadcare settings.", true);
+    setStatus(err.message || "Proof upload failed. Check console.", true);
   }
 });
-
-async function loadImageIntoState(url){
-  return new Promise((resolve, reject)=>{
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = ()=>{ state.artImage = img; resolve(); };
-    img.onerror = reject;
-    img.src = url;
-  });
-}
 
 function setStatus(msg, isError){
   statusBox.innerHTML = `<b>Status:</b> ${escapeHtml(msg)}`;
@@ -1177,4 +1214,3 @@ setStatus("Ready. Upload artwork, tweak your design, then click Submit.", false)
 </script>
 </body>
 </html>
-

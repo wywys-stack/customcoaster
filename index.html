@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Custom Coasters — Designer</title>
+  <title>Nice Coasters — Designer</title>
 
   <style>
     :root{
@@ -99,8 +99,7 @@
     select:focus,input:focus{box-shadow:var(--focus);border-color:rgba(198,90,46,.55)}
 
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-    @media (max-width:560px){ .row2,.row3{grid-template-columns:1fr} }
+    @media (max-width:560px){ .row2{grid-template-columns:1fr} }
 
     .divider{height:1px;background:var(--line);margin:12px 0}
 
@@ -179,20 +178,33 @@
       border:1px solid rgba(198,90,46,.18);
       color:#6d2d17;
     }
-
     .small{font-size:12px;color:var(--muted)}
     .mono{font-family:var(--mono)}
     .sr{position:absolute;left:-9999px}
 
     /* Preview */
-    .preview{display:grid;gap:14px}
-    .stage{padding:16px}
+    .preview{display:block}
+    /* stays centered while scrolling */
+    .preview-sticky{
+      position: sticky;
+      top: 92px;
+      align-self: start;
+      display: grid;
+      justify-items: center;
+    }
+    @media (max-width:980px){
+      .preview-sticky{ position: static; top:auto; }
+    }
+
+    .stage{padding:16px; width:100%;}
     .stage-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
     .stage-top .title{display:flex;flex-direction:column;gap:2px}
     .stage-top .title b{font-size:14px}
     .stage-top .title span{font-size:12px;color:var(--muted)}
 
     .canvas-shell{
+      width:100%;
+      max-width: 720px;
       border-radius:26px;
       border:1px solid var(--line);
       background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.25));
@@ -283,18 +295,15 @@
       display:flex;justify-content:space-between;gap:8px;
     }
 
-    /* Uploadcare hidden input */
     .uc-hidden{ position:absolute; left:-9999px; }
   </style>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Raleway:wght@400;600;700&family=Oswald:wght@400;600&family=Bebas+Neue&family=Pacifico&family=Great+Vibes&family=Roboto+Slab:wght@400;600;700&family=Source+Serif+4:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 
-  <!-- Uploadcare Widget (shows Uploadcare box) -->
   <script>
-    UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8"; // <-- your key
+    UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8";
     UPLOADCARE_LOCALE = "en";
     UPLOADCARE_TABS = "file url camera";
   </script>
@@ -308,14 +317,14 @@
       <div class="brand-left">
         <div class="mark" aria-hidden="true"></div>
         <div>
-          <h1>Custom Coasters</h1>
-          <p class="sub">Tap to select · Drag to move · Handles resize · Rotate handle rotates · Curve handle bends text · Click blank area deselects</p>
+          <h1>Nice Coasters</h1>
+          <p class="sub">Click blank space to deselect · Text: side handles = width · corner handles = font size · curve handle = bend</p>
         </div>
       </div>
       <div class="cta-mini">
-        <span class="pill">Uploadcare</span>
-        <span class="pill">Icon library</span>
-        <span class="pill">Built-in curve handle</span>
+        <span class="pill">Sticky preview</span>
+        <span class="pill">Text-box curve</span>
+        <span class="pill">PS-style handles</span>
       </div>
     </div>
   </div>
@@ -364,14 +373,11 @@
               Upload your real wood/slate photos here (saved in your browser). These textures appear behind the engraving preview.
             </div>
             <div class="texture-list" id="textureList"></div>
-            <div class="note" style="margin-top:10px;">
-              Tip: square-ish photos (800×800+) look best.
-            </div>
+            <div class="note" style="margin-top:10px;">Tip: square-ish photos (800×800+) look best.</div>
           </details>
 
           <div class="divider"></div>
 
-          <!-- Uploadcare widget hidden input -->
           <input
             id="ucUploader"
             class="uc-hidden"
@@ -409,7 +415,7 @@
           <div class="divider"></div>
 
           <div>
-            <label>SVG-style icons (hundreds via Tabler icons)</label>
+            <label>SVG-style icons (Tabler)</label>
             <div class="row2">
               <input id="iconSearch" type="search" placeholder="Search icons… (e.g., coffee, heart, leaf, star)" />
               <button type="button" class="btn" id="iconSearchBtn">Search</button>
@@ -426,10 +432,6 @@
               <button type="button" class="btn ghost" id="fitIcon">Fit icon</button>
               <button type="button" class="btn ghost" id="clearIcon">Clear icon</button>
             </div>
-
-            <div class="note" style="margin-top:10px;">
-              These are <b>SVG icons</b> fetched from Iconify (Tabler set). Pick one, then move/resize/rotate it in the preview.
-            </div>
           </div>
 
           <div class="divider"></div>
@@ -437,7 +439,7 @@
           <div>
             <label>Text line 1</label>
             <div class="row2">
-              <input id="t1Text" type="text" placeholder="e.g., WY WY MAKES" value="" />
+              <input id="t1Text" type="text" placeholder="e.g., NICE COASTERS" value="" />
               <select id="t1Font"></select>
             </div>
 
@@ -455,16 +457,15 @@
               </div>
             </div>
 
-            <div class="row2" style="margin-top:10px;">
-              <button type="button" class="btn ghost" id="resetT1">Reset line 1</button>
-              <div class="small">Tip: Select text, then drag the <b>Curve handle</b> in the box.</div>
+            <div class="note" style="margin-top:10px;">
+              Select the text in the preview: <b>side handles</b> change width, <b>corner handles</b> change font size.
             </div>
           </div>
 
           <div>
             <label>Text line 2</label>
             <div class="row2">
-              <input id="t2Text" type="text" placeholder="e.g., EST. 2026 / CHULA VISTA" value="" />
+              <input id="t2Text" type="text" placeholder="e.g., HANDMADE USA" value="" />
               <select id="t2Font"></select>
             </div>
 
@@ -481,53 +482,48 @@
                 </div>
               </div>
             </div>
-
-            <div class="row2" style="margin-top:10px;">
-              <button type="button" class="btn ghost" id="resetT2">Reset line 2</button>
-              <div class="small">Vertical stacks characters (like pressing Enter).</div>
-            </div>
           </div>
 
           <div class="divider"></div>
 
-          <div class="note">
-            Proof/submit automatically hides selection boxes.
-          </div>
+          <div class="note">Proof/export automatically hides selection boxes.</div>
 
         </div>
       </div>
     </section>
 
-    <!-- Preview -->
+    <!-- Preview (sticky + centered) -->
     <section class="preview">
-      <section class="card stage">
-        <div class="stage-top">
-          <div class="title">
-            <b>Preview</b>
-            <span>Laser-style engraving simulation (dark burn look)</span>
+      <div class="preview-sticky">
+        <section class="card stage">
+          <div class="stage-top">
+            <div class="title">
+              <b>Preview</b>
+              <span>Laser-style engraving simulation (dark burn look)</span>
+            </div>
+            <div class="small mono" id="summary"></div>
           </div>
-          <div class="small mono" id="summary"></div>
-        </div>
 
-        <div class="canvas-shell">
-          <div class="canvas-inner" id="canvasWrap">
-            <canvas id="cv" width="900" height="900" aria-label="Coaster preview"></canvas>
+          <div class="canvas-shell">
+            <div class="canvas-inner" id="canvasWrap">
+              <canvas id="cv" width="900" height="900" aria-label="Coaster preview"></canvas>
+            </div>
           </div>
-        </div>
 
-        <div class="stage-actions">
-          <div class="left">
-            <button type="button" class="btn" id="downloadPng">Download proof PNG</button>
-            <button type="button" class="btn" id="copyCode">Copy order code</button>
-            <button type="button" class="btn primary" id="submitDesign">Submit (host proof)</button>
+          <div class="stage-actions">
+            <div class="left">
+              <button type="button" class="btn" id="downloadPng">Download proof PNG</button>
+              <button type="button" class="btn" id="copyCode">Copy order code</button>
+              <button type="button" class="btn primary" id="submitDesign">Submit (host proof)</button>
+            </div>
+            <div class="small">Tip: double-click/tap to cycle selection</div>
           </div>
-          <div class="small">Tip: double-click/tap to cycle selection (when something is selected)</div>
-        </div>
 
-        <div class="status" id="statusBox">
-          <b>Status:</b> Ready. Upload artwork or pick an icon.
-        </div>
-      </section>
+          <div class="status" id="statusBox">
+            <b>Status:</b> Ready.
+          </div>
+        </section>
+      </div>
     </section>
 
   </div>
@@ -561,7 +557,7 @@ const FONT_OPTIONS = [
   { name:"System (Default)", css:`system-ui, -apple-system, Segoe UI, Roboto, sans-serif` },
 ];
 
-const KEYS = { textures: "coaster_material_textures_v1" };
+const KEYS = { textures: "nicecoasters_material_textures_v1" };
 const $ = (id)=>document.getElementById(id);
 
 /* =========================================================
@@ -596,14 +592,12 @@ const t1Font = $("t1Font");
 const t1Arch = $("t1Arch");
 const t1Horiz = $("t1Horiz");
 const t1Vert  = $("t1Vert");
-const resetT1 = $("resetT1");
 
 const t2Text = $("t2Text");
 const t2Font = $("t2Font");
 const t2Arch = $("t2Arch");
 const t2Horiz = $("t2Horiz");
 const t2Vert  = $("t2Vert");
-const resetT2 = $("resetT2");
 
 const downloadPng = $("downloadPng");
 const copyCodeBtn = $("copyCode");
@@ -618,26 +612,23 @@ const state = {
   shape: "round",
   size: 4.0,
 
-  // Artwork
   artUrl: "",
   artPreviewUrl: "",
   artImage: null,
 
-  // Icon (SVG rasterized)
   iconName: "",
   iconSvg: "",
   iconImage: null,
 
-  // Objects (normalized in safe box coords)
   artObj:  { x:0, y:0, s:1.10, rot:0 },
   iconObj: { x:0, y:0, s:0.70, rot:0 },
 
-  // Text objects: arch is -1..1 (simple), orientation is "h"|"v"
-  line1: { text:"", font: FONT_OPTIONS[4].css, x:0, y:-0.25, s:0.35, rot:0, arch:0, orient:"h" },
-  line2: { text:"", font: FONT_OPTIONS[2].css, x:0, y: 0.45, s:0.26, rot:0, arch:0, orient:"h" },
+  // boxW = text box width (fraction of safe box width)
+  line1: { text:"", font: FONT_OPTIONS[4].css, x:0, y:-0.25, s:0.35, rot:0, arch:0, orient:"h", boxW:0.78 },
+  line2: { text:"", font: FONT_OPTIONS[2].css, x:0, y: 0.45, s:0.26, rot:0, arch:0, orient:"h", boxW:0.86 },
 
-  selected: null,          // "art" | "icon" | "t1" | "t2" | null
-  showSelection: true,     // auto toggled for proof/export
+  selected: null,
+  showSelection: true,
 
   textureMap: loadTextureMap(),
   textureImgCache: {}
@@ -651,7 +642,7 @@ const pointerState = {
 };
 
 const transformState = {
-  action: null,     // "move" | "scale" | "rotate" | "curve"
+  action: null,     // "move" | "scale" | "rotate" | "curve" | "textWidth" | "fontScale"
   start: null
 };
 
@@ -673,7 +664,6 @@ function populateFontSelect(sel, selectedCss){
 populateFontSelect(t1Font, state.line1.font);
 populateFontSelect(t2Font, state.line2.font);
 
-// Materials chips
 const materialsWrap = $("materials");
 MATERIALS.forEach((m, idx)=>{
   const lab = document.createElement("label");
@@ -690,7 +680,6 @@ MATERIALS.forEach((m, idx)=>{
   materialsWrap.appendChild(lab);
 });
 
-// Texture manager
 const textureList = $("textureList");
 function renderTextureManager(){
   textureList.innerHTML = "";
@@ -698,7 +687,6 @@ function renderTextureManager(){
     const dataUrl = state.textureMap[m.id] || "";
     const row = document.createElement("div");
     row.className = "tex-row";
-
     row.innerHTML = `
       <div class="tex-left">
         <div class="tex-thumb">${dataUrl ? `<img alt="${m.name} texture" src="${dataUrl}">` : ""}</div>
@@ -759,14 +747,11 @@ t2Arch.addEventListener("input", ()=>{ state.line2.arch = parseInt(t2Arch.value,
 function setOrient(which, orient){
   const line = (which==="t1") ? state.line1 : state.line2;
   line.orient = orient;
-
-  // in vertical ladder mode, arch doesn't really apply
   if(orient === "v"){
     line.arch = 0;
     if(which==="t1") t1Arch.value = "0";
     if(which==="t2") t2Arch.value = "0";
   }
-
   const hBtn = (which==="t1") ? t1Horiz : t2Horiz;
   const vBtn = (which==="t1") ? t1Vert  : t2Vert;
   hBtn.classList.toggle("toggle-on", orient==="h");
@@ -777,21 +762,6 @@ t1Horiz.addEventListener("click", ()=>setOrient("t1","h"));
 t1Vert .addEventListener("click", ()=>setOrient("t1","v"));
 t2Horiz.addEventListener("click", ()=>setOrient("t2","h"));
 t2Vert .addEventListener("click", ()=>setOrient("t2","v"));
-
-resetT1.addEventListener("click", ()=>{
-  state.selected = "t1";
-  state.line1.x = 0; state.line1.y = -0.25; state.line1.s = 0.35; state.line1.rot = 0;
-  state.line1.arch = 0; t1Arch.value = "0";
-  setOrient("t1","h");
-  render();
-});
-resetT2.addEventListener("click", ()=>{
-  state.selected = "t2";
-  state.line2.x = 0; state.line2.y = 0.45; state.line2.s = 0.26; state.line2.rot = 0;
-  state.line2.arch = 0; t2Arch.value = "0";
-  setOrient("t2","h");
-  render();
-});
 
 fitArtworkBtn.addEventListener("click", ()=>{
   if(!state.artImage){ setStatus("Upload artwork first.", true); return; }
@@ -1003,7 +973,7 @@ async function exportProofPngDataURL(){
 downloadPng.addEventListener("click", async ()=>{
   const dataUrl = await exportProofPngDataURL();
   const a = document.createElement("a");
-  a.download = "coaster-proof.png";
+  a.download = "nice-coasters-proof.png";
   a.href = dataUrl;
   a.click();
 });
@@ -1019,8 +989,8 @@ submitDesign.addEventListener("click", async ()=>{
     setStatus("Uploading proof PNG…", false);
     const proofDataUrl = await exportProofPngDataURL();
     const proofBlob = dataURLToBlob(proofDataUrl);
-    await uploadToUploadcare(proofBlob, "coaster-proof.png");
-    setStatus("Submitted! Proof hosted (not shown). Use the order code in checkout notes.", false);
+    await uploadToUploadcare(proofBlob, "nice-coasters-proof.png");
+    setStatus("Submitted! Proof hosted. Use the order code in checkout notes.", false);
   }catch(err){
     console.error(err);
     setStatus(err.message || "Proof upload failed.", true);
@@ -1056,7 +1026,9 @@ function dataURLToBlob(dataURL){
 }
 
 /* =========================================================
-   CANVAS INTERACTION (selection hide on blank click, curve handle)
+   CANVAS INTERACTION
+   - Blank click deselects
+   - TEXT: side handles ONLY width, corners ONLY font size
    ========================================================= */
 function getCanvasClientRect(){ return cv.getBoundingClientRect(); }
 function canvasToLocal(px, py){
@@ -1082,10 +1054,7 @@ function getSelectedObj(){
   if(state.selected === "t2")   return state.line2;
   return null;
 }
-
-function isTextSelected(){
-  return state.selected === "t1" || state.selected === "t2";
-}
+function isTextSelected(){ return state.selected === "t1" || state.selected === "t2"; }
 
 function cycleSelection(){
   const order = ["art","icon","t1","t2"];
@@ -1110,7 +1079,7 @@ function pickObjectAtOrNull(x, y){
   cand.push({id:"t2"});
 
   let best = {id:null, d:1e9};
-  const thr = Math.min(box.w, box.h) * 0.14; // tighter so blank clicks deselect
+  const thr = Math.min(box.w, box.h) * 0.14;
 
   for(const c of cand){
     const obj = (c.id==="t1") ? state.line1 :
@@ -1120,16 +1089,7 @@ function pickObjectAtOrNull(x, y){
     const d = Math.hypot(x - p.x, y - p.y);
     if(d < best.d){ best = {id:c.id, d}; }
   }
-
-  // if we are close enough, select it, otherwise deselect
-  if(best.d < thr) return best.id;
-
-  // click inside safe box but not near objects => deselect
-  if(x >= box.x && x <= box.x+box.w && y >= box.y && y <= box.y+box.h){
-    return null;
-  }
-
-  return null;
+  return (best.d < thr) ? best.id : null;
 }
 
 function getObjectRectInCanvas(box, id){
@@ -1151,26 +1111,20 @@ function getObjectRectInCanvas(box, id){
     return { cx:c.x, cy:c.y, w, h, rot };
   }
 
-  // Text rect: horizontal uses measureText; vertical ladder uses char count
   const basePx = 120;
   const px = clamp(Math.round(basePx * obj.s), 12, 220);
-
-  ctx.save();
-  ctx.font = `${px}px ${obj.font}`;
-  const txt = (obj.text||"").trim();
-  const chars = [...txt];
-  const tw = txt ? ctx.measureText(txt).width : 120;
-  ctx.restore();
-
   const isV = obj.orient === "v";
+
   if(isV){
+    const chars = [...((obj.text||"").trim())];
     const lineH = px * 1.05;
     const count = Math.max(1, chars.length);
     const h = count * lineH + 26;
     const w = Math.max(44, px + 22);
     return { cx:c.x, cy:c.y, w, h, rot };
   } else {
-    const w = Math.max(90, tw + 30);
+    const desiredW = clamp(obj.boxW || 0.78, 0.20, 1.20) * box.w;
+    const w = Math.max(90, desiredW);
     const h = Math.max(54, px + 30);
     return { cx:c.x, cy:c.y, w, h, rot };
   }
@@ -1197,54 +1151,80 @@ function rotateHandlePoint(x,y,cx,cy,offset){
 function hitTestHandle(px, py, hx, hy, r=14){
   return Math.hypot(px-hx, py-hy) <= r;
 }
-
+function sideHandlesForText(rect){
+  const pts = rotRectHandlePoints(rect.cx, rect.cy, rect.w, rect.h, rect.rot||0);
+  return { left: pts[7], right: pts[3] };
+}
 function curveHandlePointForText(rect){
-  // sit above the top-mid, farther than rotate handle
   const pts = rotRectHandlePoints(rect.cx, rect.cy, rect.w, rect.h, rect.rot||0);
   const topMid = pts[1];
-  // offset along outward normal from center
   return rotateHandlePoint(topMid.x, topMid.y, rect.cx, rect.cy, 54);
 }
 
 function hitTestSelection(loc, box){
-  if(!state.selected) return { action:null, rect:null };
+  if(!state.selected) return { action:null, rect:null, handleIndex:-1 };
 
   const id = state.selected;
   const rect = getObjectRectInCanvas(box, id);
-  const handles = rotRectHandlePoints(rect.cx, rect.cy, rect.w, rect.h, rect.rot || 0);
+  const rot = rect.rot || 0;
+  const handles = rotRectHandlePoints(rect.cx, rect.cy, rect.w, rect.h, rot);
 
-  // curve handle (text only, horizontal only)
-  if(isTextSelected()){
-    const obj = getSelectedObj();
-    if(obj && obj.orient === "h"){
-      const ch = curveHandlePointForText(rect);
-      if(hitTestHandle(loc.x,loc.y, ch.x, ch.y, 16)){
-        return { action:"curve", rect };
-      }
-    }
-  }
-
-  // rotate handle
+  // rotate handle (all)
   const topMid = handles[1];
   const rotH = rotateHandlePoint(topMid.x, topMid.y, rect.cx, rect.cy, 26);
   if(hitTestHandle(loc.x,loc.y, rotH.x, rotH.y, 16)){
-    return { action:"rotate", rect };
+    return { action:"rotate", rect, handleIndex:-1 };
   }
 
-  // resize handles
+  // TEXT SPECIAL:
+  if(isTextSelected()){
+    const obj = getSelectedObj();
+
+    // side handles ONLY width (horizontal only)
+    if(obj && obj.orient === "h"){
+      const sh = sideHandlesForText(rect);
+      if(hitTestHandle(loc.x,loc.y, sh.left.x, sh.left.y, 16) || hitTestHandle(loc.x,loc.y, sh.right.x, sh.right.y, 16)){
+        return { action:"textWidth", rect, handleIndex:-1 };
+      }
+
+      // curve handle
+      const ch = curveHandlePointForText(rect);
+      if(hitTestHandle(loc.x,loc.y, ch.x, ch.y, 16)){
+        return { action:"curve", rect, handleIndex:-1 };
+      }
+    }
+
+    // corner handles ONLY font size
+    const cornerIdx = [0,2,4,6];
+    for(const i of cornerIdx){
+      if(hitTestHandle(loc.x,loc.y, handles[i].x, handles[i].y, 14)){
+        return { action:"fontScale", rect, handleIndex:i };
+      }
+    }
+
+    // inside => move
+    const d = Math.hypot(loc.x-rect.cx, loc.y-rect.cy);
+    if(d < Math.max(rect.w,rect.h)*0.65){
+      return { action:"move", rect, handleIndex:-1 };
+    }
+
+    return { action:null, rect, handleIndex:-1 };
+  }
+
+  // non-text: any handle scales
   for(let i=0;i<handles.length;i++){
     if(hitTestHandle(loc.x,loc.y, handles[i].x, handles[i].y, 14)){
-      return { action:"scale", rect };
+      return { action:"scale", rect, handleIndex:i };
     }
   }
 
-  // inside (rough)
+  // inside => move
   const d = Math.hypot(loc.x-rect.cx, loc.y-rect.cy);
   if(d < Math.max(rect.w,rect.h)*0.65){
-    return { action:"move", rect };
+    return { action:"move", rect, handleIndex:-1 };
   }
 
-  return { action:null, rect };
+  return { action:null, rect, handleIndex:-1 };
 }
 
 /* Pointer events */
@@ -1259,22 +1239,15 @@ canvasWrap.addEventListener("pointerdown", (e)=>{
   const {cx, cy, r} = coasterGeom();
   const box = getSafeBox(cx, cy, r, state.shape);
 
-  // Selection logic:
-  // - single click: select if close to object else deselect (this is your “click blank area = no box”)
-  // - double click: cycle selection IF something is selected, otherwise try pick nearest
   if(isDouble){
-    if(state.selected){
-      cycleSelection();
-    } else {
-      state.selected = pickObjectAtOrNull(loc.x, loc.y);
-    }
+    if(state.selected) cycleSelection();
+    else state.selected = pickObjectAtOrNull(loc.x, loc.y);
     render();
   }else{
-    state.selected = pickObjectAtOrNull(loc.x, loc.y);
+    state.selected = pickObjectAtOrNull(loc.x, loc.y); // blank => null (deselect)
     render();
   }
 
-  // if nothing selected, don't start transforms
   if(!state.selected){
     transformState.action = null;
     transformState.start = null;
@@ -1288,7 +1261,7 @@ canvasWrap.addEventListener("pointerdown", (e)=>{
     transformState.action = ht.action;
     transformState.start = {
       x: loc.x, y: loc.y,
-      obj: { x: obj.x, y: obj.y, s: obj.s, rot: obj.rot || 0, arch: obj.arch || 0 },
+      obj: { x: obj.x, y: obj.y, s: obj.s, rot: obj.rot || 0, arch: obj.arch || 0, boxW: obj.boxW || 0.78 },
       rect: ht.rect
     };
   }else{
@@ -1353,19 +1326,43 @@ canvasWrap.addEventListener("pointermove", (e)=>{
       return;
     }
 
-    // Curve handle: drag up/down to set arch (built into the box)
+    if(transformState.action === "fontScale" && isTextSelected()){
+      const c = normToLocalBox(transformState.start.obj.x, transformState.start.obj.y, box);
+      const d0 = Math.hypot(transformState.start.x - c.x, transformState.start.y - c.y);
+      const d1 = Math.hypot(loc.x - c.x, loc.y - c.y);
+      const factor = (d0>2) ? (d1/d0) : 1;
+
+      obj.s = clamp(transformState.start.obj.s * factor, 0.08, 1.20);
+      render();
+      return;
+    }
+
+    if(transformState.action === "textWidth" && isTextSelected()){
+      if(obj.orient !== "h") return;
+
+      const dx = loc.x - transformState.start.x;
+      const dy = loc.y - transformState.start.y;
+      const rot = transformState.start.obj.rot || 0;
+      const localX =  (dx * Math.cos(-rot)) - (dy * Math.sin(-rot));
+      const deltaNorm = (localX * 2) / box.w;
+
+      obj.boxW = clamp(transformState.start.obj.boxW + deltaNorm, 0.20, 1.20);
+      render();
+      return;
+    }
+
     if(transformState.action === "curve" && isTextSelected()){
-      if(obj.orient === "v") return; // no curve in ladder mode
+      if(obj.orient !== "h") return;
+
       const rect = transformState.start.rect;
       const ch = curveHandlePointForText(rect);
-      // map distance of cursor relative to curve handle direction into arch [-1..1]
-      // dragging upward (further away) increases arch magnitude
       const dy = (loc.y - ch.y);
+
       const scale = clamp01(Math.abs(dy) / (Math.max(80, rect.h*0.6)));
       let val = -dy >= 0 ? scale : -scale;
       val = clamp(val, -1, 1);
+
       obj.arch = val;
-      // sync sliders too (optional)
       if(state.selected==="t1") t1Arch.value = String(Math.round(val*100));
       if(state.selected==="t2") t2Arch.value = String(Math.round(val*100));
       render();
@@ -1373,7 +1370,7 @@ canvasWrap.addEventListener("pointermove", (e)=>{
     }
   }
 
-  // Pinch pan/zoom with 2 pointers
+  // Pinch pan/zoom with 2 pointers (kept for convenience)
   if(pointerState.active.size === 2){
     const obj = getSelectedObj();
     if(!obj) return;
@@ -1393,8 +1390,8 @@ canvasWrap.addEventListener("pointermove", (e)=>{
     }
     if(pointerState.lastDist > 0){
       const ratio = dNow / pointerState.lastDist;
-      const minS = (state.selected==="art") ? 0.25 : (state.selected==="icon") ? 0.15 : 0.10;
-      const maxS = (state.selected==="art") ? 4.0  : (state.selected==="icon") ? 3.0  : 1.10;
+      const minS = (state.selected==="art") ? 0.25 : (state.selected==="icon") ? 0.15 : isTextSelected() ? 0.08 : 0.10;
+      const maxS = (state.selected==="art") ? 4.0  : (state.selected==="icon") ? 3.0  : isTextSelected() ? 1.20 : 1.10;
       obj.s = clamp(obj.s * ratio, minS, maxS);
     }
 
@@ -1424,15 +1421,15 @@ canvasWrap.addEventListener("wheel", (e)=>{
   const delta = Math.sign(e.deltaY);
   const factor = (delta > 0) ? 0.94 : 1.06;
 
-  const minS = (state.selected==="art") ? 0.25 : (state.selected==="icon") ? 0.15 : 0.10;
-  const maxS = (state.selected==="art") ? 4.0  : (state.selected==="icon") ? 3.0  : 1.10;
+  const minS = (state.selected==="art") ? 0.25 : (state.selected==="icon") ? 0.15 : isTextSelected() ? 0.08 : 0.10;
+  const maxS = (state.selected==="art") ? 4.0  : (state.selected==="icon") ? 3.0  : isTextSelected() ? 1.20 : 1.10;
   obj.s = clamp(obj.s * factor, minS, maxS);
 
   render();
 },{passive:false});
 
 /* =========================================================
-   ORDER CODE (no URLs)
+   ORDER CODE
    ========================================================= */
 function buildOrderCode(){
   const safe = (s)=>String(s||"").replace(/\|/g,"/").trim().slice(0,80);
@@ -1440,7 +1437,7 @@ function buildOrderCode(){
   const f2 = shortenFont(state.line2.font);
 
   return [
-    "COASTER4",
+    "NICECOASTERS4",
     `mat:${state.material}`,
     `shape:${state.shape}`,
     `size:${state.size.toFixed(1)}`,
@@ -1459,11 +1456,11 @@ function buildOrderCode(){
 
     `f1:${f1}`,`t1:${safe(state.line1.text)}`,
     `x1:${state.line1.x.toFixed(3)}`,`y1:${state.line1.y.toFixed(3)}`,`s1:${state.line1.s.toFixed(3)}`,
-    `r1:${(state.line1.rot||0).toFixed(3)}`,`a1:${(state.line1.arch||0).toFixed(2)}`,`o1:${state.line1.orient}`,
+    `r1:${(state.line1.rot||0).toFixed(3)}`,`a1:${(state.line1.arch||0).toFixed(2)}`,`o1:${state.line1.orient}`,`w1:${(state.line1.boxW||0.78).toFixed(3)}`,
 
     `f2:${f2}`,`t2:${safe(state.line2.text)}`,
     `x2:${state.line2.x.toFixed(3)}`,`y2:${state.line2.y.toFixed(3)}`,`s2:${state.line2.s.toFixed(3)}`,
-    `r2:${(state.line2.rot||0).toFixed(3)}`,`a2:${(state.line2.arch||0).toFixed(2)}`,`o2:${state.line2.orient}`
+    `r2:${(state.line2.rot||0).toFixed(3)}`,`a2:${(state.line2.arch||0).toFixed(2)}`,`o2:${state.line2.orient}`,`w2:${(state.line2.boxW||0.86).toFixed(3)}`
   ].join("|");
 }
 function shortenFont(font){
@@ -1471,14 +1468,13 @@ function shortenFont(font){
 }
 
 /* =========================================================
-   RENDER (laser preview)
+   RENDER
    ========================================================= */
 function render(){
   const mat = MATERIALS.find(m=>m.id===state.material) || MATERIALS[0];
   summary.textContent = `${mat.name} · ${state.shape} · ${state.size.toFixed(1)}" · sel:${state.selected || "none"}`;
 
   ctx.clearRect(0,0,cv.width,cv.height);
-
   ctx.fillStyle = "#f7efe4";
   ctx.fillRect(0,0,cv.width,cv.height);
 
@@ -1495,12 +1491,8 @@ function render(){
 
   const box = getSafeBox(cx, cy, r, state.shape);
 
-  if (state.artImage){
-    drawImageObj(ectx, box, state.artImage, state.artObj, 1.00);
-  }
-  if(state.iconImage){
-    drawImageObj(ectx, box, state.iconImage, state.iconObj, 0.55);
-  }
+  if (state.artImage) drawImageObj(ectx, box, state.artImage, state.artObj, 1.00);
+  if (state.iconImage) drawImageObj(ectx, box, state.iconImage, state.iconObj, 0.55);
 
   drawTextBoxed(ectx, box, state.line1);
   drawTextBoxed(ectx, box, state.line2);
@@ -1511,7 +1503,6 @@ function render(){
   applyEngraving(mask, cx, cy, r, state.shape);
   drawEdge(cx, cy, r, state.shape);
 
-  // selection box (only if on + selected)
   if(state.showSelection && state.selected){
     drawSelectionBox(box);
   }
@@ -1521,7 +1512,7 @@ function render(){
   ctx.fillStyle = "#1f1a15";
   ctx.font = `14px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
   ctx.textAlign = "center";
-  ctx.fillText("preview", cx, cv.height - 28);
+  ctx.fillText("nice coasters preview", cx, cv.height - 28);
   ctx.restore();
 }
 
@@ -1538,10 +1529,6 @@ function drawImageObj(ectx, box, img, obj, baseScale){
   ectx.restore();
 }
 
-/* Text drawing:
-   - Horizontal: straight or arched
-   - Vertical: LADDER (stack chars like pressing enter)
-*/
 function drawTextBoxed(ectx, box, line){
   const t = (line.text || "").trim();
   if(!t) return;
@@ -1559,11 +1546,10 @@ function drawTextBoxed(ectx, box, line){
   ectx.textBaseline = "middle";
   ectx.font = `${px}px ${line.font}`;
 
-  // Vertical ladder mode
+  // Vertical ladder
   if(line.orient === "v"){
     const chars = [...t];
     const lineH = px * 1.05;
-    // center the stack around y=0
     const totalH = (chars.length-1) * lineH;
     for(let i=0;i<chars.length;i++){
       ectx.fillText(chars[i], 0, -totalH/2 + i*lineH);
@@ -1573,39 +1559,43 @@ function drawTextBoxed(ectx, box, line){
     return;
   }
 
-  // Horizontal: optional arch
+  const desiredW = clamp(line.boxW || 0.78, 0.20, 1.20) * box.w;
+  const rawW = ectx.measureText(t).width;
   const arch = clamp(line.arch || 0, -1, 1);
+
+  // Straight text fits box via horizontal scaling
   if(Math.abs(arch) < 0.02){
+    const scaleX = clamp(desiredW / Math.max(1, rawW), 0.55, 1.60);
+    ectx.save();
+    ectx.scale(scaleX, 1);
     ectx.fillText(t, 0, 0);
-    ectx.fillText(t, 0.6, 0);
+    ectx.fillText(t, 0.6/scaleX, 0);
+    ectx.restore();
     ectx.restore();
     return;
   }
+
+  // Arched text: box width defines chord length
+  const maxSweep = degToRad(170);
+  const sweep = clamp(arch, -1, 1) * maxSweep;
+  const half = Math.max(0.001, Math.abs(sweep)/2);
+  let R = desiredW / (2 * Math.sin(half));
+  R = clamp(R, 40, 2000);
 
   const chars = [...t];
   const widths = chars.map(ch => ectx.measureText(ch).width);
   const totalW = widths.reduce((a,b)=>a+b,0);
 
-  const sweep = degToRad(140 * arch);
-  const targetArcLen = Math.max(10, totalW * 1.05);
-  const R = Math.max(30, targetArcLen / Math.max(0.15, Math.abs(sweep)));
-
   let ang = -sweep/2;
-  const dir = sweep >= 0 ? 1 : -1;
-  const baseline = -R;
-
-  const arcLen = R * Math.abs(sweep);
-  const scale = Math.max(0.60, Math.min(1.25, totalW / Math.max(10, arcLen)));
-
   for(let i=0;i<chars.length;i++){
-    const w = widths[i] / scale;
-    const step = (w / R) * dir;
+    const frac = (totalW>0) ? (widths[i] / totalW) : (1/chars.length);
+    const step = sweep * frac;
     const mid = ang + step/2;
 
     ectx.save();
     ectx.rotate(mid);
-    ectx.translate(0, baseline);
-    ectx.rotate(dir > 0 ? Math.PI/2 : -Math.PI/2);
+    ectx.translate(0, -R);
+    ectx.rotate(sweep > 0 ? Math.PI/2 : -Math.PI/2);
     ectx.fillText(chars[i], 0, 0);
     ectx.restore();
 
@@ -1617,7 +1607,6 @@ function drawTextBoxed(ectx, box, line){
 
 function drawSelectionBox(box){
   const id = state.selected;
-
   if(id==="art" && !state.artImage) return;
   if(id==="icon" && !state.iconImage) return;
 
@@ -1632,34 +1621,41 @@ function drawSelectionBox(box){
   ctx.setLineDash([]);
 
   const pts = rotRectHandlePoints(r.cx, r.cy, r.w, r.h, rot);
-  pts.forEach(p => drawHandle(p.x,p.y));
 
-  // rotate handle
+  // Rotate handle (all)
   const t = pts[1];
   const rh = rotateHandlePoint(t.x, t.y, r.cx, r.cy, 26);
   drawRotateHandle(rh.x, rh.y);
-
-  // connector to rotate
   ctx.strokeStyle = "rgba(31,26,21,.35)";
   ctx.beginPath();
   ctx.moveTo(t.x, t.y);
   ctx.lineTo(rh.x, rh.y);
   ctx.stroke();
 
-  // curve handle (text-only horizontal)
+  // Handles:
   if(isTextSelected()){
+    // corners only (font size)
+    [0,2,4,6].forEach(i => drawHandle(pts[i].x, pts[i].y));
+
     const obj = getSelectedObj();
     if(obj && obj.orient === "h"){
+      // side width handles
+      const sh = sideHandlesForText(r);
+      drawWidthHandle(sh.left.x, sh.left.y);
+      drawWidthHandle(sh.right.x, sh.right.y);
+
+      // curve handle
       const ch = curveHandlePointForText(r);
-      // connector
-      ctx.strokeStyle = "rgba(31,26,21,.25)";
+      ctx.strokeStyle = "rgba(31,26,21,.22)";
       ctx.beginPath();
       ctx.moveTo(rh.x, rh.y);
       ctx.lineTo(ch.x, ch.y);
       ctx.stroke();
-      // handle
       drawCurveHandle(ch.x, ch.y);
     }
+  }else{
+    // non-text: standard 8 handles (scale)
+    pts.forEach(p => drawHandle(p.x,p.y));
   }
 
   ctx.restore();
@@ -1703,6 +1699,25 @@ function drawCurveHandle(x,y){
   ctx.fillText("∿", x, y+0.5);
   ctx.restore();
 }
+function drawWidthHandle(x,y){
+  ctx.save();
+  ctx.fillStyle = "rgba(30,111,92,.16)";
+  ctx.strokeStyle = "rgba(30,111,92,.65)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x,y,8,0,Math.PI*2);
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(30,111,92,.85)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x-4,y);
+  ctx.lineTo(x+4,y);
+  ctx.stroke();
+  ctx.restore();
+}
 function strokeRotRect(cx, cy, w, h, rot){
   ctx.save();
   ctx.translate(cx,cy);
@@ -1712,7 +1727,7 @@ function strokeRotRect(cx, cy, w, h, rot){
 }
 
 /* ---------------------------
-   Laser look
+   Laser look + base
 --------------------------- */
 function drawMaterialBase(cx, cy, r, mat){
   ctx.save();
@@ -1747,6 +1762,52 @@ function drawMaterialBase(cx, cy, r, mat){
   ctx.fillRect(0,0,cv.width,cv.height);
 
   ctx.restore();
+}
+
+function toEngraveMask(srcCanvas){
+  const w = srcCanvas.width, h = srcCanvas.height;
+  const out = document.createElement("canvas");
+  out.width = w; out.height = h;
+  const octx = out.getContext("2d");
+
+  const sctx = srcCanvas.getContext("2d");
+  const img = sctx.getImageData(0,0,w,h);
+  const d = img.data;
+
+  for(let i=0;i<d.length;i+=4){
+    const rr = d[i], gg=d[i+1], bb=d[i+2], aa=d[i+3];
+    if(aa===0){ d[i+3]=0; continue; }
+    const lum = (0.2126*rr + 0.7152*gg + 0.0722*bb) / 255;
+
+    const whiteCut = 0.92;
+    const softStart= 0.70;
+    let alpha = 0;
+
+    if(lum >= whiteCut){
+      alpha = 0;
+    }else if(lum <= softStart){
+      const t = 1 - lum;
+      alpha = clamp01((t - 0.05) / 0.95);
+    }else{
+      const k = (whiteCut - lum) / (whiteCut - softStart);
+      alpha = clamp01(k * 0.55);
+    }
+    alpha = Math.pow(alpha, 0.85);
+
+    d[i]=0; d[i+1]=0; d[i+2]=0;
+    d[i+3]=Math.round(alpha*255);
+  }
+  octx.putImageData(img,0,0);
+
+  octx.filter = "blur(0.7px)";
+  const temp = document.createElement("canvas");
+  temp.width=w; temp.height=h;
+  temp.getContext("2d").drawImage(out,0,0);
+  octx.clearRect(0,0,w,h);
+  octx.drawImage(temp,0,0);
+  octx.filter = "none";
+
+  return out;
 }
 
 function applyEngraving(maskCanvas, cx, cy, r, shape){
@@ -1837,55 +1898,6 @@ function normToLocalBox(nx, ny, box){
 }
 
 /* =========================================================
-   ENGRAVE MASK (remove whites)
-   ========================================================= */
-function toEngraveMask(srcCanvas){
-  const w = srcCanvas.width, h = srcCanvas.height;
-  const out = document.createElement("canvas");
-  out.width = w; out.height = h;
-  const octx = out.getContext("2d");
-
-  const sctx = srcCanvas.getContext("2d");
-  const img = sctx.getImageData(0,0,w,h);
-  const d = img.data;
-
-  for(let i=0;i<d.length;i+=4){
-    const rr = d[i], gg=d[i+1], bb=d[i+2], aa=d[i+3];
-    if(aa===0){ d[i+3]=0; continue; }
-    const lum = (0.2126*rr + 0.7152*gg + 0.0722*bb) / 255;
-
-    const whiteCut = 0.92;
-    const softStart= 0.70;
-    let alpha = 0;
-
-    if(lum >= whiteCut){
-      alpha = 0;
-    }else if(lum <= softStart){
-      const t = 1 - lum;
-      alpha = clamp01((t - 0.05) / 0.95);
-    }else{
-      const k = (whiteCut - lum) / (whiteCut - softStart);
-      alpha = clamp01(k * 0.55);
-    }
-    alpha = Math.pow(alpha, 0.85);
-
-    d[i]=0; d[i+1]=0; d[i+2]=0;
-    d[i+3]=Math.round(alpha*255);
-  }
-  octx.putImageData(img,0,0);
-
-  octx.filter = "blur(0.7px)";
-  const temp = document.createElement("canvas");
-  temp.width=w; temp.height=h;
-  temp.getContext("2d").drawImage(out,0,0);
-  octx.clearRect(0,0,w,h);
-  octx.drawImage(temp,0,0);
-  octx.filter = "none";
-
-  return out;
-}
-
-/* =========================================================
    UTILS
    ========================================================= */
 function roundRectPath(c, x,y,w,h,r){
@@ -1951,10 +1963,7 @@ function degToRad(d){ return d * Math.PI / 180; }
 
 async function copyText(text, btn, label){
   const t = (text || "").trim();
-  if(!t){
-    setStatus("Nothing to copy yet.", true);
-    return;
-  }
+  if(!t){ setStatus("Nothing to copy yet.", true); return; }
   try{
     await navigator.clipboard.writeText(t);
     const old = btn.textContent;
@@ -1974,7 +1983,6 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
 }
 
-// Texture storage
 function loadTextureMap(){
   try{ return JSON.parse(localStorage.getItem(KEYS.textures)) || {}; }catch{ return {}; }
 }
@@ -1989,12 +1997,10 @@ renderTextureManager();
 setOrient("t1","h");
 setOrient("t2","h");
 render();
-setStatus("Ready. Click Upload to open the Uploadcare box. Or search icons.", false);
+setStatus("Ready. Click blank space to deselect. Text: side=width, corner=font size, curve=bend.", false);
 
-// small convenience: initial icon examples
 iconSearch.value = "coffee";
 iconSearchRun();
-
 </script>
 </body>
 </html>

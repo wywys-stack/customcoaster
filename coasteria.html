@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Custom Coasters — Designer</title>
 
+  <!-- Mid-century modern + modern -->
   <style>
     :root{
       --bg: #fbf6ee;
@@ -17,12 +18,10 @@
       --accent2:#1e6f5c;
       --chip:#f3e7d8;
       --focus: 0 0 0 3px rgba(198,90,46,.22);
-      --radius: 18px;
       --radius2: 24px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
     }
-
     *{ box-sizing:border-box; }
     body{
       margin:0;
@@ -33,7 +32,6 @@
         radial-gradient(900px 650px at 105% 0%, #d6f0ea 0%, transparent 55%),
         var(--bg);
     }
-
     header{
       position: sticky;
       top: 0;
@@ -43,10 +41,7 @@
       border-bottom:1px solid var(--line);
     }
     .wrap{ max-width:1200px; margin:0 auto; padding: 16px 16px; }
-    .brand{
-      display:flex; align-items:center; gap:12px;
-      justify-content:space-between;
-    }
+    .brand{ display:flex; align-items:center; gap:12px; justify-content:space-between; }
     .brand-left{ display:flex; align-items:center; gap:12px; }
     .mark{
       width:42px; height:42px; border-radius: 14px;
@@ -63,12 +58,7 @@
     }
     h1{ font-size: 16px; letter-spacing:.2px; margin:0; }
     .sub{ margin:0; font-size: 12px; color: var(--muted); }
-
-    .cta-mini{
-      display:flex; gap:10px; align-items:center;
-      font-size: 12px;
-      color: var(--muted);
-    }
+    .cta-mini{ display:flex; gap:10px; align-items:center; font-size: 12px; color: var(--muted); }
     .pill{
       padding:8px 10px;
       border-radius: 999px;
@@ -80,13 +70,11 @@
     main .wrap{
       padding: 18px 16px 36px;
       display:grid;
-      grid-template-columns: 440px 1fr;
+      grid-template-columns: 460px 1fr;
       gap: 18px;
       align-items:start;
     }
-    @media (max-width: 980px){
-      main .wrap{ grid-template-columns: 1fr; }
-    }
+    @media (max-width: 980px){ main .wrap{ grid-template-columns: 1fr; } }
 
     .card{
       background: var(--card);
@@ -108,14 +96,8 @@
     .card-body{ padding: 14px 16px 16px; }
 
     .grid{ display:grid; gap: 12px; }
-    label{
-      font-size: 12px;
-      color: var(--muted);
-      display:block;
-      margin-bottom: 6px;
-    }
-
-    select, input[type="text"], input[type="number"], input[type="range"]{
+    label{ font-size: 12px; color: var(--muted); display:block; margin-bottom: 6px; }
+    select, input[type="text"], input[type="number"], input[type="range"], input[type="email"]{
       width:100%;
       padding: 12px 12px;
       border-radius: 14px;
@@ -124,39 +106,14 @@
       color: var(--ink);
       outline: none;
     }
-    input[type="range"]{
-      padding: 10px 10px;
-      height: 42px;
-    }
+    input[type="range"]{ padding: 10px 10px; height: 42px; }
     select:focus, input:focus{ box-shadow: var(--focus); border-color: rgba(198,90,46,.55); }
 
     .row2{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .row3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-    @media (max-width: 560px){
-      .row2, .row3{ grid-template-columns: 1fr; }
-    }
+    @media (max-width: 560px){ .row2, .row3{ grid-template-columns: 1fr; } }
 
-    .uploader{
-      border: 1px dashed rgba(31,26,21,.25);
-      background: rgba(255,255,255,.6);
-      border-radius: 16px;
-      padding: 12px;
-      display:flex;
-      gap: 10px;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .uploader .meta{
-      display:flex; flex-direction:column; gap:3px;
-      min-width:0;
-    }
-    .uploader .meta b{
-      font-size: 13px;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-    .uploader .meta span{
-      font-size: 12px; color: var(--muted);
-    }
+    .divider{ height:1px; background: var(--line); margin: 12px 0; }
 
     .btn{
       appearance:none;
@@ -185,6 +142,20 @@
       color: #6d2d17;
     }
 
+    .uploader{
+      border: 1px dashed rgba(31,26,21,.25);
+      background: rgba(255,255,255,.6);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .uploader .meta{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+    .uploader .meta b{ font-size: 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .uploader .meta span{ font-size: 12px; color: var(--muted); }
+
     .chips{ display:flex; flex-wrap:wrap; gap: 8px; }
     .chip{
       display:flex; align-items:center; gap: 8px;
@@ -201,7 +172,19 @@
       border:1px solid rgba(31,26,21,.18);
     }
 
-    .divider{ height:1px; background: var(--line); margin: 12px 0; }
+    details summary{
+      cursor:pointer;
+      user-select:none;
+      list-style:none;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.45);
+      border-radius: 16px;
+    }
+    details summary::-webkit-details-marker{ display:none; }
+    details[open] summary{ box-shadow: var(--focus); border-color: rgba(198,90,46,.35); }
 
     .note{
       background: rgba(30,111,92,.08);
@@ -217,14 +200,13 @@
       border: 1px solid rgba(198,90,46,.18);
       color: #6d2d17;
     }
+    .small{ font-size: 12px; color: var(--muted); }
+    .mono{ font-family: var(--mono); }
 
-    /* Preview area */
+    /* Preview */
     .preview{ display:grid; gap: 14px; }
     .stage{ padding: 16px; }
-    .stage-top{
-      display:flex; align-items:center; justify-content:space-between; gap: 12px;
-      margin-bottom: 10px;
-    }
+    .stage-top{ display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-bottom: 10px; }
     .stage-top .title{ display:flex; flex-direction:column; gap: 2px; }
     .stage-top .title b{ font-size: 14px; }
     .stage-top .title span{ font-size: 12px; color: var(--muted); }
@@ -260,39 +242,22 @@
       justify-content:space-between;
       margin-top: 12px;
     }
-    .stage-actions .left{
-      display:flex; flex-wrap:wrap; gap: 10px;
-      align-items:center;
-    }
-    .small{ font-size: 12px; color: var(--muted); }
-    .mono{ font-family: var(--mono); }
-    .sr{ position:absolute; left:-9999px; }
+    .stage-actions .left{ display:flex; flex-wrap:wrap; gap: 10px; align-items:center; }
 
-    .examples{ margin-top: 10px; display:grid; gap: 10px; }
-    .thumbs{ display:flex; flex-wrap:wrap; gap: 10px; }
-    .thumb{
-      width: 74px; height: 74px;
+    .status{
+      margin-top: 10px;
+      padding: 10px 12px;
       border-radius: 16px;
       border: 1px solid var(--line);
-      background: #fff;
-      display:grid; place-items:center;
-      cursor:pointer;
-      overflow:hidden;
-      position:relative;
+      background: rgba(255,255,255,.6);
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
     }
-    .thumb img{
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      padding: 8px;
-      filter: grayscale(1) contrast(1.2);
-    }
-    .thumb:hover{ box-shadow: 0 10px 20px rgba(31,26,21,.12); transform: translateY(-1px); }
+    .status b{ color: var(--ink); }
 
-    .texture-list{
-      display:grid;
-      gap: 10px;
-    }
+    /* Material texture manager */
+    .texture-list{ display:grid; gap: 10px; margin-top: 10px; }
     .tex-row{
       display:grid;
       grid-template-columns: 1fr auto;
@@ -303,12 +268,7 @@
       border-radius: 16px;
       background: rgba(255,255,255,.55);
     }
-    .tex-left{
-      display:flex;
-      gap: 10px;
-      align-items:center;
-      min-width:0;
-    }
+    .tex-left{ display:flex; gap: 10px; align-items:center; min-width:0; }
     .tex-thumb{
       width: 44px; height: 44px;
       border-radius: 14px;
@@ -317,45 +277,19 @@
       overflow:hidden;
       flex: 0 0 auto;
     }
-    .tex-thumb img{
-      width:100%; height:100%;
-      object-fit: cover;
-      display:block;
-    }
-    .tex-meta{
-      display:flex; flex-direction:column; gap: 2px;
-      min-width:0;
-    }
+    .tex-thumb img{ width:100%; height:100%; object-fit: cover; display:block; }
+    .tex-meta{ display:flex; flex-direction:column; gap: 2px; min-width:0; }
     .tex-meta b{ font-size: 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .tex-meta span{ font-size: 12px; color: var(--muted); }
-
-    .tex-actions{
-      display:flex; gap: 8px; align-items:center;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    details summary{
-      cursor:pointer;
-      user-select:none;
-      list-style:none;
-      font-size: 12px;
-      color: var(--muted);
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.45);
-      border-radius: 16px;
-    }
-    details summary::-webkit-details-marker{ display:none; }
-    details[open] summary{ box-shadow: var(--focus); border-color: rgba(198,90,46,.35); }
-
-    .minihelp{
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.3;
-      margin-top: 8px;
-    }
+    .tex-actions{ display:flex; gap: 8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
   </style>
+
+  <!-- Uploadcare (hosts files) -->
+  <script>UPLOADCARE_LOCALE = "en";</script>
+  <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
+
+  <!-- EmailJS (emails links) -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 
 <body>
@@ -370,8 +304,8 @@
         </div>
       </div>
       <div class="cta-mini">
-        <span class="pill">mid-century</span>
-        <span class="pill">laser-preview</span>
+        <span class="pill">hosted uploads</span>
+        <span class="pill">email links</span>
         <span class="pill">1-page</span>
       </div>
     </div>
@@ -417,32 +351,27 @@
 
           <details>
             <summary>Material texture photos (optional)</summary>
-            <div class="minihelp">
-              Upload your real wood/slate photos here — great for showing customers what each material looks like.
-              These images save in your browser (localStorage), so your “examples” stay put.
+            <div class="small" style="margin-top:8px;">
+              Upload your real wood/slate photos here (saved in your browser). These textures appear behind the engraving preview.
             </div>
-            <div style="height:10px"></div>
             <div class="texture-list" id="textureList"></div>
-            <div style="height:10px"></div>
-            <div class="note">
-              Tip: use square-ish photos (800×800+). Walnut grain photos look awesome behind the engraving.
+            <div class="note" style="margin-top:10px;">
+              Tip: square-ish photos (800×800+) look best. Walnut grain looks awesome behind the engraving.
             </div>
           </details>
 
           <div class="divider"></div>
 
-          <!-- Upload logo/art -->
+          <!-- Upload artwork (hosted) -->
           <div>
             <label>Logo / Artwork overlay</label>
-
             <div class="uploader">
               <div class="meta">
-                <b id="artName">No file selected</b>
-                <span>SVG/PNG/JPG — preview auto “engraves” it</span>
+                <b id="artName">No file uploaded yet</b>
+                <span>Upload is hosted (we email you the link)</span>
               </div>
               <div>
-                <input id="artFile" class="sr" type="file" accept="image/*,.svg" />
-                <button class="btn" id="artPick">Upload</button>
+                <button type="button" class="btn" id="artPick">Upload</button>
               </div>
             </div>
 
@@ -461,26 +390,14 @@
               </div>
             </div>
 
-            <div class="examples">
-              <div class="small"><b>Example logos</b> (click to use) — you can add your own examples too.</div>
-              <div class="thumbs" id="exampleThumbs"></div>
-
-              <div class="uploader">
-                <div class="meta">
-                  <b>Upload example assets</b>
-                  <span>Add sample logos so customers understand what “good files” look like.</span>
-                </div>
-                <div>
-                  <input id="exampleFiles" class="sr" type="file" accept="image/*,.svg" multiple />
-                  <button class="btn ghost" id="examplePick">Add examples</button>
-                </div>
-              </div>
+            <div class="note warn" style="margin-top:10px;">
+              Best results: high-contrast logos. Light/white areas won’t “burn” and may disappear in the preview (like a real laser).
             </div>
           </div>
 
           <div class="divider"></div>
 
-          <!-- Text lines -->
+          <!-- Text line 1 -->
           <div>
             <label>Text line 1</label>
             <div class="row3">
@@ -504,15 +421,13 @@
                 <label for="t1Size">Line 1 size</label>
                 <input id="t1Size" type="number" min="10" max="90" step="1" value="36" />
               </div>
-              <div>
-                <label>&nbsp;</label>
-                <div class="note">
-                  Keep line 1 short for best engraving.
-                </div>
+              <div class="note">
+                Keep line 1 short for the cleanest engraving.
               </div>
             </div>
           </div>
 
+          <!-- Text line 2 -->
           <div>
             <label>Text line 2</label>
             <div class="row3">
@@ -536,12 +451,22 @@
                 <label for="t2Size">Line 2 size</label>
                 <input id="t2Size" type="number" min="10" max="90" step="1" value="28" />
               </div>
-              <div>
-                <label>&nbsp;</label>
-                <div class="note warn">
-                  Tiny details may fade in real laser results.
-                </div>
+              <div class="note warn">
+                Super small text may fade in real laser results.
               </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Optional customer email (so you can CC them a confirmation) -->
+          <div class="row2">
+            <div>
+              <label for="customerEmail">Customer email (optional)</label>
+              <input id="customerEmail" type="email" placeholder="so we can send a confirmation link" />
+            </div>
+            <div class="note">
+              If provided, we can email the customer their proof + design code too.
             </div>
           </div>
 
@@ -568,18 +493,23 @@
 
         <div class="stage-actions">
           <div class="left">
-            <button class="btn primary" id="downloadPng">Download proof PNG</button>
-            <button class="btn" id="copyCode">Copy design code</button>
+            <button type="button" class="btn" id="downloadPng">Download proof PNG</button>
+            <button type="button" class="btn" id="copyCode">Copy design code</button>
+            <button type="button" class="btn primary" id="submitDesign">Submit design (host + email)</button>
           </div>
           <div class="small">
-            Use the proof + code in your Big Cartel workflow.
+            Submitting uploads the proof + sends you links.
           </div>
+        </div>
+
+        <div class="status" id="statusBox">
+          <b>Status:</b> Ready. Upload artwork, tweak your design, then click <b>Submit design</b>.
         </div>
 
         <div class="divider"></div>
         <div class="note">
-          <b>Checkout:</b> after previewing here, customers upload the final file on your Big Cartel product page and pay.
-          (This page keeps the experience clean + fast.)
+          You can link this page from your Big Cartel product page as the “Design tool.”
+          If Big Cartel also collects an upload at checkout, that’s fine — this page gives you a clean proof + a hosted link immediately.
         </div>
       </section>
     </section>
@@ -588,117 +518,700 @@
 </main>
 
 <script>
-  // -------------------------
-  // Materials
-  // -------------------------
-  const MATERIALS = [
-    { id:"birch",  name:"Birch",  tone:"#e7d2b3" },
-    { id:"walnut", name:"Walnut", tone:"#6a4b34" },
-    { id:"bamboo", name:"Bamboo", tone:"#d9c38f" },
-    { id:"cork",   name:"Cork",   tone:"#c2a47a" },
-    { id:"slate",  name:"Slate",  tone:"#4b4d52" }
-  ];
+/* =========================================================
+   CONFIG — REQUIRED
+   ========================================================= */
 
-  const KEYS = {
-    examples: "coaster_examples_v2",
-    textures: "coaster_material_textures_v1"
-  };
+// 1) Uploadcare: create an account → get a PUBLIC KEY
+const UPLOADCARE_PUBLIC_KEY = "PASTE_PUBLIC_KEY_HERE";
 
-  const $ = (id)=>document.getElementById(id);
+// 2) EmailJS: create EmailJS → add Email Service → create template
+// You will need these three values:
+const EMAILJS_PUBLIC_KEY  = "PASTE_EMAILJS_PUBLIC_KEY";
+const EMAILJS_SERVICE_ID  = "PASTE_EMAILJS_SERVICE_ID";
+const EMAILJS_TEMPLATE_ID = "PASTE_EMAILJS_TEMPLATE_ID";
 
-  // Canvas
-  const cv = $("cv");
-  const ctx = cv.getContext("2d");
+// Where you want the email to go:
+const MERCHANT_EMAIL = "you@yourdomain.com"; // change to your email
 
-  // Controls
-  const elShape = $("shape");
-  const elSize  = $("size");
-  const summary = $("summary");
+/* =========================================================
+   APP
+   ========================================================= */
 
-  const artFile = $("artFile");
-  const artPick = $("artPick");
-  const artName = $("artName");
-  const elLogoPos = $("logoPos");
-  const elLogoScale = $("logoScale");
-  const elLogoScaleLabel = $("logoScaleLabel");
+const MATERIALS = [
+  { id:"birch",  name:"Birch",  tone:"#e7d2b3" },
+  { id:"walnut", name:"Walnut", tone:"#6a4b34" },
+  { id:"bamboo", name:"Bamboo", tone:"#d9c38f" },
+  { id:"cork",   name:"Cork",   tone:"#c2a47a" },
+  { id:"slate",  name:"Slate",  tone:"#4b4d52" }
+];
 
-  const exampleFiles = $("exampleFiles");
-  const examplePick  = $("examplePick");
-  const exampleThumbs= $("exampleThumbs");
+const KEYS = { textures: "coaster_material_textures_v1" };
+const $ = (id)=>document.getElementById(id);
 
-  const textureList = $("textureList");
+const cv = $("cv");
+const ctx = cv.getContext("2d");
 
-  // Text line controls
-  const t1Text = $("t1Text");
-  const t1Font = $("t1Font");
-  const t1Pos  = $("t1Pos");
-  const t1Size = $("t1Size");
+const elShape = $("shape");
+const elSize  = $("size");
+const summary = $("summary");
 
-  const t2Text = $("t2Text");
-  const t2Font = $("t2Font");
-  const t2Pos  = $("t2Pos");
-  const t2Size = $("t2Size");
+const artPick = $("artPick");
+const artName = $("artName");
 
-  // Actions
-  const downloadPng = $("downloadPng");
-  const copyCode    = $("copyCode");
+const elLogoPos = $("logoPos");
+const elLogoScale = $("logoScale");
+const elLogoScaleLabel = $("logoScaleLabel");
 
-  // State
-  const state = {
-    material: MATERIALS[0].id,
-    shape: "round",
-    size: 4.0,
+const t1Text = $("t1Text");
+const t1Font = $("t1Font");
+const t1Pos  = $("t1Pos");
+const t1Size = $("t1Size");
 
-    // logo
-    artImage: null,
-    artSrc: "",
-    logoPos: "center",
-    logoScale: 1.00,
+const t2Text = $("t2Text");
+const t2Font = $("t2Font");
+const t2Pos  = $("t2Pos");
+const t2Size = $("t2Size");
 
-    // text lines
-    line1: { text:"", font: t1Font.value, pos:"center", size: 36 },
-    line2: { text:"", font: t2Font.value, pos:"bottom", size: 28 },
+const customerEmail = $("customerEmail");
 
-    // textures
-    textureMap: loadTextureMap(),      // { materialId: dataURL }
-    textureImgCache: {}                // { materialId: Image() }
-  };
+const downloadPng = $("downloadPng");
+const copyCode = $("copyCode");
+const submitDesign = $("submitDesign");
+const statusBox = $("statusBox");
 
-  // -------------------------
-  // Build material chips
-  // -------------------------
-  const materialsWrap = $("materials");
-  MATERIALS.forEach((m, idx)=>{
-    const lab = document.createElement("label");
-    lab.className = "chip";
-    lab.innerHTML = `
-      <input type="radio" name="mat" value="${m.id}" ${idx===0?"checked":""} />
-      <span class="swatch" style="background:${m.tone}"></span>
-      <span>${m.name}</span>
+const textureList = $("textureList");
+
+// State
+const state = {
+  material: MATERIALS[0].id,
+  shape: "round",
+  size: 4.0,
+
+  // hosted upload (customer artwork)
+  artUrl: "",          // Uploadcare CDN URL of original file
+  artPreviewUrl: "",   // possibly a transformed URL for preview
+  artImage: null,      // Image()
+
+  logoPos: "center",
+  logoScale: 1.00,
+
+  line1: { text:"", font: t1Font.value, pos:"center", size: 36 },
+  line2: { text:"", font: t2Font.value, pos:"bottom", size: 28 },
+
+  // textures stored locally
+  textureMap: loadTextureMap(),        // { materialId: dataURL }
+  textureImgCache: {}                  // { materialId: Image() }
+};
+
+// Init Uploadcare + EmailJS
+if (EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.includes("PASTE_")) {
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+}
+if (UPLOADCARE_PUBLIC_KEY && !UPLOADCARE_PUBLIC_KEY.includes("PASTE_")) {
+  uploadcare.publicKey = UPLOADCARE_PUBLIC_KEY;
+}
+
+// Build material chips
+const materialsWrap = $("materials");
+MATERIALS.forEach((m, idx)=>{
+  const lab = document.createElement("label");
+  lab.className = "chip";
+  lab.innerHTML = `
+    <input type="radio" name="mat" value="${m.id}" ${idx===0?"checked":""} />
+    <span class="swatch" style="background:${m.tone}"></span>
+    <span>${m.name}</span>
+  `;
+  lab.addEventListener("change", ()=>{
+    state.material = m.id;
+    render();
+  });
+  materialsWrap.appendChild(lab);
+});
+
+// Build texture manager UI
+function renderTextureManager(){
+  textureList.innerHTML = "";
+  MATERIALS.forEach((m)=>{
+    const dataUrl = state.textureMap[m.id] || "";
+    const row = document.createElement("div");
+    row.className = "tex-row";
+
+    row.innerHTML = `
+      <div class="tex-left">
+        <div class="tex-thumb">${dataUrl ? `<img alt="${m.name} texture" src="${dataUrl}">` : ""}</div>
+        <div class="tex-meta">
+          <b>${m.name} texture</b>
+          <span>${dataUrl ? "Custom photo loaded" : "No custom photo (uses flat tone)"}</span>
+        </div>
+      </div>
+      <div class="tex-actions">
+        <input class="sr" type="file" accept="image/*" id="texFile_${m.id}">
+        <button type="button" class="btn ghost" id="texUp_${m.id}">Upload</button>
+        <button type="button" class="btn danger" id="texClr_${m.id}" ${dataUrl ? "" : "disabled"}>Clear</button>
+      </div>
     `;
-    lab.addEventListener("change", ()=>{
-      state.material = m.id;
+    textureList.appendChild(row);
+
+    const f = row.querySelector(`#texFile_${m.id}`);
+    const up = row.querySelector(`#texUp_${m.id}`);
+    const clr = row.querySelector(`#texClr_${m.id}`);
+
+    up.addEventListener("click", (e)=>{ e.preventDefault(); f.click(); });
+    f.addEventListener("change", async ()=>{
+      const file = f.files && f.files[0];
+      if(!file) return;
+      const url = await fileToDataURL(file);
+      state.textureMap[m.id] = url;
+      saveTextureMap(state.textureMap);
+      state.textureImgCache[m.id] = null; // reset
+      renderTextureManager();
       render();
     });
-    materialsWrap.appendChild(lab);
+
+    clr.addEventListener("click", ()=>{
+      delete state.textureMap[m.id];
+      saveTextureMap(state.textureMap);
+      state.textureImgCache[m.id] = null;
+      renderTextureManager();
+      render();
+    });
+  });
+}
+
+// Inputs
+elShape.addEventListener("change", ()=>{ state.shape = elShape.value; render(); });
+elSize.addEventListener("change", ()=>{ state.size = parseFloat(elSize.value); render(); });
+
+elLogoPos.addEventListener("change", ()=>{ state.logoPos = elLogoPos.value; render(); });
+elLogoScale.addEventListener("input", ()=>{
+  state.logoScale = clamp(parseFloat(elLogoScale.value), 0.55, 1.55);
+  elLogoScaleLabel.textContent = state.logoScale.toFixed(2) + "×";
+  render();
+});
+
+// Text lines
+t1Text.addEventListener("input", ()=>{ state.line1.text = t1Text.value; render(); });
+t1Font.addEventListener("change", ()=>{ state.line1.font = t1Font.value; render(); });
+t1Pos .addEventListener("change", ()=>{ state.line1.pos  = t1Pos.value; render(); });
+t1Size.addEventListener("input", ()=>{ state.line1.size = clamp(parseInt(t1Size.value||"36",10),10,90); render(); });
+
+t2Text.addEventListener("input", ()=>{ state.line2.text = t2Text.value; render(); });
+t2Font.addEventListener("change", ()=>{ state.line2.font = t2Font.value; render(); });
+t2Pos .addEventListener("change", ()=>{ state.line2.pos  = t2Pos.value; render(); });
+t2Size.addEventListener("input", ()=>{ state.line2.size = clamp(parseInt(t2Size.value||"28",10),10,90); render(); });
+
+// Upload artwork via Uploadcare (hosted)
+artPick.addEventListener("click", async (e)=>{
+  e.preventDefault();
+  if (!UPLOADCARE_PUBLIC_KEY || UPLOADCARE_PUBLIC_KEY.includes("PASTE_")) {
+    setStatus("Missing Uploadcare public key in CONFIG. Add it, then reload.", true);
+    return;
+  }
+
+  setStatus("Opening upload…", false);
+
+  // open dialog
+  const dialog = uploadcare.openDialog(null, {
+    publicKey: UPLOADCARE_PUBLIC_KEY,
+    imagesOnly: false,
+    // You can restrict if you want: 'imagesOnly: true'
+    multiple: false
   });
 
-  // -------------------------
-  // Example logos (built-in + user-added)
-  // -------------------------
-  const builtInExamples = [
-    svgToDataURL(`<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-      <rect width="256" height="256" fill="white"/>
-      <path d="M60 170c25-75 40-95 68-95s43 20 68 95" fill="none" stroke="black" stroke-width="18" stroke-linecap="round"/>
-      <path d="M88 150h80" stroke="black" stroke-width="16" stroke-linecap="round"/>
-      <circle cx="128" cy="92" r="10" fill="black"/>
-    </svg>`),
-    svgToDataURL(`<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-      <rect width="256" height="256" fill="white"/>
-      <path d="M52 172l76-118 76 118H52z" fill="none" stroke="black" stroke-width="16" stroke-linejoin="round"/>
-      <path d="M128 92v64" stroke="black" stroke-width="14" stroke-linecap="round"/>
-      <circle cx="128" cy="172" r="7" fill="black"/>
-    </svg>`),
-    svgToDataURL(`<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-      <rect width="256" height="256" fill="white"/>
-      <path d="M70 170c0-55 30-85 58
+  dialog.done((file)=>{
+    setStatus("Uploading artwork…", false);
+    file.done(async (info)=>{
+      // Hosted URL:
+      state.artUrl = info.cdnUrl; // original upload
+      // For preview: scale down (optional)
+      state.artPreviewUrl = info.cdnUrl + "-/preview/1024x1024/";
+      artName.textContent = info.name || "Artwork uploaded";
+
+      await loadArtImage(state.artPreviewUrl);
+      setStatus("Artwork uploaded & hosted. Preview updated.", false);
+      render();
+    }).fail(()=>{
+      setStatus("Upload failed. Try again.", true);
+    });
+  }).fail(()=>{
+    setStatus("Upload canceled.", false);
+  });
+});
+
+// Export / code / submit
+downloadPng.addEventListener("click", ()=>{
+  const a = document.createElement("a");
+  a.download = "coaster-proof.png";
+  a.href = cv.toDataURL("image/png");
+  a.click();
+});
+
+copyCode.addEventListener("click", async ()=>{
+  const code = buildDesignCode();
+  try{
+    await navigator.clipboard.writeText(code);
+    copyCode.textContent = "Copied!";
+    setTimeout(()=>copyCode.textContent="Copy design code", 900);
+  }catch{
+    alert(code);
+  }
+});
+
+submitDesign.addEventListener("click", async ()=>{
+  // Requirements: hosted + emailed
+  if (!state.artUrl) {
+    setStatus("Please upload artwork first (hosted) before submitting.", true);
+    return;
+  }
+  if (!UPLOADCARE_PUBLIC_KEY || UPLOADCARE_PUBLIC_KEY.includes("PASTE_")) {
+    setStatus("Missing Uploadcare public key in CONFIG.", true);
+    return;
+  }
+  if (
+    !EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY.includes("PASTE_") ||
+    !EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID.includes("PASTE_") ||
+    !EMAILJS_TEMPLATE_ID || EMAILJS_TEMPLATE_ID.includes("PASTE_")
+  ) {
+    setStatus("Missing EmailJS keys in CONFIG. Add them to enable emailing.", true);
+    return;
+  }
+  if (!MERCHANT_EMAIL || MERCHANT_EMAIL.includes("@yourdomain.com")) {
+    setStatus("Set MERCHANT_EMAIL in CONFIG.", true);
+    return;
+  }
+
+  try{
+    setStatus("Uploading proof image…", false);
+
+    // Upload proof PNG to Uploadcare too
+    const proofDataUrl = cv.toDataURL("image/png");
+    const proofFile = uploadcare.fileFrom("base64", proofDataUrl, "coaster-proof.png");
+    const proofInfo = await proofFile.done();
+    const proofUrl = proofInfo.cdnUrl;
+
+    setStatus("Sending email…", false);
+
+    const code = buildDesignCode();
+    const customer = (customerEmail.value || "").trim();
+
+    // Send one email to you (merchant)
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: MERCHANT_EMAIL,
+      customer_email: customer || "(not provided)",
+      design_code: code,
+      artwork_url: state.artUrl,
+      proof_url: proofUrl,
+      shape: state.shape,
+      size: state.size.toFixed(1),
+      material: state.material,
+      line1: state.line1.text || "",
+      line2: state.line2.text || ""
+    });
+
+    // Optional: also email customer a copy (only if they entered email)
+    if (customer) {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: customer,
+        customer_email: customer,
+        design_code: code,
+        artwork_url: state.artUrl,
+        proof_url: proofUrl,
+        shape: state.shape,
+        size: state.size.toFixed(1),
+        material: state.material,
+        line1: state.line1.text || "",
+        line2: state.line2.text || ""
+      });
+    }
+
+    setStatus(`Submitted! Hosted links emailed. Proof: ${proofUrl}`, false);
+
+  } catch(err){
+    console.error(err);
+    setStatus("Submit failed. Check console + EmailJS/Uploadcare settings.", true);
+  }
+});
+
+// Helpers
+function setStatus(msg, isError){
+  statusBox.innerHTML = `<b>Status:</b> ${escapeHtml(msg)}`;
+  statusBox.style.borderColor = isError ? "rgba(198,90,46,.35)" : "rgba(231,220,207,1)";
+  statusBox.style.background = isError ? "rgba(198,90,46,.08)" : "rgba(255,255,255,.6)";
+  statusBox.style.color = isError ? "#6d2d17" : "var(--muted)";
+}
+
+async function loadArtImage(url){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    // allow reading canvas if the server sends proper CORS headers.
+    // Uploadcare does (generally), and canvas export is fine since we create the final PNG locally.
+    img.crossOrigin = "anonymous";
+    img.onload = ()=>{ state.artImage = img; resolve(); };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+function buildDesignCode(){
+  const mat = state.material;
+  const shp = state.shape;
+  const sz  = state.size.toFixed(1);
+  const t1  = (state.line1.text||"").trim().slice(0,60);
+  const t2  = (state.line2.text||"").trim().slice(0,60);
+  const f1  = shortenFont(state.line1.font);
+  const f2  = shortenFont(state.line2.font);
+  const lp  = state.logoPos;
+  const ls  = state.logoScale.toFixed(2);
+  return `COASTER|mat:${mat}|shape:${shp}|size:${sz}|logoPos:${lp}|logoScale:${ls}|f1:${f1}|t1:${t1}|f2:${f2}|t2:${t2}|art:${state.artUrl}`;
+}
+function shortenFont(font){
+  return (font||"").split(",")[0].replace(/['"]/g,"").trim().slice(0,18);
+}
+
+// Rendering
+function render(){
+  const mat = MATERIALS.find(m=>m.id===state.material) || MATERIALS[0];
+  summary.textContent = `${mat.name} · ${state.shape} · ${state.size.toFixed(1)}"`;
+
+  ctx.clearRect(0,0,cv.width,cv.height);
+
+  // Table/paper background
+  ctx.fillStyle = "#f7efe4";
+  ctx.fillRect(0,0,cv.width,cv.height);
+
+  const pad = 85;
+  const cx = cv.width/2;
+  const cy = cv.height/2 + 10;
+  const r  = (cv.width - pad*2) * 0.43;
+
+  // Draw material base (tone or texture)
+  drawMaterialBase(cx, cy, r, mat);
+
+  // Offscreen engraving content (art + text)
+  const engr = document.createElement("canvas");
+  engr.width = cv.width;
+  engr.height= cv.height;
+  const ectx = engr.getContext("2d");
+
+  ectx.save();
+  clipShape(ectx, cx, cy, r, state.shape);
+
+  // Logo
+  if (state.artImage){
+    const box = getSafeBox(cx, cy, r, state.shape);
+    const logoBox = getLogoBox(box, state.logoPos);
+
+    // scale by slider
+    const bw = logoBox.w * 0.86 * state.logoScale;
+    const bh = logoBox.h * 0.86 * state.logoScale;
+
+    const fit = contain(state.artImage.width, state.artImage.height, bw, bh);
+    const x = logoBox.x + (logoBox.w - fit.w)/2;
+    const y = logoBox.y + (logoBox.h - fit.h)/2;
+    ectx.drawImage(state.artImage, x, y, fit.w, fit.h);
+  }
+
+  // Text lines
+  drawTextLine(ectx, cx, cy, r, state.shape, state.line1);
+  drawTextLine(ectx, cx, cy, r, state.shape, state.line2);
+
+  ectx.restore();
+
+  // Convert to burn mask + composite
+  const mask = toEngraveMask(engr);
+  applyEngraving(mask, cx, cy, r, state.shape);
+  drawEdge(cx, cy, r, state.shape);
+
+  // Signature
+  ctx.save();
+  ctx.globalAlpha = 0.30;
+  ctx.fillStyle = "#1f1a15";
+  ctx.font = `14px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
+  ctx.textAlign = "center";
+  ctx.fillText("preview", cx, cv.height - 28);
+  ctx.restore();
+}
+
+function drawTextLine(ectx, cx, cy, r, shape, line){
+  const t = (line.text || "").trim();
+  if(!t) return;
+
+  const box = getSafeBox(cx, cy, r, shape);
+  const ty = textPosY(box, line.pos);
+
+  ectx.save();
+  ectx.fillStyle = "#000";
+  ectx.textAlign = "center";
+  ectx.textBaseline = "middle";
+  ectx.font = `${clamp(parseInt(line.size||"28",10),10,90)}px ${line.font}`;
+  // tiny “ink spread” feel
+  ectx.fillText(t, cx, ty);
+  ectx.fillText(t, cx+0.5, ty);
+  ectx.restore();
+}
+
+function textPosY(box, pos){
+  if(pos === "top") return box.y + box.h*0.26;
+  if(pos === "center") return box.y + box.h*0.56;
+  return box.y + box.h*0.82;
+}
+
+function getLogoBox(box, pos){
+  // A sub-box for logo placement; leaves room for text
+  if(pos === "top")    return { x: box.x, y: box.y + box.h*0.06, w: box.w, h: box.h*0.38 };
+  if(pos === "bottom") return { x: box.x, y: box.y + box.h*0.56, w: box.w, h: box.h*0.38 };
+  return { x: box.x, y: box.y + box.h*0.18, w: box.w, h: box.h*0.44 };
+}
+
+function drawMaterialBase(cx, cy, r, mat){
+  ctx.save();
+  clipShape(ctx, cx, cy, r, state.shape);
+
+  const tex = state.textureMap[mat.id];
+  if (tex){
+    // cached image
+    const cached = state.textureImgCache[mat.id];
+    if (cached){
+      drawCover(ctx, cached, 0,0, cv.width, cv.height);
+    } else {
+      // load once then re-render
+      const img = new Image();
+      img.onload = ()=>{
+        state.textureImgCache[mat.id] = img;
+        render();
+      };
+      img.src = tex;
+      // fallback while loading
+      ctx.fillStyle = mat.tone;
+      ctx.fillRect(0,0,cv.width,cv.height);
+    }
+  } else {
+    ctx.fillStyle = mat.tone;
+    ctx.fillRect(0,0,cv.width,cv.height);
+  }
+
+  // subtle grain/noise
+  const noise = makeNoisePattern(240, 240, 0.12);
+  ctx.globalAlpha = 0.28;
+  ctx.drawImage(noise, 0,0, cv.width, cv.height);
+
+  // vignette
+  const grad = ctx.createRadialGradient(cx, cy, r*0.2, cx, cy, r*1.25);
+  grad.addColorStop(0, "rgba(255,255,255,0.10)");
+  grad.addColorStop(1, "rgba(0,0,0,0.14)");
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,cv.width,cv.height);
+
+  ctx.restore();
+}
+
+function applyEngraving(maskCanvas, cx, cy, r, shape){
+  ctx.save();
+  clipShape(ctx, cx, cy, r, shape);
+
+  const darkLayer = document.createElement("canvas");
+  darkLayer.width = cv.width;
+  darkLayer.height= cv.height;
+  const dctx = darkLayer.getContext("2d");
+  dctx.fillStyle = "#2b1b12";
+  dctx.fillRect(0,0,cv.width,cv.height);
+  dctx.globalCompositeOperation = "destination-in";
+  dctx.drawImage(maskCanvas, 0,0);
+
+  ctx.globalAlpha = 0.92;
+  ctx.drawImage(darkLayer, 0,0);
+
+  // subtle char texture
+  ctx.globalAlpha = 0.16;
+  ctx.globalCompositeOperation = "multiply";
+  const charNoise = makeNoisePattern(420, 420, 0.26);
+  ctx.drawImage(charNoise, 0,0, cv.width, cv.height);
+
+  ctx.restore();
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = 1;
+}
+
+function drawEdge(cx, cy, r, shape){
+  ctx.save();
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = "rgba(31,26,21,.22)";
+  ctx.shadowColor = "rgba(31,26,21,.20)";
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 10;
+  drawShapePath(ctx, cx, cy, r, shape);
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = "rgba(255,255,255,.18)";
+  drawShapePath(ctx, cx, cy, r*0.97, shape);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function clipShape(c, cx, cy, r, shape){
+  c.beginPath();
+  if(shape === "round"){
+    c.arc(cx, cy, r, 0, Math.PI*2);
+  }else if(shape === "square"){
+    const s = r*1.58;
+    roundRectPath(c, cx - s/2, cy - s/2, s, s, r*0.16);
+  }else{
+    polygonPath(c, cx, cy, r*1.05, 6, -Math.PI/2);
+  }
+  c.closePath();
+  c.clip();
+}
+
+function drawShapePath(c, cx, cy, r, shape){
+  c.beginPath();
+  if(shape === "round"){
+    c.arc(cx, cy, r, 0, Math.PI*2);
+  }else if(shape === "square"){
+    const s = r*1.58;
+    roundRectPath(c, cx - s/2, cy - s/2, s, s, r*0.16);
+  }else{
+    polygonPath(c, cx, cy, r*1.05, 6, -Math.PI/2);
+  }
+  c.closePath();
+}
+
+function getSafeBox(cx, cy, r, shape){
+  if(shape === "round") return { x: cx - r*0.78, y: cy - r*0.78, w: r*1.56, h: r*1.56 };
+  if(shape === "square"){
+    const s = r*1.58;
+    return { x: cx - s*0.42, y: cy - s*0.42, w: s*0.84, h: s*0.84 };
+  }
+  return { x: cx - r*0.78, y: cy - r*0.70, w: r*1.56, h: r*1.40 };
+}
+
+// Engrave mask (remove whites)
+function toEngraveMask(srcCanvas){
+  const w = srcCanvas.width, h = srcCanvas.height;
+  const out = document.createElement("canvas");
+  out.width = w; out.height = h;
+  const octx = out.getContext("2d");
+
+  const sctx = srcCanvas.getContext("2d");
+  const img = sctx.getImageData(0,0,w,h);
+  const d = img.data;
+
+  for(let i=0;i<d.length;i+=4){
+    const rr = d[i], gg=d[i+1], bb=d[i+2], aa=d[i+3];
+    if(aa===0){ d[i+3]=0; continue; }
+    const lum = (0.2126*rr + 0.7152*gg + 0.0722*bb) / 255;
+
+    const whiteCut = 0.92;
+    const softStart= 0.70;
+    let alpha = 0;
+
+    if(lum >= whiteCut){
+      alpha = 0;
+    }else if(lum <= softStart){
+      const t = 1 - lum;
+      alpha = clamp01((t - 0.05) / 0.95);
+    }else{
+      const k = (whiteCut - lum) / (whiteCut - softStart);
+      alpha = clamp01(k * 0.55);
+    }
+    alpha = Math.pow(alpha, 0.85);
+
+    d[i] = 0; d[i+1]=0; d[i+2]=0;
+    d[i+3] = Math.round(alpha * 255);
+  }
+  octx.putImageData(img,0,0);
+
+  // soften edges
+  octx.filter = "blur(0.7px)";
+  const temp = document.createElement("canvas");
+  temp.width=w; temp.height=h;
+  temp.getContext("2d").drawImage(out,0,0);
+  octx.clearRect(0,0,w,h);
+  octx.drawImage(temp,0,0);
+  octx.filter = "none";
+
+  return out;
+}
+
+// Utils
+function roundRectPath(c, x,y,w,h,r){
+  const rr = Math.min(r, w/2, h/2);
+  c.moveTo(x+rr, y);
+  c.arcTo(x+w, y, x+w, y+h, rr);
+  c.arcTo(x+w, y+h, x, y+h, rr);
+  c.arcTo(x, y+h, x, y, rr);
+  c.arcTo(x, y, x+w, y, rr);
+}
+function polygonPath(c, cx, cy, radius, sides, rot){
+  for(let i=0;i<sides;i++){
+    const a = rot + i*(Math.PI*2/sides);
+    const x = cx + Math.cos(a)*radius;
+    const y = cy + Math.sin(a)*radius;
+    if(i===0) c.moveTo(x,y); else c.lineTo(x,y);
+  }
+}
+function contain(w,h, maxW, maxH){
+  const s = Math.min(maxW/w, maxH/h);
+  return { w: w*s, h: h*s };
+}
+function makeNoisePattern(w,h, strength){
+  const c = document.createElement("canvas");
+  c.width=w; c.height=h;
+  const x = c.getContext("2d");
+  const img = x.createImageData(w,h);
+  const d = img.data;
+  for(let i=0;i<d.length;i+=4){
+    const v = 210 + Math.random()*45;
+    d[i]=v; d[i+1]=v; d[i+2]=v;
+    d[i+3]=Math.round(255*strength*Math.random());
+  }
+  x.putImageData(img,0,0);
+  return c;
+}
+function drawCover(c, img, x,y,w,h){
+  const ir = img.width/img.height;
+  const cr = w/h;
+  let dw=w, dh=h, dx=x, dy=y;
+  if(ir > cr){
+    dh = h;
+    dw = h*ir;
+    dx = x - (dw - w)/2;
+  } else {
+    dw = w;
+    dh = w/ir;
+    dy = y - (dh - h)/2;
+  }
+  c.drawImage(img, dx, dy, dw, dh);
+}
+function fileToDataURL(file){
+  return new Promise((res, rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+}
+
+// Texture storage
+function loadTextureMap(){
+  try{ return JSON.parse(localStorage.getItem(KEYS.textures)) || {}; }catch{ return {}; }
+}
+function saveTextureMap(map){
+  localStorage.setItem(KEYS.textures, JSON.stringify(map || {}));
+}
+
+// Start
+renderTextureManager();
+render();
+setStatus("Ready. Upload artwork, tweak your design, then click Submit design.", false);
+</script>
+</body>
+</html>

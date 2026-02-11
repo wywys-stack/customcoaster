@@ -155,6 +155,17 @@
     .chip input{accent-color:var(--accent)}
     .swatch{width:12px;height:12px;border-radius:999px;border:1px solid rgba(31,26,21,.18)}
 
+    details summary{
+      cursor:pointer; user-select:none; list-style:none;
+      font-size:12px; color:var(--muted);
+      padding:10px 12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.45);
+      border-radius:16px;
+    }
+    details summary::-webkit-details-marker{display:none}
+    details[open] summary{box-shadow:var(--focus);border-color:rgba(198,90,46,.35)}
+
     .note{
       background:rgba(30,111,92,.08);
       border:1px solid rgba(30,111,92,.18);
@@ -195,7 +206,7 @@
       padding:18px;
       overflow:hidden;
       position:relative;
-      touch-action:none; /* IMPORTANT for pinch/drag */
+      touch-action:none;
     }
     canvas{
       width:min(520px, 92vw);
@@ -223,28 +234,46 @@
     }
     .status b{color:var(--ink)}
 
-    /* Floating helper badge */
-    .help-badge{
-      position:absolute;
-      left:14px; top:14px;
-      background:rgba(255,255,255,.85);
+    /* Material texture manager (old style) */
+    .texture-list{display:grid;gap:10px;margin-top:10px}
+    .tex-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:10px;
       border:1px solid var(--line);
-      padding:8px 10px;
-      border-radius:14px;
-      font-size:12px;
-      color:var(--muted);
-      box-shadow:0 10px 22px rgba(31,26,21,.10);
-      user-select:none;
-      pointer-events:none;
-      max-width: 72%;
+      border-radius:16px;
+      background:rgba(255,255,255,.55);
     }
-    .help-badge b{color:var(--ink)}
+    .tex-left{display:flex;gap:10px;align-items:center;min-width:0}
+    .tex-thumb{
+      width:44px;height:44px;border-radius:14px;
+      border:1px solid var(--line);background:#fff;overflow:hidden;flex:0 0 auto;
+    }
+    .tex-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .tex-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .tex-meta b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tex-meta span{font-size:12px;color:var(--muted)}
+    .tex-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+
+    /* Uploadcare widget hidden input */
+    .uc-hidden{ position:absolute; left:-9999px; }
   </style>
 
-  <!-- Load lots of fonts (Google Fonts). If you prefer fewer, tell me your favorites and I’ll slim it down. -->
+  <!-- More fonts + preview in dropdown -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Raleway:wght@400;600;700&family=Oswald:wght@400;600&family=Bebas+Neue&family=Pacifico&family=Great+Vibes&family=Roboto+Slab:wght@400;600;700&family=Source+Serif+4:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Uploadcare WIDGET (this is what gives you the Uploadcare “box”) -->
+  <script>
+    // Uploadcare widget needs this global before the script loads
+    UPLOADCARE_LOCALE = "en";
+    UPLOADCARE_TABS = "file url camera";
+    UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8";
+  </script>
+  <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js" charset="utf-8"></script>
 </head>
 
 <body>
@@ -255,12 +284,12 @@
         <div class="mark" aria-hidden="true"></div>
         <div>
           <h1>Custom Coasters</h1>
-          <p class="sub">Shape · Material · Size · Upload logo · Add text · Move + resize with your finger</p>
+          <p class="sub">Shape · Material · Size · Upload logo · Add text · Drag + pinch to move/size</p>
         </div>
       </div>
       <div class="cta-mini">
-        <span class="pill">clean proof</span>
-        <span class="pill">touch friendly</span>
+        <span class="pill">Uploadcare box</span>
+        <span class="pill">textures back</span>
         <span class="pill">1-page</span>
       </div>
     </div>
@@ -274,7 +303,7 @@
     <section class="card">
       <div class="card-head">
         <h2>Design</h2>
-        <div class="hint">Drag + pinch on preview</div>
+        <div class="hint">Tap to select · Drag to move · Pinch / wheel to scale</div>
       </div>
 
       <div class="card-body">
@@ -304,26 +333,39 @@
             <div class="chips" id="materials"></div>
           </div>
 
-          <!-- Hidden "back-end" texture manager: show only if ?admin=1 -->
-          <div id="adminTextures" style="display:none;">
-            <div class="divider"></div>
-            <div class="note">
-              <b>Admin:</b> upload material textures (saved in this browser). Customers never see this.
+          <!-- OLD texture upload UI (back) -->
+          <details>
+            <summary>Material texture photos (optional)</summary>
+            <div class="small" style="margin-top:8px;">
+              Upload your real wood/slate photos here (saved in your browser). These textures appear behind the engraving preview.
             </div>
-            <div class="small" style="margin-top:8px;">Tip: square-ish photos (800×800+) look best.</div>
-            <div class="grid" id="textureList"></div>
-          </div>
+            <div class="texture-list" id="textureList"></div>
+            <div class="note" style="margin-top:10px;">
+              Tip: square-ish photos (800×800+) look best.
+            </div>
+          </details>
 
           <div class="divider"></div>
 
-          <!-- Hosted artwork upload -->
+          <!-- Uploadcare widget uploader (hidden input) -->
+          <input
+            id="ucUploader"
+            class="uc-hidden"
+            type="hidden"
+            role="uploadcare-uploader"
+            data-clearable="true"
+            data-images-only="true"
+            data-preview-step="true"
+            data-image-shrink="2000x2000"
+          />
+
           <div>
-            <label>Logo / Artwork</label>
-            <input id="artFile" class="sr" type="file" accept="image/*,.svg" />
+            <label>Logo / Artwork overlay</label>
+
             <div class="uploader">
               <div class="meta">
                 <b id="artName">No file uploaded yet</b>
-                <span>After upload: drag / pinch / wheel to size it</span>
+                <span>Uses Uploadcare “box” (not the computer picker)</span>
               </div>
               <div>
                 <button type="button" class="btn" id="artPick">Upload</button>
@@ -336,7 +378,7 @@
             </div>
 
             <div class="note warn" style="margin-top:10px;">
-              Tip: Tap the thing you want to move (art or text). Then drag to reposition. Pinch to scale on touch devices.
+              Tip: Tap art/text on the preview to select it, drag to move, pinch (or mouse wheel) to resize.
             </div>
           </div>
 
@@ -366,14 +408,14 @@
             <div style="height:10px"></div>
             <div class="row2">
               <button type="button" class="btn ghost" id="resetT2">Reset line 2</button>
-              <div class="small">Use shorter text for cleaner laser results.</div>
+              <div class="small">Keep it short for clean engraving.</div>
             </div>
           </div>
 
           <div class="divider"></div>
 
           <div class="note">
-            Customers won’t see hosted URLs. You’ll just get a proof image + a compact order code.
+            Customers won’t see hosted URLs here. You’ll submit the proof image for production.
           </div>
         </div>
       </div>
@@ -392,9 +434,6 @@
 
         <div class="canvas-shell">
           <div class="canvas-inner" id="canvasWrap">
-            <div class="help-badge" id="helpBadge">
-              <b>Tip:</b> Tap art/text → drag to move. Pinch (or mouse wheel) to resize. Double-tap to switch selection.
-            </div>
             <canvas id="cv" width="900" height="900" aria-label="Coaster preview"></canvas>
           </div>
         </div>
@@ -406,18 +445,12 @@
             <button type="button" class="btn primary" id="submitDesign">Submit (host proof)</button>
           </div>
           <div class="small">
-            Submit uploads the proof PNG (no hosted links shown to the customer).
+            Submit uploads the proof PNG.
           </div>
         </div>
 
         <div class="status" id="statusBox">
           <b>Status:</b> Ready. Upload artwork, position it, then click <b>Submit</b>.
-        </div>
-
-        <!-- Hidden output (admin only). Not shown to customers. -->
-        <div class="status" id="adminOut" style="display:none;">
-          <b>Admin:</b>
-          <div class="small mono" id="adminUrls" style="margin-top:8px;white-space:pre-wrap"></div>
         </div>
 
       </section>
@@ -427,14 +460,6 @@
 </main>
 
 <script>
-/* =========================================================
-   CONFIG
-   ========================================================= */
-const UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8"; // your Uploadcare public key (string)
-
-// Show texture manager + internal URLs only if you open with ?admin=1
-const IS_ADMIN = new URLSearchParams(location.search).get("admin") === "1";
-
 /* =========================================================
    APP
    ========================================================= */
@@ -466,7 +491,7 @@ const FONT_OPTIONS = [
   { name:"System (Default)", css:`system-ui, -apple-system, Segoe UI, Roboto, sans-serif` },
 ];
 
-const KEYS = { textures: "coaster_material_textures_v2" };
+const KEYS = { textures: "coaster_material_textures_v1" };
 const $ = (id)=>document.getElementById(id);
 
 // Canvas
@@ -479,12 +504,17 @@ const elShape = $("shape");
 const elSize  = $("size");
 const summary = $("summary");
 
+// Upload UI
 const artPick = $("artPick");
-const artFile = $("artFile");
 const artName = $("artName");
 const fitArtworkBtn = $("fitArtwork");
 const resetArtworkBtn = $("resetArtwork");
 
+// Uploadcare widget
+const ucInput = $("ucUploader");
+const ucWidget = uploadcare.Widget(ucInput);
+
+// Text
 const t1Text = $("t1Text");
 const t1Font = $("t1Font");
 const t2Text = $("t2Text");
@@ -498,52 +528,30 @@ const copyCodeBtn = $("copyCode");
 const submitDesign = $("submitDesign");
 const statusBox = $("statusBox");
 
-// Admin output
-const adminTextures = $("adminTextures");
-const textureList = $("textureList");
-const adminOut = $("adminOut");
-const adminUrls = $("adminUrls");
-
-// Help badge
-const helpBadge = $("helpBadge");
-
-// State (design objects use normalized coords in [-1..1] relative to coaster safe box)
+// State
 const state = {
   material: MATERIALS[0].id,
   shape: "round",
   size: 4.0,
 
-  // Hosted artwork
   artUrl: "",
   artPreviewUrl: "",
   artImage: null,
 
-  // Objects (interactive)
-  // For simplicity we keep only scale+pos and a base fit mode (cover-ish). Scale is multiplier on top of "fit to safe box".
-  artObj: { x:0, y:0, s:1.0, rot:0 },
-
+  // interactive objects (normalized to safe box)
+  artObj: { x:0, y:0, s:1.10 },
   line1: { text:"", font: FONT_OPTIONS[4].css, x:0, y:-0.25, s:0.35 },
   line2: { text:"", font: FONT_OPTIONS[2].css, x:0, y: 0.45, s:0.26 },
 
-  // selection
-  selected: "art", // "art" | "t1" | "t2"
+  selected: "art",
 
-  // textures stored locally (admin only)
   textureMap: loadTextureMap(),
   textureImgCache: {},
-
-  // last submit
   proofUrl: ""
 };
 
-// Show admin sections if enabled
-if (IS_ADMIN){
-  adminTextures.style.display = "block";
-  adminOut.style.display = "block";
-}
-
 /* =========================================================
-   Build UI
+   UI build
    ========================================================= */
 function populateFontSelect(sel, selectedCss){
   sel.innerHTML = "";
@@ -557,7 +565,6 @@ function populateFontSelect(sel, selectedCss){
   sel.value = selectedCss || FONT_OPTIONS[0].css;
   sel.style.fontFamily = sel.value;
 }
-
 populateFontSelect(t1Font, state.line1.font);
 populateFontSelect(t2Font, state.line2.font);
 
@@ -578,21 +585,24 @@ MATERIALS.forEach((m, idx)=>{
   materialsWrap.appendChild(lab);
 });
 
-// Texture manager (admin only)
+// Texture manager UI (old)
+const textureList = $("textureList");
 function renderTextureManager(){
-  if(!IS_ADMIN) return;
   textureList.innerHTML = "";
   MATERIALS.forEach((m)=>{
     const dataUrl = state.textureMap[m.id] || "";
     const row = document.createElement("div");
-    row.className = "uploader";
-    row.style.justifyContent = "space-between";
+    row.className = "tex-row";
+
     row.innerHTML = `
-      <div class="meta">
-        <b>${m.name} texture</b>
-        <span>${dataUrl ? "Custom photo loaded" : "No custom photo (uses flat tone)"}</span>
+      <div class="tex-left">
+        <div class="tex-thumb">${dataUrl ? `<img alt="${m.name} texture" src="${dataUrl}">` : ""}</div>
+        <div class="tex-meta">
+          <b>${m.name} texture</b>
+          <span>${dataUrl ? "Custom photo loaded" : "No custom photo (uses flat tone)"}</span>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div class="tex-actions">
         <input class="sr" type="file" accept="image/*" id="texFile_${m.id}">
         <button type="button" class="btn ghost" id="texUp_${m.id}">Upload</button>
         <button type="button" class="btn danger" id="texClr_${m.id}" ${dataUrl ? "" : "disabled"}>Clear</button>
@@ -632,7 +642,6 @@ function renderTextureManager(){
 elShape.addEventListener("change", ()=>{ state.shape = elShape.value; render(); });
 elSize.addEventListener("change", ()=>{ state.size = parseFloat(elSize.value); render(); });
 
-// Fonts show in dropdown
 t1Font.addEventListener("change", ()=>{
   state.line1.font = t1Font.value;
   t1Font.style.fontFamily = t1Font.value;
@@ -644,7 +653,6 @@ t2Font.addEventListener("change", ()=>{
   render();
 });
 
-// Text changes
 t1Text.addEventListener("input", ()=>{ state.line1.text = t1Text.value; render(); });
 t2Text.addEventListener("input", ()=>{ state.line2.text = t2Text.value; render(); });
 
@@ -665,31 +673,87 @@ fitArtworkBtn.addEventListener("click", ()=>{
   render();
 });
 resetArtworkBtn.addEventListener("click", ()=>{
-  state.artObj.x = 0; state.artObj.y = 0; state.artObj.s = 1.0; state.artObj.rot = 0;
+  state.artObj.x = 0; state.artObj.y = 0; state.artObj.s = 1.10;
   state.selected = "art";
   render();
 });
 
 /* =========================================================
-   Uploadcare DIRECT UPLOAD (no widget)
+   Uploadcare BOX
    ========================================================= */
-function requireKey(){
-  const k = (UPLOADCARE_PUBLIC_KEY || "").trim();
-  if(!k) return false;
-  if(k.includes("PASTE_")) return false;
-  return true;
+function hasPublicKey(){
+  // Uploadcare widget reads UPLOADCARE_PUBLIC_KEY global; this is just to help status messages.
+  return typeof UPLOADCARE_PUBLIC_KEY === "string" && UPLOADCARE_PUBLIC_KEY.trim().length > 5;
 }
+
+artPick.addEventListener("click", async (e)=>{
+  e.preventDefault();
+  if(!hasPublicKey()){
+    setStatus("Missing Uploadcare public key.", true);
+    return;
+  }
+  // Force the Uploadcare dialog (box)
+  try{
+    const file = await ucWidget.openDialog().done((info)=>info);
+    // openDialog returns info when closed; onUploadComplete below will run too
+  }catch(err){
+    // user canceled is fine
+  }
+});
+
+ucWidget.onUploadComplete(async (info)=>{
+  try{
+    setStatus("Loading artwork…", false);
+
+    // Prefer the CDN url from widget
+    const cdn = info.cdnUrl; // e.g. https://ucarecdn.com/UUID/
+    state.artUrl = cdn;
+    state.artPreviewUrl = cdn + "-/preview/1600x1600/";
+    artName.textContent = (info.name || "Artwork uploaded");
+
+    await loadImageIntoState(state.artPreviewUrl);
+    fitArtworkToCoaster();
+    state.selected = "art";
+
+    setStatus("Artwork loaded. Drag / pinch / wheel to position and size.", false);
+    render();
+  }catch(e){
+    console.error(e);
+    setStatus("Could not load uploaded image into preview.", true);
+  }
+});
+
+async function loadImageIntoState(url){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = ()=>{ state.artImage = img; resolve(); };
+    img.onerror = ()=>reject(new Error("Could not load image."));
+    img.src = url;
+  });
+}
+
+function fitArtworkToCoaster(){
+  state.artObj.x = 0;
+  state.artObj.y = 0;
+  state.artObj.s = 1.10; // starts big
+}
+
+/* =========================================================
+   Export + submit (direct Uploadcare POST for proof png)
+   ========================================================= */
 async function uploadToUploadcare(fileOrBlob, filename){
-  if(!requireKey()) throw new Error("Missing Uploadcare public key.");
+  const pub = (UPLOADCARE_PUBLIC_KEY || "").trim();
+  if(!pub) throw new Error("Missing Uploadcare public key.");
   const fd = new FormData();
-  fd.append("UPLOADCARE_PUB_KEY", UPLOADCARE_PUBLIC_KEY.trim());
+  fd.append("UPLOADCARE_PUB_KEY", pub);
   fd.append("UPLOADCARE_STORE", "1");
-  fd.append("file", fileOrBlob, filename || (fileOrBlob && fileOrBlob.name) || "upload.bin");
+  fd.append("file", fileOrBlob, filename || "upload.bin");
 
   const res = await fetch("https://upload.uploadcare.com/base/", { method:"POST", body:fd });
   if(!res.ok){
     const txt = await res.text().catch(()=> "");
-    throw new Error(`Uploadcare upload failed (${res.status}). ${txt.slice(0,200)}`);
+    throw new Error(`Upload failed (${res.status}). ${txt.slice(0,200)}`);
   }
   const data = await res.json();
   if(!data || !data.file) throw new Error("Uploadcare response missing file UUID.");
@@ -705,247 +769,6 @@ function dataURLToBlob(dataURL){
   return new Blob([bytes], { type: mime });
 }
 
-// Hosted artwork upload
-artPick.addEventListener("click", (e)=>{
-  e.preventDefault();
-  if(!requireKey()){
-    setStatus("Add your Uploadcare public key in CONFIG and reload.", true);
-    return;
-  }
-  artFile.value = "";
-  artFile.click();
-});
-artFile.addEventListener("change", async ()=>{
-  const file = artFile.files && artFile.files[0];
-  if(!file) return;
-  try{
-    setStatus("Uploading artwork…", false);
-    const cdn = await uploadToUploadcare(file, file.name || "artwork");
-    state.artUrl = cdn;
-    state.artPreviewUrl = cdn + "-/preview/1600x1600/"; // bigger preview for scaling
-    artName.textContent = file.name || "Artwork uploaded";
-    await loadImageIntoState(state.artPreviewUrl);
-    fitArtworkToCoaster(); // default: scale up to coaster area
-    state.selected = "art";
-    setStatus("Artwork uploaded. Drag / pinch on preview to position.", false);
-    render();
-  }catch(err){
-    console.error(err);
-    setStatus(err.message || "Upload failed. Check console.", true);
-  }
-});
-async function loadImageIntoState(url){
-  return new Promise((resolve, reject)=>{
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = ()=>{ state.artImage = img; resolve(); };
-    img.onerror = ()=>reject(new Error("Could not load hosted preview image."));
-    img.src = url;
-  });
-}
-
-/* =========================================================
-   Interactions: drag + pinch + wheel scale
-   - Tap to select: art / text1 / text2
-   - Drag to move selected
-   - Pinch or wheel to scale selected
-   - Double tap / double click cycles selection
-   ========================================================= */
-const pointerState = {
-  active: new Map(), // id -> {x,y}
-  dragging:false,
-  lastCentroid:null,
-  lastDist:0,
-  lastTapTime:0
-};
-
-function getCanvasClientRect(){
-  return cv.getBoundingClientRect();
-}
-function canvasToLocal(px, py){
-  const r = getCanvasClientRect();
-  const x = (px - r.left) * (cv.width / r.width);
-  const y = (py - r.top)  * (cv.height / r.height);
-  return {x,y};
-}
-function localToNormBox(x, y, box){
-  // box in canvas pixels; return normalized [-1..1] coords within box
-  const nx = ((x - (box.x + box.w/2)) / (box.w/2));
-  const ny = ((y - (box.y + box.h/2)) / (box.h/2));
-  return {nx, ny};
-}
-function normToLocalBox(nx, ny, box){
-  const x = box.x + box.w/2 + nx*(box.w/2);
-  const y = box.y + box.h/2 + ny*(box.h/2);
-  return {x,y};
-}
-
-function pickObjectAt(canvasX, canvasY){
-  // Prefer text if tapped near its baseline; otherwise art if inside safe box.
-  const {cx, cy, r} = coasterGeom();
-  const box = getSafeBox(cx, cy, r, state.shape);
-
-  // helper: distance to text point
-  function distToText(line){
-    const p = normToLocalBox(line.x, line.y, box);
-    return Math.hypot(canvasX - p.x, canvasY - p.y);
-  }
-
-  const d1 = distToText(state.line1);
-  const d2 = distToText(state.line2);
-  const nearTextThresh = Math.min(box.w, box.h) * 0.12; // generous tap target
-
-  if(d1 < nearTextThresh || d2 < nearTextThresh){
-    return (d1 <= d2) ? "t1" : "t2";
-  }
-
-  // else: if within safe box, art
-  if(canvasX >= box.x && canvasX <= box.x+box.w && canvasY >= box.y && canvasY <= box.y+box.h) return "art";
-  return state.selected;
-}
-
-function cycleSelection(){
-  state.selected = (state.selected === "art") ? "t1" : (state.selected === "t1" ? "t2" : "art");
-  render();
-}
-
-canvasWrap.addEventListener("pointerdown", (e)=>{
-  cv.setPointerCapture(e.pointerId);
-  const now = performance.now();
-  const isDouble = (now - pointerState.lastTapTime) < 320;
-  pointerState.lastTapTime = now;
-
-  const loc = canvasToLocal(e.clientX, e.clientY);
-  if(isDouble){
-    cycleSelection();
-  }else{
-    state.selected = pickObjectAt(loc.x, loc.y);
-  }
-
-  pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
-  if(pointerState.active.size === 1){
-    pointerState.dragging = true;
-    pointerState.lastCentroid = {x:e.clientX, y:e.clientY};
-  }else if(pointerState.active.size === 2){
-    const pts = [...pointerState.active.values()];
-    pointerState.lastCentroid = {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2};
-    pointerState.lastDist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
-  }
-
-  render(); // show selection immediately
-});
-
-canvasWrap.addEventListener("pointermove", (e)=>{
-  if(!pointerState.active.has(e.pointerId)) return;
-  pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
-
-  const {cx, cy, r} = coasterGeom();
-  const box = getSafeBox(cx, cy, r, state.shape);
-
-  if(pointerState.active.size === 1 && pointerState.dragging){
-    const p = [...pointerState.active.values()][0];
-    const prev = pointerState.lastCentroid || {x:p.x, y:p.y};
-    const dx = p.x - prev.x;
-    const dy = p.y - prev.y;
-    pointerState.lastCentroid = {x:p.x, y:p.y};
-
-    // convert screen delta to normalized delta in safe box
-    const rect = getCanvasClientRect();
-    const dxCanvas = dx * (cv.width / rect.width);
-    const dyCanvas = dy * (cv.height / rect.height);
-    const dnX = dxCanvas / (box.w/2);
-    const dnY = dyCanvas / (box.h/2);
-
-    moveSelected(dnX, dnY);
-    render();
-  }
-
-  if(pointerState.active.size === 2){
-    const pts = [...pointerState.active.values()];
-    const c = {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2};
-    const d = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
-
-    // translate
-    if(pointerState.lastCentroid){
-      const dx = c.x - pointerState.lastCentroid.x;
-      const dy = c.y - pointerState.lastCentroid.y;
-
-      const rect = getCanvasClientRect();
-      const dxCanvas = dx * (cv.width / rect.width);
-      const dyCanvas = dy * (cv.height / rect.height);
-      const dnX = dxCanvas / (box.w/2);
-      const dnY = dyCanvas / (box.h/2);
-      moveSelected(dnX, dnY);
-    }
-
-    // scale
-    if(pointerState.lastDist > 0){
-      const ratio = d / pointerState.lastDist;
-      scaleSelected(ratio);
-    }
-
-    pointerState.lastCentroid = c;
-    pointerState.lastDist = d;
-    render();
-  }
-});
-
-canvasWrap.addEventListener("pointerup", (e)=>{
-  pointerState.active.delete(e.pointerId);
-  if(pointerState.active.size === 0){
-    pointerState.dragging = false;
-    pointerState.lastCentroid = null;
-    pointerState.lastDist = 0;
-  }else if(pointerState.active.size === 1){
-    const p = [...pointerState.active.values()][0];
-    pointerState.lastCentroid = {x:p.x, y:p.y};
-    pointerState.lastDist = 0;
-  }
-});
-
-canvasWrap.addEventListener("wheel", (e)=>{
-  // mouse wheel scales selected
-  e.preventDefault();
-  const delta = Math.sign(e.deltaY);
-  const factor = (delta > 0) ? 0.94 : 1.06;
-  scaleSelected(factor);
-  render();
-},{passive:false});
-
-function moveSelected(dnx, dny){
-  const clampPos = (obj)=>{
-    obj.x = clamp(obj.x + dnx, -1.2, 1.2);
-    obj.y = clamp(obj.y + dny, -1.2, 1.2);
-  };
-  if(state.selected === "art") clampPos(state.artObj);
-  if(state.selected === "t1")  clampPos(state.line1);
-  if(state.selected === "t2")  clampPos(state.line2);
-}
-
-function scaleSelected(f){
-  const clampScale = (obj, minS, maxS)=>{
-    obj.s = clamp(obj.s * f, minS, maxS);
-  };
-  if(state.selected === "art") clampScale(state.artObj, 0.25, 4.0);
-  if(state.selected === "t1")  clampScale(state.line1, 0.10, 1.10);
-  if(state.selected === "t2")  clampScale(state.line2, 0.10, 1.10);
-}
-
-function fitArtworkToCoaster(){
-  // Set art scale so it can reach the safe box (cover-ish by default)
-  state.artObj.x = 0;
-  state.artObj.y = 0;
-  state.artObj.s = 1.0;
-
-  // Nudge default to be "big": cover safe box (vs contain)
-  // We implement this in render by using "cover" fit first, then multiplying by artObj.s.
-  // To make it fill more, bump s a bit.
-  state.artObj.s = 1.10;
-}
-
-/* =========================================================
-   Export + submit
-   ========================================================= */
 downloadPng.addEventListener("click", ()=>{
   const a = document.createElement("a");
   a.download = "coaster-proof.png";
@@ -956,15 +779,14 @@ downloadPng.addEventListener("click", ()=>{
 copyCodeBtn.addEventListener("click", ()=> copyText(buildOrderCode(), copyCodeBtn, "Copied!"));
 
 submitDesign.addEventListener("click", async ()=>{
-  if(!requireKey()){
-    setStatus("Add your Uploadcare public key in CONFIG and reload.", true);
+  if(!hasPublicKey()){
+    setStatus("Missing Uploadcare public key.", true);
     return;
   }
-  if (!state.artUrl) {
+  if(!state.artUrl){
     setStatus("Upload artwork first so the design is complete.", true);
     return;
   }
-
   try{
     setStatus("Uploading proof PNG…", false);
     const proofDataUrl = cv.toDataURL("image/png");
@@ -972,19 +794,10 @@ submitDesign.addEventListener("click", async ()=>{
     const proofUrl = await uploadToUploadcare(proofBlob, "coaster-proof.png");
     state.proofUrl = proofUrl;
 
-    // Customer-facing message (no URLs)
-    setStatus("Submitted! Your proof is saved. Copy the order code for your checkout notes.", false);
-
-    // Admin-only: show URLs
-    if(IS_ADMIN){
-      adminUrls.textContent =
-        `Artwork URL: ${state.artUrl}\n` +
-        `Proof URL:   ${state.proofUrl}\n` +
-        `Order code:  ${buildOrderCode()}`;
-    }
+    setStatus("Submitted! Copy the order code for your checkout notes.", false);
   }catch(err){
     console.error(err);
-    setStatus(err.message || "Proof upload failed. Check console.", true);
+    setStatus(err.message || "Proof upload failed.", true);
   }
 });
 
@@ -1011,28 +824,29 @@ async function copyText(text, btn, label){
   }
 }
 
+/* =========================================================
+   Order code
+   ========================================================= */
 function buildOrderCode(){
-  // Compact-ish code. (You can later decode this server-side if you want.)
-  const mat = state.material;
-  const shp = state.shape;
-  const sz  = state.size.toFixed(1);
-
-  const a = state.artObj;
-  const l1 = state.line1;
-  const l2 = state.line2;
-
   const safe = (s)=>String(s||"").replace(/\|/g,"/").trim().slice(0,80);
-  const f1 = shortenFont(l1.font);
-  const f2 = shortenFont(l2.font);
+  const f1 = shortenFont(state.line1.font);
+  const f2 = shortenFont(state.line2.font);
 
   return [
     "COASTER2",
-    `mat:${mat}`,
-    `shape:${shp}`,
-    `size:${sz}`,
-    `ax:${a.x.toFixed(3)}`,`ay:${a.y.toFixed(3)}`,`as:${a.s.toFixed(3)}`,
-    `f1:${f1}`,`t1:${safe(l1.text)}`,`x1:${l1.x.toFixed(3)}`,`y1:${l1.y.toFixed(3)}`,`s1:${l1.s.toFixed(3)}`,
-    `f2:${f2}`,`t2:${safe(l2.text)}`,`x2:${l2.x.toFixed(3)}`,`y2:${l2.y.toFixed(3)}`,`s2:${l2.s.toFixed(3)}`
+    `mat:${state.material}`,
+    `shape:${state.shape}`,
+    `size:${state.size.toFixed(1)}`,
+
+    `ax:${state.artObj.x.toFixed(3)}`,
+    `ay:${state.artObj.y.toFixed(3)}`,
+    `as:${state.artObj.s.toFixed(3)}`,
+
+    `f1:${f1}`,`t1:${safe(state.line1.text)}`,
+    `x1:${state.line1.x.toFixed(3)}`,`y1:${state.line1.y.toFixed(3)}`,`s1:${state.line1.s.toFixed(3)}`,
+
+    `f2:${f2}`,`t2:${safe(state.line2.text)}`,
+    `x2:${state.line2.x.toFixed(3)}`,`y2:${state.line2.y.toFixed(3)}`,`s2:${state.line2.s.toFixed(3)}`
   ].join("|");
 }
 function shortenFont(font){
@@ -1040,7 +854,171 @@ function shortenFont(font){
 }
 
 /* =========================================================
-   Rendering (laser preview) — now uses draggable objects
+   Interactions (drag + pinch + wheel)
+   ========================================================= */
+const pointerState = {
+  active: new Map(),
+  dragging:false,
+  lastCentroid:null,
+  lastDist:0,
+  lastTapTime:0
+};
+
+function getCanvasClientRect(){ return cv.getBoundingClientRect(); }
+function canvasToLocal(px, py){
+  const r = getCanvasClientRect();
+  const x = (px - r.left) * (cv.width / r.width);
+  const y = (py - r.top)  * (cv.height / r.height);
+  return {x,y};
+}
+function localToNormBox(x, y, box){
+  const nx = ((x - (box.x + box.w/2)) / (box.w/2));
+  const ny = ((y - (box.y + box.h/2)) / (box.h/2));
+  return {nx, ny};
+}
+function normToLocalBox(nx, ny, box){
+  const x = box.x + box.w/2 + nx*(box.w/2);
+  const y = box.y + box.h/2 + ny*(box.h/2);
+  return {x,y};
+}
+
+function pickObjectAt(canvasX, canvasY){
+  const {cx, cy, r} = coasterGeom();
+  const box = getSafeBox(cx, cy, r, state.shape);
+
+  function distToText(line){
+    const p = normToLocalBox(line.x, line.y, box);
+    return Math.hypot(canvasX - p.x, canvasY - p.y);
+  }
+  const d1 = distToText(state.line1);
+  const d2 = distToText(state.line2);
+  const nearTextThresh = Math.min(box.w, box.h) * 0.12;
+
+  if(d1 < nearTextThresh || d2 < nearTextThresh) return (d1 <= d2) ? "t1" : "t2";
+  if(canvasX >= box.x && canvasX <= box.x+box.w && canvasY >= box.y && canvasY <= box.y+box.h) return "art";
+  return state.selected;
+}
+
+function cycleSelection(){
+  state.selected = (state.selected === "art") ? "t1" : (state.selected === "t1" ? "t2" : "art");
+  render();
+}
+
+canvasWrap.addEventListener("pointerdown", (e)=>{
+  cv.setPointerCapture(e.pointerId);
+  const now = performance.now();
+  const isDouble = (now - pointerState.lastTapTime) < 320;
+  pointerState.lastTapTime = now;
+
+  const loc = canvasToLocal(e.clientX, e.clientY);
+  if(isDouble) cycleSelection();
+  else state.selected = pickObjectAt(loc.x, loc.y);
+
+  pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if(pointerState.active.size === 1){
+    pointerState.dragging = true;
+    pointerState.lastCentroid = {x:e.clientX, y:e.clientY};
+  }else if(pointerState.active.size === 2){
+    const pts = [...pointerState.active.values()];
+    pointerState.lastCentroid = {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2};
+    pointerState.lastDist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
+  }
+  render();
+});
+
+canvasWrap.addEventListener("pointermove", (e)=>{
+  if(!pointerState.active.has(e.pointerId)) return;
+  pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+  const {cx, cy, r} = coasterGeom();
+  const box = getSafeBox(cx, cy, r, state.shape);
+
+  if(pointerState.active.size === 1 && pointerState.dragging){
+    const p = [...pointerState.active.values()][0];
+    const prev = pointerState.lastCentroid || {x:p.x, y:p.y};
+    const dx = p.x - prev.x;
+    const dy = p.y - prev.y;
+    pointerState.lastCentroid = {x:p.x, y:p.y};
+
+    const rect = getCanvasClientRect();
+    const dxCanvas = dx * (cv.width / rect.width);
+    const dyCanvas = dy * (cv.height / rect.height);
+    const dnX = dxCanvas / (box.w/2);
+    const dnY = dyCanvas / (box.h/2);
+
+    moveSelected(dnX, dnY);
+    render();
+  }
+
+  if(pointerState.active.size === 2){
+    const pts = [...pointerState.active.values()];
+    const c = {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2};
+    const d = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
+
+    if(pointerState.lastCentroid){
+      const dx = c.x - pointerState.lastCentroid.x;
+      const dy = c.y - pointerState.lastCentroid.y;
+
+      const rect = getCanvasClientRect();
+      const dxCanvas = dx * (cv.width / rect.width);
+      const dyCanvas = dy * (cv.height / rect.height);
+      const dnX = dxCanvas / (box.w/2);
+      const dnY = dyCanvas / (box.h/2);
+      moveSelected(dnX, dnY);
+    }
+
+    if(pointerState.lastDist > 0){
+      const ratio = d / pointerState.lastDist;
+      scaleSelected(ratio);
+    }
+
+    pointerState.lastCentroid = c;
+    pointerState.lastDist = d;
+    render();
+  }
+});
+
+canvasWrap.addEventListener("pointerup", (e)=>{
+  pointerState.active.delete(e.pointerId);
+  if(pointerState.active.size === 0){
+    pointerState.dragging = false;
+    pointerState.lastCentroid = null;
+    pointerState.lastDist = 0;
+  }else if(pointerState.active.size === 1){
+    const p = [...pointerState.active.values()][0];
+    pointerState.lastCentroid = {x:p.x, y:p.y};
+    pointerState.lastDist = 0;
+  }
+});
+
+canvasWrap.addEventListener("wheel", (e)=>{
+  e.preventDefault();
+  const delta = Math.sign(e.deltaY);
+  const factor = (delta > 0) ? 0.94 : 1.06;
+  scaleSelected(factor);
+  render();
+},{passive:false});
+
+function moveSelected(dnx, dny){
+  const clampPos = (obj)=>{
+    obj.x = clamp(obj.x + dnx, -1.2, 1.2);
+    obj.y = clamp(obj.y + dny, -1.2, 1.2);
+  };
+  if(state.selected === "art") clampPos(state.artObj);
+  if(state.selected === "t1")  clampPos(state.line1);
+  if(state.selected === "t2")  clampPos(state.line2);
+}
+function scaleSelected(f){
+  const clampScale = (obj, minS, maxS)=>{
+    obj.s = clamp(obj.s * f, minS, maxS);
+  };
+  if(state.selected === "art") clampScale(state.artObj, 0.25, 4.0);
+  if(state.selected === "t1")  clampScale(state.line1, 0.10, 1.10);
+  if(state.selected === "t2")  clampScale(state.line2, 0.10, 1.10);
+}
+
+/* =========================================================
+   Rendering (laser preview)
    ========================================================= */
 function coasterGeom(){
   const pad = 85;
@@ -1056,16 +1034,12 @@ function render(){
 
   ctx.clearRect(0,0,cv.width,cv.height);
 
-  // Background
   ctx.fillStyle = "#f7efe4";
   ctx.fillRect(0,0,cv.width,cv.height);
 
   const {cx, cy, r} = coasterGeom();
-
-  // base material
   drawMaterialBase(cx, cy, r, mat);
 
-  // Build engrave layer
   const engr = document.createElement("canvas");
   engr.width = cv.width;
   engr.height= cv.height;
@@ -1076,10 +1050,9 @@ function render(){
 
   const box = getSafeBox(cx, cy, r, state.shape);
 
-  // Artwork (cover safe box, then apply scale and position)
+  // Artwork (cover safe box, then scale and position)
   if (state.artImage){
     const obj = state.artObj;
-    // base cover fit to safe box
     const base = cover(state.artImage.width, state.artImage.height, box.w, box.h);
     const w = base.w * obj.s;
     const h = base.h * obj.s;
@@ -1091,25 +1064,17 @@ function render(){
     ectx.drawImage(state.artImage, x, y, w, h);
   }
 
-  // Text (positioned by normalized coords + scale)
-  drawTextObj(ectx, box, state.line1, "t1");
-  drawTextObj(ectx, box, state.line2, "t2");
+  drawTextObj(ectx, box, state.line1);
+  drawTextObj(ectx, box, state.line2);
 
   ectx.restore();
 
-  // Convert to engraving mask (removes whites)
   const mask = toEngraveMask(engr);
-
-  // Burn
   applyEngraving(mask, cx, cy, r, state.shape);
-
-  // Edge
   drawEdge(cx, cy, r, state.shape);
 
-  // Subtle selection highlight (not engraved; just UI overlay hint)
   drawSelectionHint(box);
 
-  // signature
   ctx.save();
   ctx.globalAlpha = 0.30;
   ctx.fillStyle = "#1f1a15";
@@ -1117,16 +1082,14 @@ function render(){
   ctx.textAlign = "center";
   ctx.fillText("preview", cx, cv.height - 28);
   ctx.restore();
-
-  updateHelpBadge();
 }
 
-function drawTextObj(ectx, box, line, key){
+function drawTextObj(ectx, box, line){
   const t = (line.text || "").trim();
   if(!t) return;
 
   const p = normToLocalBox(line.x, line.y, box);
-  const basePx = 120; // base size that scale multiplies
+  const basePx = 120;
   const px = clamp(Math.round(basePx * line.s), 12, 220);
 
   ectx.save();
@@ -1135,12 +1098,11 @@ function drawTextObj(ectx, box, line, key){
   ectx.textBaseline = "middle";
   ectx.font = `${px}px ${line.font}`;
   ectx.fillText(t, p.x, p.y);
-  ectx.fillText(t, p.x+0.6, p.y); // tiny double-strike
+  ectx.fillText(t, p.x+0.6, p.y);
   ectx.restore();
 }
 
 function drawSelectionHint(box){
-  // Draw a soft ring around selected object's anchor (purely visual; doesn't affect engraving)
   const drawDot = (obj, label)=>{
     const p = normToLocalBox(obj.x, obj.y, box);
     ctx.save();
@@ -1152,7 +1114,6 @@ function drawSelectionHint(box){
     ctx.arc(p.x, p.y, 10, 0, Math.PI*2);
     ctx.fill();
     ctx.stroke();
-
     ctx.globalAlpha = 0.65;
     ctx.fillStyle = "rgba(31,26,21,.85)";
     ctx.font = `12px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
@@ -1167,19 +1128,6 @@ function drawSelectionHint(box){
   if(state.selected === "t2")  drawDot(state.line2, "text 2");
 }
 
-function updateHelpBadge(){
-  // Hide badge after first interaction (simple heuristic)
-  // If you want it always visible, remove this.
-  // We'll fade it after art upload or after any movement.
-  // Here: just hide once artwork exists and user has selected something.
-  if(state.artImage || state.line1.text || state.line2.text){
-    helpBadge.style.opacity = "0.78";
-  }
-}
-
-/* ============================
-   Material base
-   ============================ */
 function drawMaterialBase(cx, cy, r, mat){
   ctx.save();
   clipShape(ctx, cx, cy, r, state.shape);
@@ -1215,9 +1163,6 @@ function drawMaterialBase(cx, cy, r, mat){
   ctx.restore();
 }
 
-/* ============================
-   Engraving
-   ============================ */
 function applyEngraving(maskCanvas, cx, cy, r, shape){
   ctx.save();
   clipShape(ctx, cx, cy, r, shape);
@@ -1275,6 +1220,7 @@ function clipShape(c, cx, cy, r, shape){
   c.closePath();
   c.clip();
 }
+
 function drawShapePath(c, cx, cy, r, shape){
   c.beginPath();
   if(shape === "round"){
@@ -1333,7 +1279,6 @@ function toEngraveMask(srcCanvas){
   }
   octx.putImageData(img,0,0);
 
-  // soften edges
   octx.filter = "blur(0.7px)";
   const temp = document.createElement("canvas");
   temp.width=w; temp.height=h;
@@ -1423,9 +1368,8 @@ function saveTextureMap(map){
    Start
    ============================ */
 renderTextureManager();
-fitArtworkToCoaster();
 render();
-setStatus("Ready. Upload artwork, then drag / pinch on the preview to position and size.", false);
+setStatus("Ready. Click Upload to open the Uploadcare box.", false);
 </script>
 </body>
 </html>

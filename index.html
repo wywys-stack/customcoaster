@@ -155,17 +155,6 @@
     .chip input{accent-color:var(--accent)}
     .swatch{width:12px;height:12px;border-radius:999px;border:1px solid rgba(31,26,21,.18)}
 
-    details summary{
-      cursor:pointer; user-select:none; list-style:none;
-      font-size:12px; color:var(--muted);
-      padding:10px 12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.45);
-      border-radius:16px;
-    }
-    details summary::-webkit-details-marker{display:none}
-    details[open] summary{box-shadow:var(--focus);border-color:rgba(198,90,46,.35)}
-
     .note{
       background:rgba(30,111,92,.08);
       border:1px solid rgba(30,111,92,.18);
@@ -205,6 +194,8 @@
       border-radius:20px;
       padding:18px;
       overflow:hidden;
+      position:relative;
+      touch-action:none; /* IMPORTANT for pinch/drag */
     }
     canvas{
       width:min(520px, 92vw);
@@ -231,61 +222,29 @@
       font-size:12px;color:var(--muted);line-height:1.35;
     }
     .status b{color:var(--ink)}
-    .status a{color:inherit}
 
-    .linkbox{
-      margin-top:10px;
-      display:grid;
-      gap:10px;
-    }
-    .linkrow{
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap:10px;
-      align-items:center;
+    /* Floating helper badge */
+    .help-badge{
+      position:absolute;
+      left:14px; top:14px;
+      background:rgba(255,255,255,.85);
       border:1px solid var(--line);
-      border-radius:16px;
-      padding:10px;
-      background:rgba(255,255,255,.55);
-    }
-    .linkrow .meta{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      min-width:0;
-    }
-    .linkrow .meta b{font-size:12px;color:var(--muted)}
-    .linkrow .meta .val{
-      font-family:var(--mono);
+      padding:8px 10px;
+      border-radius:14px;
       font-size:12px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      color:var(--muted);
+      box-shadow:0 10px 22px rgba(31,26,21,.10);
+      user-select:none;
+      pointer-events:none;
+      max-width: 72%;
     }
-
-    /* Material texture manager */
-    .texture-list{display:grid;gap:10px;margin-top:10px}
-    .tex-row{
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:10px;
-      align-items:center;
-      padding:10px;
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:rgba(255,255,255,.55);
-    }
-    .tex-left{display:flex;gap:10px;align-items:center;min-width:0}
-    .tex-thumb{
-      width:44px;height:44px;border-radius:14px;
-      border:1px solid var(--line);background:#fff;overflow:hidden;flex:0 0 auto;
-    }
-    .tex-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-    .tex-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
-    .tex-meta b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .tex-meta span{font-size:12px;color:var(--muted)}
-    .tex-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .help-badge b{color:var(--ink)}
   </style>
+
+  <!-- Load lots of fonts (Google Fonts). If you prefer fewer, tell me your favorites and I’ll slim it down. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Raleway:wght@400;600;700&family=Oswald:wght@400;600&family=Bebas+Neue&family=Pacifico&family=Great+Vibes&family=Roboto+Slab:wght@400;600;700&family=Source+Serif+4:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -296,12 +255,12 @@
         <div class="mark" aria-hidden="true"></div>
         <div>
           <h1>Custom Coasters</h1>
-          <p class="sub">Shape · Material · Size · Upload logo · Add text · Pick fonts</p>
+          <p class="sub">Shape · Material · Size · Upload logo · Add text · Move + resize with your finger</p>
         </div>
       </div>
       <div class="cta-mini">
-        <span class="pill">hosted uploads</span>
-        <span class="pill">no email</span>
+        <span class="pill">clean proof</span>
+        <span class="pill">touch friendly</span>
         <span class="pill">1-page</span>
       </div>
     </div>
@@ -315,7 +274,7 @@
     <section class="card">
       <div class="card-head">
         <h2>Design</h2>
-        <div class="hint">Fast + clean</div>
+        <div class="hint">Drag + pinch on preview</div>
       </div>
 
       <div class="card-body">
@@ -345,30 +304,26 @@
             <div class="chips" id="materials"></div>
           </div>
 
-          <details>
-            <summary>Material texture photos (optional)</summary>
-            <div class="small" style="margin-top:8px;">
-              Upload your real wood/slate photos here (saved in your browser). These textures appear behind the engraving preview.
+          <!-- Hidden "back-end" texture manager: show only if ?admin=1 -->
+          <div id="adminTextures" style="display:none;">
+            <div class="divider"></div>
+            <div class="note">
+              <b>Admin:</b> upload material textures (saved in this browser). Customers never see this.
             </div>
-            <div class="texture-list" id="textureList"></div>
-            <div class="note" style="margin-top:10px;">
-              Tip: square-ish photos (800×800+) look best.
-            </div>
-          </details>
+            <div class="small" style="margin-top:8px;">Tip: square-ish photos (800×800+) look best.</div>
+            <div class="grid" id="textureList"></div>
+          </div>
 
           <div class="divider"></div>
 
           <!-- Hosted artwork upload -->
           <div>
-            <label>Logo / Artwork overlay</label>
-
-            <!-- Hidden file input (no Uploadcare widget required) -->
-            <input id="artFile" class="sr" type="file" accept="image/*,.svg,.pdf" />
-
+            <label>Logo / Artwork</label>
+            <input id="artFile" class="sr" type="file" accept="image/*,.svg" />
             <div class="uploader">
               <div class="meta">
                 <b id="artName">No file uploaded yet</b>
-                <span>Upload is hosted — you’ll get a shareable link</span>
+                <span>After upload: drag / pinch / wheel to size it</span>
               </div>
               <div>
                 <button type="button" class="btn" id="artPick">Upload</button>
@@ -376,22 +331,12 @@
             </div>
 
             <div class="row2" style="margin-top:10px;">
-              <div>
-                <label for="logoPos">Logo placement</label>
-                <select id="logoPos">
-                  <option value="top">Top</option>
-                  <option value="center" selected>Center</option>
-                  <option value="bottom">Bottom</option>
-                </select>
-              </div>
-              <div>
-                <label for="logoScale">Logo scale <span class="small mono" id="logoScaleLabel">1.00×</span></label>
-                <input id="logoScale" type="range" min="0.55" max="1.55" step="0.01" value="1.00"/>
-              </div>
+              <button type="button" class="btn ghost" id="fitArtwork">Fit to coaster</button>
+              <button type="button" class="btn ghost" id="resetArtwork">Reset artwork</button>
             </div>
 
             <div class="note warn" style="margin-top:10px;">
-              Best results: high-contrast logos. Light/white areas won’t “burn” and may disappear in the preview (like a real laser).
+              Tip: Tap the thing you want to move (art or text). Then drag to reposition. Pinch to scale on touch devices.
             </div>
           </div>
 
@@ -400,67 +345,35 @@
           <!-- Text line 1 -->
           <div>
             <label>Text line 1</label>
-            <div class="row3">
+            <div class="row2">
               <input id="t1Text" type="text" placeholder="e.g., WY WY MAKES" value="" />
-              <select id="t1Font">
-                <option value="Garamond, Georgia, serif">Classic Serif (Garamond)</option>
-                <option value="'Palatino Linotype', Palatino, serif">Warm Serif (Palatino)</option>
-                <option value="'Trebuchet MS', system-ui, sans-serif" selected>Modern Sans (Trebuchet)</option>
-                <option value="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">Clean Sans (System)</option>
-                <option value="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">Mono (Tech)</option>
-              </select>
-              <select id="t1Pos">
-                <option value="top">Top</option>
-                <option value="center" selected>Center</option>
-                <option value="bottom">Bottom</option>
-              </select>
+              <select id="t1Font"></select>
             </div>
             <div style="height:10px"></div>
             <div class="row2">
-              <div>
-                <label for="t1Size">Line 1 size</label>
-                <input id="t1Size" type="number" min="10" max="90" step="1" value="36" />
-              </div>
-              <div class="note">
-                Keep line 1 short for the cleanest engraving.
-              </div>
+              <button type="button" class="btn ghost" id="resetT1">Reset line 1</button>
+              <div class="small">Tap text on preview to move. Pinch/scroll to size.</div>
             </div>
           </div>
 
           <!-- Text line 2 -->
           <div>
             <label>Text line 2</label>
-            <div class="row3">
+            <div class="row2">
               <input id="t2Text" type="text" placeholder="e.g., EST. 2026 / CHULA VISTA" value="" />
-              <select id="t2Font">
-                <option value="Garamond, Georgia, serif">Classic Serif (Garamond)</option>
-                <option value="'Palatino Linotype', Palatino, serif" selected>Warm Serif (Palatino)</option>
-                <option value="'Trebuchet MS', system-ui, sans-serif">Modern Sans (Trebuchet)</option>
-                <option value="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">Clean Sans (System)</option>
-                <option value="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">Mono (Tech)</option>
-              </select>
-              <select id="t2Pos">
-                <option value="top">Top</option>
-                <option value="center">Center</option>
-                <option value="bottom" selected>Bottom</option>
-              </select>
+              <select id="t2Font"></select>
             </div>
             <div style="height:10px"></div>
             <div class="row2">
-              <div>
-                <label for="t2Size">Line 2 size</label>
-                <input id="t2Size" type="number" min="10" max="90" step="1" value="28" />
-              </div>
-              <div class="note warn">
-                Super small text may fade in real laser results.
-              </div>
+              <button type="button" class="btn ghost" id="resetT2">Reset line 2</button>
+              <div class="small">Use shorter text for cleaner laser results.</div>
             </div>
           </div>
 
           <div class="divider"></div>
 
           <div class="note">
-            This page hosts your uploads and proof image. You can paste the hosted links into Big Cartel order notes or keep them for production.
+            Customers won’t see hosted URLs. You’ll just get a proof image + a compact order code.
           </div>
         </div>
       </div>
@@ -478,7 +391,10 @@
         </div>
 
         <div class="canvas-shell">
-          <div class="canvas-inner">
+          <div class="canvas-inner" id="canvasWrap">
+            <div class="help-badge" id="helpBadge">
+              <b>Tip:</b> Tap art/text → drag to move. Pinch (or mouse wheel) to resize. Double-tap to switch selection.
+            </div>
             <canvas id="cv" width="900" height="900" aria-label="Coaster preview"></canvas>
           </div>
         </div>
@@ -486,42 +402,22 @@
         <div class="stage-actions">
           <div class="left">
             <button type="button" class="btn" id="downloadPng">Download proof PNG</button>
-            <button type="button" class="btn" id="copyCode">Copy design code</button>
+            <button type="button" class="btn" id="copyCode">Copy order code</button>
             <button type="button" class="btn primary" id="submitDesign">Submit (host proof)</button>
           </div>
           <div class="small">
-            Submit uploads the proof PNG and shows hosted links below.
+            Submit uploads the proof PNG (no hosted links shown to the customer).
           </div>
         </div>
 
         <div class="status" id="statusBox">
-          <b>Status:</b> Ready. Upload artwork, tweak your design, then click <b>Submit</b>.
+          <b>Status:</b> Ready. Upload artwork, position it, then click <b>Submit</b>.
         </div>
 
-        <div class="linkbox" id="linkBox" style="display:none;">
-          <div class="linkrow">
-            <div class="meta">
-              <b>Hosted artwork URL</b>
-              <div class="val" id="artUrlVal">—</div>
-            </div>
-            <button type="button" class="btn" id="copyArtUrl">Copy</button>
-          </div>
-
-          <div class="linkrow">
-            <div class="meta">
-              <b>Hosted proof PNG URL</b>
-              <div class="val" id="proofUrlVal">—</div>
-            </div>
-            <button type="button" class="btn" id="copyProofUrl">Copy</button>
-          </div>
-
-          <div class="linkrow">
-            <div class="meta">
-              <b>Design code</b>
-              <div class="val" id="codeVal">—</div>
-            </div>
-            <button type="button" class="btn" id="copyCode2">Copy</button>
-          </div>
+        <!-- Hidden output (admin only). Not shown to customers. -->
+        <div class="status" id="adminOut" style="display:none;">
+          <b>Admin:</b>
+          <div class="small mono" id="adminUrls" style="margin-top:8px;white-space:pre-wrap"></div>
         </div>
 
       </section>
@@ -532,9 +428,12 @@
 
 <script>
 /* =========================================================
-   CONFIG — REQUIRED
+   CONFIG
    ========================================================= */
-const UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8"; // must be a string
+const UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8"; // your Uploadcare public key (string)
+
+// Show texture manager + internal URLs only if you open with ?admin=1
+const IS_ADMIN = new URLSearchParams(location.search).get("admin") === "1";
 
 /* =========================================================
    APP
@@ -547,12 +446,33 @@ const MATERIALS = [
   { id:"slate",  name:"Slate",  tone:"#4b4d52" }
 ];
 
-const KEYS = { textures: "coaster_material_textures_v1" };
+const FONT_OPTIONS = [
+  { name:"Classic Serif (Playfair)", css:`"Playfair Display", Georgia, serif` },
+  { name:"Book Serif (Source Serif)", css:`"Source Serif 4", Georgia, serif` },
+  { name:"Warm Serif (Libre Baskerville)", css:`"Libre Baskerville", Georgia, serif` },
+  { name:"Slab (Roboto Slab)", css:`"Roboto Slab", Georgia, serif` },
+
+  { name:"Modern Sans (Montserrat)", css:`Montserrat, system-ui, sans-serif` },
+  { name:"Clean Sans (Poppins)", css:`Poppins, system-ui, sans-serif` },
+  { name:"Elegant Sans (Raleway)", css:`Raleway, system-ui, sans-serif` },
+
+  { name:"Bold Display (Oswald)", css:`Oswald, system-ui, sans-serif` },
+  { name:"ALL CAPS (Bebas Neue)", css:`"Bebas Neue", system-ui, sans-serif` },
+
+  { name:"Script (Pacifico)", css:`Pacifico, cursive` },
+  { name:"Fancy Script (Great Vibes)", css:`"Great Vibes", cursive` },
+
+  { name:"Mono (IBM Plex Mono)", css:`"IBM Plex Mono", ui-monospace, monospace` },
+  { name:"System (Default)", css:`system-ui, -apple-system, Segoe UI, Roboto, sans-serif` },
+];
+
+const KEYS = { textures: "coaster_material_textures_v2" };
 const $ = (id)=>document.getElementById(id);
 
 // Canvas
 const cv = $("cv");
 const ctx = cv.getContext("2d");
+const canvasWrap = $("canvasWrap");
 
 // Controls
 const elShape = $("shape");
@@ -562,20 +482,15 @@ const summary = $("summary");
 const artPick = $("artPick");
 const artFile = $("artFile");
 const artName = $("artName");
-
-const elLogoPos = $("logoPos");
-const elLogoScale = $("logoScale");
-const elLogoScaleLabel = $("logoScaleLabel");
+const fitArtworkBtn = $("fitArtwork");
+const resetArtworkBtn = $("resetArtwork");
 
 const t1Text = $("t1Text");
 const t1Font = $("t1Font");
-const t1Pos  = $("t1Pos");
-const t1Size = $("t1Size");
-
 const t2Text = $("t2Text");
 const t2Font = $("t2Font");
-const t2Pos  = $("t2Pos");
-const t2Size = $("t2Size");
+const resetT1 = $("resetT1");
+const resetT2 = $("resetT2");
 
 // Actions
 const downloadPng = $("downloadPng");
@@ -583,38 +498,70 @@ const copyCodeBtn = $("copyCode");
 const submitDesign = $("submitDesign");
 const statusBox = $("statusBox");
 
-// Link box
-const linkBox = $("linkBox");
-const artUrlVal = $("artUrlVal");
-const proofUrlVal = $("proofUrlVal");
-const codeVal = $("codeVal");
-const copyArtUrl = $("copyArtUrl");
-const copyProofUrl = $("copyProofUrl");
-const copyCode2 = $("copyCode2");
+// Admin output
+const adminTextures = $("adminTextures");
+const textureList = $("textureList");
+const adminOut = $("adminOut");
+const adminUrls = $("adminUrls");
 
-// State
+// Help badge
+const helpBadge = $("helpBadge");
+
+// State (design objects use normalized coords in [-1..1] relative to coaster safe box)
 const state = {
   material: MATERIALS[0].id,
   shape: "round",
   size: 4.0,
 
-  // hosted artwork
-  artUrl: "",          // Uploadcare CDN URL
-  artPreviewUrl: "",   // scaled preview URL
+  // Hosted artwork
+  artUrl: "",
+  artPreviewUrl: "",
   artImage: null,
 
-  logoPos: "center",
-  logoScale: 1.00,
+  // Objects (interactive)
+  // For simplicity we keep only scale+pos and a base fit mode (cover-ish). Scale is multiplier on top of "fit to safe box".
+  artObj: { x:0, y:0, s:1.0, rot:0 },
 
-  line1: { text:"", font: t1Font.value, pos:"center", size: 36 },
-  line2: { text:"", font: t2Font.value, pos:"bottom", size: 28 },
+  line1: { text:"", font: FONT_OPTIONS[4].css, x:0, y:-0.25, s:0.35 },
+  line2: { text:"", font: FONT_OPTIONS[2].css, x:0, y: 0.45, s:0.26 },
 
-  // textures stored locally
-  textureMap: loadTextureMap(),        // { materialId: dataURL }
-  textureImgCache: {}                  // { materialId: Image() }
+  // selection
+  selected: "art", // "art" | "t1" | "t2"
+
+  // textures stored locally (admin only)
+  textureMap: loadTextureMap(),
+  textureImgCache: {},
+
+  // last submit
+  proofUrl: ""
 };
 
-// Build material chips
+// Show admin sections if enabled
+if (IS_ADMIN){
+  adminTextures.style.display = "block";
+  adminOut.style.display = "block";
+}
+
+/* =========================================================
+   Build UI
+   ========================================================= */
+function populateFontSelect(sel, selectedCss){
+  sel.innerHTML = "";
+  FONT_OPTIONS.forEach((f)=>{
+    const opt = document.createElement("option");
+    opt.value = f.css;
+    opt.textContent = f.name;
+    opt.style.fontFamily = f.css;
+    sel.appendChild(opt);
+  });
+  sel.value = selectedCss || FONT_OPTIONS[0].css;
+  sel.style.fontFamily = sel.value;
+}
+
+populateFontSelect(t1Font, state.line1.font);
+populateFontSelect(t2Font, state.line2.font);
+
+// Materials chips
 const materialsWrap = $("materials");
 MATERIALS.forEach((m, idx)=>{
   const lab = document.createElement("label");
@@ -631,24 +578,21 @@ MATERIALS.forEach((m, idx)=>{
   materialsWrap.appendChild(lab);
 });
 
-// Texture manager UI
-const textureList = $("textureList");
+// Texture manager (admin only)
 function renderTextureManager(){
+  if(!IS_ADMIN) return;
   textureList.innerHTML = "";
   MATERIALS.forEach((m)=>{
     const dataUrl = state.textureMap[m.id] || "";
     const row = document.createElement("div");
-    row.className = "tex-row";
-
+    row.className = "uploader";
+    row.style.justifyContent = "space-between";
     row.innerHTML = `
-      <div class="tex-left">
-        <div class="tex-thumb">${dataUrl ? `<img alt="${m.name} texture" src="${dataUrl}">` : ""}</div>
-        <div class="tex-meta">
-          <b>${m.name} texture</b>
-          <span>${dataUrl ? "Custom photo loaded" : "No custom photo (uses flat tone)"}</span>
-        </div>
+      <div class="meta">
+        <b>${m.name} texture</b>
+        <span>${dataUrl ? "Custom photo loaded" : "No custom photo (uses flat tone)"}</span>
       </div>
-      <div class="tex-actions">
+      <div style="display:flex;gap:8px;align-items:center;">
         <input class="sr" type="file" accept="image/*" id="texFile_${m.id}">
         <button type="button" class="btn ghost" id="texUp_${m.id}">Upload</button>
         <button type="button" class="btn danger" id="texClr_${m.id}" ${dataUrl ? "" : "disabled"}>Clear</button>
@@ -682,27 +626,49 @@ function renderTextureManager(){
   });
 }
 
-// Inputs
+/* =========================================================
+   Inputs
+   ========================================================= */
 elShape.addEventListener("change", ()=>{ state.shape = elShape.value; render(); });
 elSize.addEventListener("change", ()=>{ state.size = parseFloat(elSize.value); render(); });
 
-elLogoPos.addEventListener("change", ()=>{ state.logoPos = elLogoPos.value; render(); });
-elLogoScale.addEventListener("input", ()=>{
-  state.logoScale = clamp(parseFloat(elLogoScale.value), 0.55, 1.55);
-  elLogoScaleLabel.textContent = state.logoScale.toFixed(2) + "×";
+// Fonts show in dropdown
+t1Font.addEventListener("change", ()=>{
+  state.line1.font = t1Font.value;
+  t1Font.style.fontFamily = t1Font.value;
+  render();
+});
+t2Font.addEventListener("change", ()=>{
+  state.line2.font = t2Font.value;
+  t2Font.style.fontFamily = t2Font.value;
   render();
 });
 
-// Text lines
+// Text changes
 t1Text.addEventListener("input", ()=>{ state.line1.text = t1Text.value; render(); });
-t1Font.addEventListener("change", ()=>{ state.line1.font = t1Font.value; render(); });
-t1Pos .addEventListener("change", ()=>{ state.line1.pos  = t1Pos.value; render(); });
-t1Size.addEventListener("input", ()=>{ state.line1.size = clamp(parseInt(t1Size.value||"36",10),10,90); render(); });
-
 t2Text.addEventListener("input", ()=>{ state.line2.text = t2Text.value; render(); });
-t2Font.addEventListener("change", ()=>{ state.line2.font = t2Font.value; render(); });
-t2Pos .addEventListener("change", ()=>{ state.line2.pos  = t2Pos.value; render(); });
-t2Size.addEventListener("input", ()=>{ state.line2.size = clamp(parseInt(t2Size.value||"28",10),10,90); render(); });
+
+resetT1.addEventListener("click", ()=>{
+  state.line1.x = 0; state.line1.y = -0.25; state.line1.s = 0.35;
+  state.selected = "t1";
+  render();
+});
+resetT2.addEventListener("click", ()=>{
+  state.line2.x = 0; state.line2.y = 0.45; state.line2.s = 0.26;
+  state.selected = "t2";
+  render();
+});
+
+fitArtworkBtn.addEventListener("click", ()=>{
+  fitArtworkToCoaster();
+  state.selected = "art";
+  render();
+});
+resetArtworkBtn.addEventListener("click", ()=>{
+  state.artObj.x = 0; state.artObj.y = 0; state.artObj.s = 1.0; state.artObj.rot = 0;
+  state.selected = "art";
+  render();
+});
 
 /* =========================================================
    Uploadcare DIRECT UPLOAD (no widget)
@@ -713,34 +679,22 @@ function requireKey(){
   if(k.includes("PASTE_")) return false;
   return true;
 }
-
 async function uploadToUploadcare(fileOrBlob, filename){
-  if(!requireKey()){
-    throw new Error("Missing Uploadcare public key.");
-  }
+  if(!requireKey()) throw new Error("Missing Uploadcare public key.");
   const fd = new FormData();
   fd.append("UPLOADCARE_PUB_KEY", UPLOADCARE_PUBLIC_KEY.trim());
   fd.append("UPLOADCARE_STORE", "1");
   fd.append("file", fileOrBlob, filename || (fileOrBlob && fileOrBlob.name) || "upload.bin");
 
-  const res = await fetch("https://upload.uploadcare.com/base/", {
-    method: "POST",
-    body: fd
-  });
-
+  const res = await fetch("https://upload.uploadcare.com/base/", { method:"POST", body:fd });
   if(!res.ok){
     const txt = await res.text().catch(()=> "");
     throw new Error(`Uploadcare upload failed (${res.status}). ${txt.slice(0,200)}`);
   }
-
   const data = await res.json();
-  if(!data || !data.file){
-    throw new Error("Uploadcare response missing file UUID.");
-  }
-  const uuid = data.file;
-  return `https://ucarecdn.com/${uuid}/`;
+  if(!data || !data.file) throw new Error("Uploadcare response missing file UUID.");
+  return `https://ucarecdn.com/${data.file}/`;
 }
-
 function dataURLToBlob(dataURL){
   const [head, body] = dataURL.split(",");
   const mime = (head.match(/data:(.*?);base64/)||[])[1] || "application/octet-stream";
@@ -761,30 +715,25 @@ artPick.addEventListener("click", (e)=>{
   artFile.value = "";
   artFile.click();
 });
-
 artFile.addEventListener("change", async ()=>{
   const file = artFile.files && artFile.files[0];
   if(!file) return;
-
   try{
     setStatus("Uploading artwork…", false);
     const cdn = await uploadToUploadcare(file, file.name || "artwork");
     state.artUrl = cdn;
-    state.artPreviewUrl = cdn + "-/preview/1024x1024/";
+    state.artPreviewUrl = cdn + "-/preview/1600x1600/"; // bigger preview for scaling
     artName.textContent = file.name || "Artwork uploaded";
-
-    linkBox.style.display = "grid";
-    artUrlVal.textContent = state.artUrl;
-
     await loadImageIntoState(state.artPreviewUrl);
-    setStatus("Artwork uploaded & hosted. Preview updated.", false);
+    fitArtworkToCoaster(); // default: scale up to coaster area
+    state.selected = "art";
+    setStatus("Artwork uploaded. Drag / pinch on preview to position.", false);
     render();
   }catch(err){
     console.error(err);
     setStatus(err.message || "Upload failed. Check console.", true);
   }
 });
-
 async function loadImageIntoState(url){
   return new Promise((resolve, reject)=>{
     const img = new Image();
@@ -795,7 +744,208 @@ async function loadImageIntoState(url){
   });
 }
 
-// Preview export
+/* =========================================================
+   Interactions: drag + pinch + wheel scale
+   - Tap to select: art / text1 / text2
+   - Drag to move selected
+   - Pinch or wheel to scale selected
+   - Double tap / double click cycles selection
+   ========================================================= */
+const pointerState = {
+  active: new Map(), // id -> {x,y}
+  dragging:false,
+  lastCentroid:null,
+  lastDist:0,
+  lastTapTime:0
+};
+
+function getCanvasClientRect(){
+  return cv.getBoundingClientRect();
+}
+function canvasToLocal(px, py){
+  const r = getCanvasClientRect();
+  const x = (px - r.left) * (cv.width / r.width);
+  const y = (py - r.top)  * (cv.height / r.height);
+  return {x,y};
+}
+function localToNormBox(x, y, box){
+  // box in canvas pixels; return normalized [-1..1] coords within box
+  const nx = ((x - (box.x + box.w/2)) / (box.w/2));
+  const ny = ((y - (box.y + box.h/2)) / (box.h/2));
+  return {nx, ny};
+}
+function normToLocalBox(nx, ny, box){
+  const x = box.x + box.w/2 + nx*(box.w/2);
+  const y = box.y + box.h/2 + ny*(box.h/2);
+  return {x,y};
+}
+
+function pickObjectAt(canvasX, canvasY){
+  // Prefer text if tapped near its baseline; otherwise art if inside safe box.
+  const {cx, cy, r} = coasterGeom();
+  const box = getSafeBox(cx, cy, r, state.shape);
+
+  // helper: distance to text point
+  function distToText(line){
+    const p = normToLocalBox(line.x, line.y, box);
+    return Math.hypot(canvasX - p.x, canvasY - p.y);
+  }
+
+  const d1 = distToText(state.line1);
+  const d2 = distToText(state.line2);
+  const nearTextThresh = Math.min(box.w, box.h) * 0.12; // generous tap target
+
+  if(d1 < nearTextThresh || d2 < nearTextThresh){
+    return (d1 <= d2) ? "t1" : "t2";
+  }
+
+  // else: if within safe box, art
+  if(canvasX >= box.x && canvasX <= box.x+box.w && canvasY >= box.y && canvasY <= box.y+box.h) return "art";
+  return state.selected;
+}
+
+function cycleSelection(){
+  state.selected = (state.selected === "art") ? "t1" : (state.selected === "t1" ? "t2" : "art");
+  render();
+}
+
+canvasWrap.addEventListener("pointerdown", (e)=>{
+  cv.setPointerCapture(e.pointerId);
+  const now = performance.now();
+  const isDouble = (now - pointerState.lastTapTime) < 320;
+  pointerState.lastTapTime = now;
+
+  const loc = canvasToLocal(e.clientX, e.clientY);
+  if(isDouble){
+    cycleSelection();
+  }else{
+    state.selected = pickObjectAt(loc.x, loc.y);
+  }
+
+  pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if(pointerState.active.size === 1){
+    pointerState.dragging = true;
+    pointerState.lastCentroid = {x:e.clientX, y:e.clientY};
+  }else if(pointerState.active.size === 2){
+    const pts = [...pointerState.active.values()];
+    pointerState.lastCentroid = {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2};
+    pointerState.lastDist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
+  }
+
+  render(); // show selection immediately
+});
+
+canvasWrap.addEventListener("pointermove", (e)=>{
+  if(!pointerState.active.has(e.pointerId)) return;
+  pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+  const {cx, cy, r} = coasterGeom();
+  const box = getSafeBox(cx, cy, r, state.shape);
+
+  if(pointerState.active.size === 1 && pointerState.dragging){
+    const p = [...pointerState.active.values()][0];
+    const prev = pointerState.lastCentroid || {x:p.x, y:p.y};
+    const dx = p.x - prev.x;
+    const dy = p.y - prev.y;
+    pointerState.lastCentroid = {x:p.x, y:p.y};
+
+    // convert screen delta to normalized delta in safe box
+    const rect = getCanvasClientRect();
+    const dxCanvas = dx * (cv.width / rect.width);
+    const dyCanvas = dy * (cv.height / rect.height);
+    const dnX = dxCanvas / (box.w/2);
+    const dnY = dyCanvas / (box.h/2);
+
+    moveSelected(dnX, dnY);
+    render();
+  }
+
+  if(pointerState.active.size === 2){
+    const pts = [...pointerState.active.values()];
+    const c = {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2};
+    const d = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
+
+    // translate
+    if(pointerState.lastCentroid){
+      const dx = c.x - pointerState.lastCentroid.x;
+      const dy = c.y - pointerState.lastCentroid.y;
+
+      const rect = getCanvasClientRect();
+      const dxCanvas = dx * (cv.width / rect.width);
+      const dyCanvas = dy * (cv.height / rect.height);
+      const dnX = dxCanvas / (box.w/2);
+      const dnY = dyCanvas / (box.h/2);
+      moveSelected(dnX, dnY);
+    }
+
+    // scale
+    if(pointerState.lastDist > 0){
+      const ratio = d / pointerState.lastDist;
+      scaleSelected(ratio);
+    }
+
+    pointerState.lastCentroid = c;
+    pointerState.lastDist = d;
+    render();
+  }
+});
+
+canvasWrap.addEventListener("pointerup", (e)=>{
+  pointerState.active.delete(e.pointerId);
+  if(pointerState.active.size === 0){
+    pointerState.dragging = false;
+    pointerState.lastCentroid = null;
+    pointerState.lastDist = 0;
+  }else if(pointerState.active.size === 1){
+    const p = [...pointerState.active.values()][0];
+    pointerState.lastCentroid = {x:p.x, y:p.y};
+    pointerState.lastDist = 0;
+  }
+});
+
+canvasWrap.addEventListener("wheel", (e)=>{
+  // mouse wheel scales selected
+  e.preventDefault();
+  const delta = Math.sign(e.deltaY);
+  const factor = (delta > 0) ? 0.94 : 1.06;
+  scaleSelected(factor);
+  render();
+},{passive:false});
+
+function moveSelected(dnx, dny){
+  const clampPos = (obj)=>{
+    obj.x = clamp(obj.x + dnx, -1.2, 1.2);
+    obj.y = clamp(obj.y + dny, -1.2, 1.2);
+  };
+  if(state.selected === "art") clampPos(state.artObj);
+  if(state.selected === "t1")  clampPos(state.line1);
+  if(state.selected === "t2")  clampPos(state.line2);
+}
+
+function scaleSelected(f){
+  const clampScale = (obj, minS, maxS)=>{
+    obj.s = clamp(obj.s * f, minS, maxS);
+  };
+  if(state.selected === "art") clampScale(state.artObj, 0.25, 4.0);
+  if(state.selected === "t1")  clampScale(state.line1, 0.10, 1.10);
+  if(state.selected === "t2")  clampScale(state.line2, 0.10, 1.10);
+}
+
+function fitArtworkToCoaster(){
+  // Set art scale so it can reach the safe box (cover-ish by default)
+  state.artObj.x = 0;
+  state.artObj.y = 0;
+  state.artObj.s = 1.0;
+
+  // Nudge default to be "big": cover safe box (vs contain)
+  // We implement this in render by using "cover" fit first, then multiplying by artObj.s.
+  // To make it fill more, bump s a bit.
+  state.artObj.s = 1.10;
+}
+
+/* =========================================================
+   Export + submit
+   ========================================================= */
 downloadPng.addEventListener("click", ()=>{
   const a = document.createElement("a");
   a.download = "coaster-proof.png";
@@ -803,12 +953,8 @@ downloadPng.addEventListener("click", ()=>{
   a.click();
 });
 
-copyCodeBtn.addEventListener("click", ()=> copyText(buildDesignCode(), copyCodeBtn, "Copied!"));
-copyArtUrl.addEventListener("click", ()=> copyText(state.artUrl || "", copyArtUrl, "Copied!"));
-copyProofUrl.addEventListener("click", ()=> copyText(proofUrlVal.textContent || "", copyProofUrl, "Copied!"));
-copyCode2.addEventListener("click", ()=> copyText(buildDesignCode(), copyCode2, "Copied!"));
+copyCodeBtn.addEventListener("click", ()=> copyText(buildOrderCode(), copyCodeBtn, "Copied!"));
 
-// Submit: upload proof PNG to Uploadcare (direct)
 submitDesign.addEventListener("click", async ()=>{
   if(!requireKey()){
     setStatus("Add your Uploadcare public key in CONFIG and reload.", true);
@@ -821,16 +967,21 @@ submitDesign.addEventListener("click", async ()=>{
 
   try{
     setStatus("Uploading proof PNG…", false);
-
     const proofDataUrl = cv.toDataURL("image/png");
     const proofBlob = dataURLToBlob(proofDataUrl);
     const proofUrl = await uploadToUploadcare(proofBlob, "coaster-proof.png");
+    state.proofUrl = proofUrl;
 
-    linkBox.style.display = "grid";
-    proofUrlVal.textContent = proofUrl;
-    codeVal.textContent = buildDesignCode();
+    // Customer-facing message (no URLs)
+    setStatus("Submitted! Your proof is saved. Copy the order code for your checkout notes.", false);
 
-    setStatus("Done. Proof hosted — copy the links below.", false);
+    // Admin-only: show URLs
+    if(IS_ADMIN){
+      adminUrls.textContent =
+        `Artwork URL: ${state.artUrl}\n` +
+        `Proof URL:   ${state.proofUrl}\n` +
+        `Order code:  ${buildOrderCode()}`;
+    }
   }catch(err){
     console.error(err);
     setStatus(err.message || "Proof upload failed. Check console.", true);
@@ -860,26 +1011,45 @@ async function copyText(text, btn, label){
   }
 }
 
-function buildDesignCode(){
+function buildOrderCode(){
+  // Compact-ish code. (You can later decode this server-side if you want.)
   const mat = state.material;
   const shp = state.shape;
   const sz  = state.size.toFixed(1);
-  const lp  = state.logoPos;
-  const ls  = state.logoScale.toFixed(2);
-  const t1  = (state.line1.text||"").trim().slice(0,60);
-  const t2  = (state.line2.text||"").trim().slice(0,60);
-  const f1  = shortenFont(state.line1.font);
-  const f2  = shortenFont(state.line2.font);
-  const art = state.artUrl ? state.artUrl : "";
-  return `COASTER|mat:${mat}|shape:${shp}|size:${sz}|logoPos:${lp}|logoScale:${ls}|f1:${f1}|t1:${t1}|f2:${f2}|t2:${t2}|art:${art}`;
+
+  const a = state.artObj;
+  const l1 = state.line1;
+  const l2 = state.line2;
+
+  const safe = (s)=>String(s||"").replace(/\|/g,"/").trim().slice(0,80);
+  const f1 = shortenFont(l1.font);
+  const f2 = shortenFont(l2.font);
+
+  return [
+    "COASTER2",
+    `mat:${mat}`,
+    `shape:${shp}`,
+    `size:${sz}`,
+    `ax:${a.x.toFixed(3)}`,`ay:${a.y.toFixed(3)}`,`as:${a.s.toFixed(3)}`,
+    `f1:${f1}`,`t1:${safe(l1.text)}`,`x1:${l1.x.toFixed(3)}`,`y1:${l1.y.toFixed(3)}`,`s1:${l1.s.toFixed(3)}`,
+    `f2:${f2}`,`t2:${safe(l2.text)}`,`x2:${l2.x.toFixed(3)}`,`y2:${l2.y.toFixed(3)}`,`s2:${l2.s.toFixed(3)}`
+  ].join("|");
 }
 function shortenFont(font){
   return (font||"").split(",")[0].replace(/['"]/g,"").trim().slice(0,18);
 }
 
-/* ============================
-   Rendering (laser preview)
-   ============================ */
+/* =========================================================
+   Rendering (laser preview) — now uses draggable objects
+   ========================================================= */
+function coasterGeom(){
+  const pad = 85;
+  const cx = cv.width/2;
+  const cy = cv.height/2 + 10;
+  const r  = (cv.width - pad*2) * 0.43;
+  return {cx, cy, r};
+}
+
 function render(){
   const mat = MATERIALS.find(m=>m.id===state.material) || MATERIALS[0];
   summary.textContent = `${mat.name} · ${state.shape} · ${state.size.toFixed(1)}"`;
@@ -890,13 +1060,12 @@ function render(){
   ctx.fillStyle = "#f7efe4";
   ctx.fillRect(0,0,cv.width,cv.height);
 
-  const pad = 85;
-  const cx = cv.width/2;
-  const cy = cv.height/2 + 10;
-  const r  = (cv.width - pad*2) * 0.43;
+  const {cx, cy, r} = coasterGeom();
 
+  // base material
   drawMaterialBase(cx, cy, r, mat);
 
+  // Build engrave layer
   const engr = document.createElement("canvas");
   engr.width = cv.width;
   engr.height= cv.height;
@@ -905,29 +1074,40 @@ function render(){
   ectx.save();
   clipShape(ectx, cx, cy, r, state.shape);
 
-  // Logo
+  const box = getSafeBox(cx, cy, r, state.shape);
+
+  // Artwork (cover safe box, then apply scale and position)
   if (state.artImage){
-    const box = getSafeBox(cx, cy, r, state.shape);
-    const logoBox = getLogoBox(box, state.logoPos);
+    const obj = state.artObj;
+    // base cover fit to safe box
+    const base = cover(state.artImage.width, state.artImage.height, box.w, box.h);
+    const w = base.w * obj.s;
+    const h = base.h * obj.s;
 
-    const bw = logoBox.w * 0.86 * state.logoScale;
-    const bh = logoBox.h * 0.86 * state.logoScale;
+    const center = normToLocalBox(obj.x, obj.y, box);
+    const x = center.x - w/2;
+    const y = center.y - h/2;
 
-    const fit = contain(state.artImage.width, state.artImage.height, bw, bh);
-    const x = logoBox.x + (logoBox.w - fit.w)/2;
-    const y = logoBox.y + (logoBox.h - fit.h)/2;
-    ectx.drawImage(state.artImage, x, y, fit.w, fit.h);
+    ectx.drawImage(state.artImage, x, y, w, h);
   }
 
-  // Text
-  drawTextLine(ectx, cx, cy, r, state.shape, state.line1);
-  drawTextLine(ectx, cx, cy, r, state.shape, state.line2);
+  // Text (positioned by normalized coords + scale)
+  drawTextObj(ectx, box, state.line1, "t1");
+  drawTextObj(ectx, box, state.line2, "t2");
 
   ectx.restore();
 
+  // Convert to engraving mask (removes whites)
   const mask = toEngraveMask(engr);
+
+  // Burn
   applyEngraving(mask, cx, cy, r, state.shape);
+
+  // Edge
   drawEdge(cx, cy, r, state.shape);
+
+  // Subtle selection highlight (not engraved; just UI overlay hint)
+  drawSelectionHint(box);
 
   // signature
   ctx.save();
@@ -937,37 +1117,69 @@ function render(){
   ctx.textAlign = "center";
   ctx.fillText("preview", cx, cv.height - 28);
   ctx.restore();
+
+  updateHelpBadge();
 }
 
-function drawTextLine(ectx, cx, cy, r, shape, line){
+function drawTextObj(ectx, box, line, key){
   const t = (line.text || "").trim();
   if(!t) return;
 
-  const box = getSafeBox(cx, cy, r, shape);
-  const ty = textPosY(box, line.pos);
+  const p = normToLocalBox(line.x, line.y, box);
+  const basePx = 120; // base size that scale multiplies
+  const px = clamp(Math.round(basePx * line.s), 12, 220);
 
   ectx.save();
   ectx.fillStyle = "#000";
   ectx.textAlign = "center";
   ectx.textBaseline = "middle";
-  ectx.font = `${clamp(parseInt(line.size||"28",10),10,90)}px ${line.font}`;
-  ectx.fillText(t, cx, ty);
-  ectx.fillText(t, cx+0.5, ty);
+  ectx.font = `${px}px ${line.font}`;
+  ectx.fillText(t, p.x, p.y);
+  ectx.fillText(t, p.x+0.6, p.y); // tiny double-strike
   ectx.restore();
 }
 
-function textPosY(box, pos){
-  if(pos === "top") return box.y + box.h*0.26;
-  if(pos === "center") return box.y + box.h*0.56;
-  return box.y + box.h*0.82;
+function drawSelectionHint(box){
+  // Draw a soft ring around selected object's anchor (purely visual; doesn't affect engraving)
+  const drawDot = (obj, label)=>{
+    const p = normToLocalBox(obj.x, obj.y, box);
+    ctx.save();
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = "rgba(255,255,255,.75)";
+    ctx.strokeStyle = "rgba(31,26,21,.28)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 10, 0, Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.globalAlpha = 0.65;
+    ctx.fillStyle = "rgba(31,26,21,.85)";
+    ctx.font = `12px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(label, p.x + 14, p.y);
+    ctx.restore();
+  };
+
+  if(state.selected === "art") drawDot(state.artObj, "art");
+  if(state.selected === "t1")  drawDot(state.line1, "text 1");
+  if(state.selected === "t2")  drawDot(state.line2, "text 2");
 }
 
-function getLogoBox(box, pos){
-  if(pos === "top")    return { x: box.x, y: box.y + box.h*0.06, w: box.w, h: box.h*0.38 };
-  if(pos === "bottom") return { x: box.x, y: box.y + box.h*0.56, w: box.w, h: box.h*0.38 };
-  return { x: box.x, y: box.y + box.h*0.18, w: box.w, h: box.h*0.44 };
+function updateHelpBadge(){
+  // Hide badge after first interaction (simple heuristic)
+  // If you want it always visible, remove this.
+  // We'll fade it after art upload or after any movement.
+  // Here: just hide once artwork exists and user has selected something.
+  if(state.artImage || state.line1.text || state.line2.text){
+    helpBadge.style.opacity = "0.78";
+  }
 }
 
+/* ============================
+   Material base
+   ============================ */
 function drawMaterialBase(cx, cy, r, mat){
   ctx.save();
   clipShape(ctx, cx, cy, r, state.shape);
@@ -1003,6 +1215,9 @@ function drawMaterialBase(cx, cy, r, mat){
   ctx.restore();
 }
 
+/* ============================
+   Engraving
+   ============================ */
 function applyEngraving(maskCanvas, cx, cy, r, shape){
   ctx.save();
   clipShape(ctx, cx, cy, r, shape);
@@ -1060,7 +1275,6 @@ function clipShape(c, cx, cy, r, shape){
   c.closePath();
   c.clip();
 }
-
 function drawShapePath(c, cx, cy, r, shape){
   c.beginPath();
   if(shape === "round"){
@@ -1150,8 +1364,8 @@ function polygonPath(c, cx, cy, radius, sides, rot){
     if(i===0) c.moveTo(x,y); else c.lineTo(x,y);
   }
 }
-function contain(w,h, maxW, maxH){
-  const s = Math.min(maxW/w, maxH/h);
+function cover(w,h, boxW, boxH){
+  const s = Math.max(boxW/w, boxH/h);
   return { w:w*s, h:h*s };
 }
 function makeNoisePattern(w,h, strength){
@@ -1209,8 +1423,9 @@ function saveTextureMap(map){
    Start
    ============================ */
 renderTextureManager();
+fitArtworkToCoaster();
 render();
-setStatus("Ready. Upload artwork, tweak your design, then click Submit.", false);
+setStatus("Ready. Upload artwork, then drag / pinch on the preview to position and size.", false);
 </script>
 </body>
 </html>

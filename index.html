@@ -86,7 +86,7 @@
     .grid{display:grid;gap:12px}
     label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
 
-    select,input[type="text"],input[type="number"],input[type="range"]{
+    select,input[type="text"],input[type="number"],input[type="range"],input[type="search"]{
       width:100%;
       padding:12px;
       border-radius:14px;
@@ -113,7 +113,7 @@
       padding:10px 12px;
       font-weight:600;
       cursor:pointer;
-      transition:transform .05s ease, box-shadow .2s ease;
+      transition:transform .05s ease, box-shadow .2s ease, background .2s ease;
       user-select:none;
       white-space:nowrap;
     }
@@ -125,10 +125,9 @@
       color:#fff;
     }
     .btn.ghost{background:transparent}
-    .btn.danger{
-      border-color:rgba(198,90,46,.25);
-      background:rgba(198,90,46,.08);
-      color:#6d2d17;
+    .btn.toggle-on{
+      border-color:rgba(198,90,46,.35);
+      background:rgba(198,90,46,.10);
     }
 
     .uploader{
@@ -206,7 +205,7 @@
       padding:18px;
       overflow:hidden;
       position:relative;
-      touch-action:none; /* allow pointer gestures */
+      touch-action:none;
     }
     canvas{
       width:min(520px, 92vw);
@@ -257,6 +256,33 @@
     .tex-meta span{font-size:12px;color:var(--muted)}
     .tex-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 
+    /* Icon grid */
+    .icon-grid{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:repeat(6, 1fr);
+      gap:8px;
+    }
+    @media (max-width:560px){ .icon-grid{grid-template-columns:repeat(4, 1fr)} }
+    .icon-btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.7);
+      border-radius:14px;
+      padding:10px;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      transition:transform .05s ease, box-shadow .2s ease;
+      min-height:44px;
+    }
+    .icon-btn:hover{transform:translateY(-1px);box-shadow:0 10px 18px rgba(31,26,21,.10)}
+    .icon-btn svg{width:22px;height:22px}
+    .icon-meta{
+      font-size:12px;color:var(--muted);
+      margin-top:8px;
+      display:flex;justify-content:space-between;gap:8px;
+    }
+
     /* Uploadcare hidden input */
     .uc-hidden{ position:absolute; left:-9999px; }
   </style>
@@ -266,10 +292,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Raleway:wght@400;600;700&family=Oswald:wght@400;600&family=Bebas+Neue&family=Pacifico&family=Great+Vibes&family=Roboto+Slab:wght@400;600;700&family=Source+Serif+4:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 
-  <!-- Uploadcare Widget (shows the Uploadcare box) -->
+  <!-- Uploadcare Widget (shows Uploadcare box) -->
   <script>
-    // IMPORTANT: set your Uploadcare public key here
-    UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8";
+    UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8"; // <-- your key
     UPLOADCARE_LOCALE = "en";
     UPLOADCARE_TABS = "file url camera";
   </script>
@@ -284,13 +309,13 @@
         <div class="mark" aria-hidden="true"></div>
         <div>
           <h1>Custom Coasters</h1>
-          <p class="sub">Tap to select · Drag to move · Handles resize · Rotate handle · Crop mode · Curved text</p>
+          <p class="sub">Tap to select · Drag to move · Handles resize · Rotate handle rotates · Mouse wheel zoom</p>
         </div>
       </div>
       <div class="cta-mini">
-        <span class="pill">Uploadcare box</span>
-        <span class="pill">PS-style handles</span>
-        <span class="pill">1-page</span>
+        <span class="pill">Uploadcare</span>
+        <span class="pill">Icon library</span>
+        <span class="pill">Simple arch</span>
       </div>
     </div>
   </div>
@@ -303,7 +328,7 @@
     <section class="card">
       <div class="card-head">
         <h2>Design</h2>
-        <div class="hint">Select object in preview</div>
+        <div class="hint">Select objects in preview</div>
       </div>
 
       <div class="card-body">
@@ -364,21 +389,46 @@
             <div class="uploader">
               <div class="meta">
                 <b id="artName">No file uploaded yet</b>
-                <span>Opens Uploadcare box (not just the file picker)</span>
+                <span>Opens Uploadcare box</span>
               </div>
               <div>
                 <button type="button" class="btn" id="artPick">Upload</button>
               </div>
             </div>
 
-            <div class="row3" style="margin-top:10px;">
+            <div class="row2" style="margin-top:10px;">
               <button type="button" class="btn ghost" id="fitArtwork">Fit</button>
-              <button type="button" class="btn ghost" id="cropToggle">Crop</button>
-              <button type="button" class="btn ghost" id="cropApply" disabled>Apply crop</button>
+              <button type="button" class="btn ghost" id="clearArtwork">Clear</button>
             </div>
 
             <div class="note warn" style="margin-top:10px;">
-              Crop mode: drag handles to crop the image. In edit mode: drag to move, handles resize, rotate handle rotates.
+              Best results: high-contrast artwork. Light/white areas won't "burn" and can disappear (like a real laser).
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div>
+            <label>SVG-style icons (hundreds via Tabler icons)</label>
+            <div class="row2">
+              <input id="iconSearch" type="search" placeholder="Search icons… (e.g., coffee, heart, leaf, star)" />
+              <button type="button" class="btn" id="iconSearchBtn">Search</button>
+            </div>
+
+            <div class="icon-grid" id="iconGrid"></div>
+
+            <div class="icon-meta">
+              <span id="iconStatus">Search to load icons.</span>
+              <span class="mono" id="iconPicked">—</span>
+            </div>
+
+            <div class="row2" style="margin-top:10px;">
+              <button type="button" class="btn ghost" id="fitIcon">Fit icon</button>
+              <button type="button" class="btn ghost" id="clearIcon">Clear icon</button>
+            </div>
+
+            <div class="note" style="margin-top:10px;">
+              These are <b>SVG icons</b> fetched from Iconify (Tabler set). Pick one, then move/resize/rotate it in the preview.
             </div>
           </div>
 
@@ -391,18 +441,17 @@
               <select id="t1Font"></select>
             </div>
 
-            <div class="row3" style="margin-top:10px;">
+            <div class="row2" style="margin-top:10px;">
               <div>
-                <label for="t1Curve">Curve (degrees)</label>
-                <input id="t1Curve" type="range" min="-180" max="180" value="0" />
+                <label for="t1Arch">Arch</label>
+                <input id="t1Arch" type="range" min="-100" max="100" value="0" />
               </div>
               <div>
-                <label for="t1Arc">Arc radius</label>
-                <input id="t1Arc" type="range" min="0" max="500" value="0" />
-              </div>
-              <div>
-                <label for="t1Rot">Rotate</label>
-                <input id="t1Rot" type="range" min="-180" max="180" value="0" />
+                <label>Orientation</label>
+                <div class="row2" style="gap:8px">
+                  <button type="button" class="btn toggle-on" id="t1Horiz">Horizontal</button>
+                  <button type="button" class="btn" id="t1Vert">Vertical</button>
+                </div>
               </div>
             </div>
 
@@ -419,18 +468,17 @@
               <select id="t2Font"></select>
             </div>
 
-            <div class="row3" style="margin-top:10px;">
+            <div class="row2" style="margin-top:10px;">
               <div>
-                <label for="t2Curve">Curve (degrees)</label>
-                <input id="t2Curve" type="range" min="-180" max="180" value="0" />
+                <label for="t2Arch">Arch</label>
+                <input id="t2Arch" type="range" min="-100" max="100" value="0" />
               </div>
               <div>
-                <label for="t2Arc">Arc radius</label>
-                <input id="t2Arc" type="range" min="0" max="500" value="0" />
-              </div>
-              <div>
-                <label for="t2Rot">Rotate</label>
-                <input id="t2Rot" type="range" min="-180" max="180" value="0" />
+                <label>Orientation</label>
+                <div class="row2" style="gap:8px">
+                  <button type="button" class="btn toggle-on" id="t2Horiz">Horizontal</button>
+                  <button type="button" class="btn" id="t2Vert">Vertical</button>
+                </div>
               </div>
             </div>
 
@@ -443,7 +491,7 @@
           <div class="divider"></div>
 
           <div class="note">
-            No hosted URLs shown to customers. Submit uploads a proof PNG for production.
+            Submit uploads a proof PNG for production. Customer never sees hosted URLs.
           </div>
 
         </div>
@@ -477,7 +525,7 @@
         </div>
 
         <div class="status" id="statusBox">
-          <b>Status:</b> Ready. Upload artwork, then position/size it.
+          <b>Status:</b> Ready. Upload artwork or pick an icon.
         </div>
       </section>
     </section>
@@ -502,17 +550,13 @@ const FONT_OPTIONS = [
   { name:"Book Serif (Source Serif)", css:`"Source Serif 4", Georgia, serif` },
   { name:"Warm Serif (Libre Baskerville)", css:`"Libre Baskerville", Georgia, serif` },
   { name:"Slab (Roboto Slab)", css:`"Roboto Slab", Georgia, serif` },
-
   { name:"Modern Sans (Montserrat)", css:`Montserrat, system-ui, sans-serif` },
   { name:"Clean Sans (Poppins)", css:`Poppins, system-ui, sans-serif` },
   { name:"Elegant Sans (Raleway)", css:`Raleway, system-ui, sans-serif` },
-
   { name:"Bold Display (Oswald)", css:`Oswald, system-ui, sans-serif` },
   { name:"ALL CAPS (Bebas Neue)", css:`"Bebas Neue", system-ui, sans-serif` },
-
   { name:"Script (Pacifico)", css:`Pacifico, cursive` },
   { name:"Fancy Script (Great Vibes)", css:`"Great Vibes", cursive` },
-
   { name:"Mono (IBM Plex Mono)", css:`"IBM Plex Mono", ui-monospace, monospace` },
   { name:"System (Default)", css:`system-ui, -apple-system, Segoe UI, Roboto, sans-serif` },
 ];
@@ -537,22 +581,28 @@ const ucWidget = uploadcare.Widget(ucInput);
 const artPick = $("artPick");
 const artName = $("artName");
 const fitArtworkBtn = $("fitArtwork");
+const clearArtworkBtn = $("clearArtwork");
 
-const cropToggle = $("cropToggle");
-const cropApply  = $("cropApply");
+const iconSearch = $("iconSearch");
+const iconSearchBtn = $("iconSearchBtn");
+const iconGrid = $("iconGrid");
+const iconStatus = $("iconStatus");
+const iconPicked = $("iconPicked");
+const fitIconBtn = $("fitIcon");
+const clearIconBtn = $("clearIcon");
 
 const t1Text = $("t1Text");
 const t1Font = $("t1Font");
-const t1Curve = $("t1Curve");
-const t1Arc   = $("t1Arc");
-const t1Rot   = $("t1Rot");
+const t1Arch = $("t1Arch");
+const t1Horiz = $("t1Horiz");
+const t1Vert  = $("t1Vert");
 const resetT1 = $("resetT1");
 
 const t2Text = $("t2Text");
 const t2Font = $("t2Font");
-const t2Curve = $("t2Curve");
-const t2Arc   = $("t2Arc");
-const t2Rot   = $("t2Rot");
+const t2Arch = $("t2Arch");
+const t2Horiz = $("t2Horiz");
+const t2Vert  = $("t2Vert");
 const resetT2 = $("resetT2");
 
 const downloadPng = $("downloadPng");
@@ -568,23 +618,28 @@ const state = {
   shape: "round",
   size: 4.0,
 
+  // Artwork
   artUrl: "",
   artPreviewUrl: "",
   artImage: null,
 
-  // normalized to safe box center; s scales base cover fit
-  artObj: { x:0, y:0, s:1.10, rot:0, crop:null }, // crop: {x,y,w,h} in 0..1 of source image
-  line1: { text:"", font: FONT_OPTIONS[4].css, x:0, y:-0.25, s:0.35, rot:0, curveDeg:0, arcRadius:0 },
-  line2: { text:"", font: FONT_OPTIONS[2].css, x:0, y: 0.45, s:0.26, rot:0, curveDeg:0, arcRadius:0 },
+  // Icon (SVG rasterized)
+  iconName: "",
+  iconSvg: "",
+  iconImage: null,
 
-  selected: "art",  // "art" | "t1" | "t2"
-  mode: "edit",     // "edit" | "crop"
+  // Objects (normalized in safe box coords)
+  artObj:  { x:0, y:0, s:1.10, rot:0 },
+  iconObj: { x:0, y:0, s:0.70, rot:0 },
+
+  // Text objects: arch is -1..1 (simple), orientation is "h"|"v"
+  line1: { text:"", font: FONT_OPTIONS[4].css, x:0, y:-0.25, s:0.35, rot:0, arch:0, orient:"h" },
+  line2: { text:"", font: FONT_OPTIONS[2].css, x:0, y: 0.45, s:0.26, rot:0, arch:0, orient:"h" },
+
+  selected: "art",  // "art" | "icon" | "t1" | "t2"
 
   textureMap: loadTextureMap(),
-  textureImgCache: {},
-
-  // crop ui cache
-  _cropUI: null
+  textureImgCache: {}
 };
 
 const pointerState = {
@@ -595,8 +650,7 @@ const pointerState = {
 };
 
 const transformState = {
-  action: null,     // "move" | "scale" | "rotate" | "crop"
-  handleIndex: -1,
+  action: null,     // "move" | "scale" | "rotate"
   start: null
 };
 
@@ -655,7 +709,7 @@ function renderTextureManager(){
       <div class="tex-actions">
         <input class="sr" type="file" accept="image/*" id="texFile_${m.id}">
         <button type="button" class="btn ghost" id="texUp_${m.id}">Upload</button>
-        <button type="button" class="btn danger" id="texClr_${m.id}" ${dataUrl ? "" : "disabled"}>Clear</button>
+        <button type="button" class="btn" id="texClr_${m.id}" ${dataUrl ? "" : "disabled"}>Clear</button>
       </div>
     `;
     textureList.appendChild(row);
@@ -698,24 +752,36 @@ t2Text.addEventListener("input", ()=>{ state.line2.text = t2Text.value; render()
 t1Font.addEventListener("change", ()=>{ state.line1.font = t1Font.value; t1Font.style.fontFamily = t1Font.value; render(); });
 t2Font.addEventListener("change", ()=>{ state.line2.font = t2Font.value; t2Font.style.fontFamily = t2Font.value; render(); });
 
-t1Curve.addEventListener("input", ()=>{ state.line1.curveDeg = parseFloat(t1Curve.value); render(); });
-t1Arc  .addEventListener("input", ()=>{ state.line1.arcRadius = parseFloat(t1Arc.value); render(); });
-t1Rot  .addEventListener("input", ()=>{ state.line1.rot = degToRad(parseFloat(t1Rot.value)); render(); });
+t1Arch.addEventListener("input", ()=>{ state.line1.arch = parseInt(t1Arch.value,10)/100; render(); });
+t2Arch.addEventListener("input", ()=>{ state.line2.arch = parseInt(t2Arch.value,10)/100; render(); });
 
-t2Curve.addEventListener("input", ()=>{ state.line2.curveDeg = parseFloat(t2Curve.value); render(); });
-t2Arc  .addEventListener("input", ()=>{ state.line2.arcRadius = parseFloat(t2Arc.value); render(); });
-t2Rot  .addEventListener("input", ()=>{ state.line2.rot = degToRad(parseFloat(t2Rot.value)); render(); });
+function setOrient(which, orient){
+  const line = (which==="t1") ? state.line1 : state.line2;
+  line.orient = orient;
+  // keep UI buttons in sync
+  const hBtn = (which==="t1") ? t1Horiz : t2Horiz;
+  const vBtn = (which==="t1") ? t1Vert  : t2Vert;
+  hBtn.classList.toggle("toggle-on", orient==="h");
+  vBtn.classList.toggle("toggle-on", orient==="v");
+  render();
+}
+t1Horiz.addEventListener("click", ()=>setOrient("t1","h"));
+t1Vert .addEventListener("click", ()=>setOrient("t1","v"));
+t2Horiz.addEventListener("click", ()=>setOrient("t2","h"));
+t2Vert .addEventListener("click", ()=>setOrient("t2","v"));
 
 resetT1.addEventListener("click", ()=>{
   state.selected = "t1";
   state.line1.x = 0; state.line1.y = -0.25; state.line1.s = 0.35; state.line1.rot = 0;
-  t1Rot.value = "0";
+  state.line1.arch = 0; t1Arch.value = "0";
+  setOrient("t1","h");
   render();
 });
 resetT2.addEventListener("click", ()=>{
   state.selected = "t2";
   state.line2.x = 0; state.line2.y = 0.45; state.line2.s = 0.26; state.line2.rot = 0;
-  t2Rot.value = "0";
+  state.line2.arch = 0; t2Arch.value = "0";
+  setOrient("t2","h");
   render();
 });
 
@@ -724,26 +790,12 @@ fitArtworkBtn.addEventListener("click", ()=>{
   fitArtworkToCoaster();
   render();
 });
-
-cropToggle.addEventListener("click", ()=>{
-  if(!state.artImage){
-    setStatus("Upload artwork first to crop.", true);
-    return;
-  }
-  state.mode = (state.mode === "crop") ? "edit" : "crop";
-  if(!state.artObj.crop){
-    state.artObj.crop = { x:0.1, y:0.1, w:0.8, h:0.8 };
-  }
-  cropApply.disabled = (state.mode !== "crop");
-  setStatus(state.mode === "crop" ? "Crop mode: drag handles to crop, then Apply crop." : "Edit mode.", false);
-  render();
-});
-
-cropApply.addEventListener("click", ()=>{
-  if(state.mode !== "crop") return;
-  state.mode = "edit";
-  cropApply.disabled = true;
-  setStatus("Crop applied.", false);
+clearArtworkBtn.addEventListener("click", ()=>{
+  state.artUrl = "";
+  state.artPreviewUrl = "";
+  state.artImage = null;
+  artName.textContent = "No file uploaded yet";
+  if(state.selected==="art") state.selected = state.iconImage ? "icon" : "t1";
   render();
 });
 
@@ -753,18 +805,13 @@ cropApply.addEventListener("click", ()=>{
 function hasPublicKey(){
   return typeof UPLOADCARE_PUBLIC_KEY === "string" && UPLOADCARE_PUBLIC_KEY.trim().length > 6;
 }
-
 artPick.addEventListener("click", async (e)=>{
   e.preventDefault();
   if(!hasPublicKey()){
     setStatus("Missing Uploadcare public key.", true);
     return;
   }
-  try{
-    await ucWidget.openDialog().done(()=>{});
-  }catch{
-    // canceled
-  }
+  try{ await ucWidget.openDialog().done(()=>{}); }catch{}
 });
 
 ucWidget.onUploadComplete(async (info)=>{
@@ -774,10 +821,8 @@ ucWidget.onUploadComplete(async (info)=>{
     state.artUrl = cdn;
     state.artPreviewUrl = cdn + "-/preview/1800x1800/";
     artName.textContent = (info.name || "Artwork uploaded");
-    await loadImageIntoState(state.artPreviewUrl);
+    await loadImageIntoState(state.artPreviewUrl, "art");
     state.selected = "art";
-    state.mode = "edit";
-    cropApply.disabled = true;
     fitArtworkToCoaster();
     setStatus("Artwork loaded. Drag/resize/rotate in preview.", false);
     render();
@@ -787,11 +832,14 @@ ucWidget.onUploadComplete(async (info)=>{
   }
 });
 
-async function loadImageIntoState(url){
+async function loadImageIntoState(url, which){
   return new Promise((resolve, reject)=>{
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.onload = ()=>{ state.artImage = img; resolve(); };
+    img.onload = ()=>{
+      if(which==="art") state.artImage = img;
+      resolve();
+    };
     img.onerror = ()=>reject(new Error("Could not load image."));
     img.src = url;
   });
@@ -802,6 +850,133 @@ function fitArtworkToCoaster(){
   state.artObj.y = 0;
   state.artObj.s = 1.10;
   state.artObj.rot = 0;
+}
+
+/* =========================================================
+   ICONS (Hundreds via Iconify Search API, Tabler set)
+   ========================================================= */
+async function iconSearchRun(){
+  const q = (iconSearch.value || "").trim();
+  if(!q){
+    iconStatus.textContent = "Type a search, like: coffee, heart, leaf…";
+    iconGrid.innerHTML = "";
+    return;
+  }
+  iconStatus.textContent = "Searching icons…";
+  iconGrid.innerHTML = "";
+
+  try{
+    const url = `https://api.iconify.design/search?query=${encodeURIComponent(q)}&prefix=tabler&limit=48`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("Icon search failed.");
+    const data = await res.json();
+
+    const icons = (data && data.icons) ? data.icons : [];
+    if(!icons.length){
+      iconStatus.textContent = "No results. Try a different keyword.";
+      return;
+    }
+    iconStatus.textContent = `Results: ${Math.min(icons.length,48)} (Tabler)`;
+
+    // render buttons
+    const frag = document.createDocumentFragment();
+    for(const full of icons.slice(0,48)){
+      const name = full.split(":")[1] || full; // tabler:icon-name
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "icon-btn";
+      btn.title = `tabler:${name}`;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=""/></svg>`;
+
+      // quick fetch svg for thumbnail
+      fetch(`https://api.iconify.design/tabler/${encodeURIComponent(name)}.svg?color=%231f1a15`)
+        .then(r=>r.ok ? r.text() : "")
+        .then(svg=>{
+          if(svg){
+            // inject svg directly (safe for iconify endpoint)
+            btn.innerHTML = svg;
+          }
+        });
+
+      btn.addEventListener("click", ()=> pickIcon(name));
+      frag.appendChild(btn);
+    }
+    iconGrid.appendChild(frag);
+  }catch(e){
+    console.error(e);
+    iconStatus.textContent = "Icon search error. Check your connection.";
+  }
+}
+
+iconSearchBtn.addEventListener("click", iconSearchRun);
+iconSearch.addEventListener("keydown", (e)=>{ if(e.key==="Enter"){ e.preventDefault(); iconSearchRun(); } });
+
+async function pickIcon(name){
+  try{
+    setStatus("Loading icon…", false);
+    const svgUrl = `https://api.iconify.design/tabler/${encodeURIComponent(name)}.svg?color=%23000000`;
+    const res = await fetch(svgUrl);
+    if(!res.ok) throw new Error("Icon fetch failed.");
+    const svg = await res.text();
+
+    // rasterize svg to Image for canvas drawing
+    const img = await svgToImage(svg);
+
+    state.iconName = `tabler:${name}`;
+    state.iconSvg = svg;
+    state.iconImage = img;
+
+    iconPicked.textContent = state.iconName;
+
+    state.selected = "icon";
+    fitIconToCoaster();
+
+    setStatus("Icon loaded. Drag/resize/rotate in preview.", false);
+    render();
+  }catch(e){
+    console.error(e);
+    setStatus("Could not load icon.", true);
+  }
+}
+
+function fitIconToCoaster(){
+  state.iconObj.x = 0;
+  state.iconObj.y = 0;
+  state.iconObj.s = 0.70;
+  state.iconObj.rot = 0;
+}
+
+fitIconBtn.addEventListener("click", ()=>{
+  if(!state.iconImage){ setStatus("Pick an icon first.", true); return; }
+  state.selected = "icon";
+  fitIconToCoaster();
+  render();
+});
+clearIconBtn.addEventListener("click", ()=>{
+  state.iconName = "";
+  state.iconSvg = "";
+  state.iconImage = null;
+  iconPicked.textContent = "—";
+  if(state.selected==="icon") state.selected = state.artImage ? "art" : "t1";
+  render();
+});
+
+function svgToImage(svgText){
+  return new Promise((resolve, reject)=>{
+    const blob = new Blob([svgText], {type:"image/svg+xml;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = ()=>{
+      URL.revokeObjectURL(url);
+      reject(new Error("SVG decode failed."));
+    };
+    img.src = url;
+  });
 }
 
 /* =========================================================
@@ -821,10 +996,7 @@ submitDesign.addEventListener("click", async ()=>{
     setStatus("Missing Uploadcare public key.", true);
     return;
   }
-  if(!state.artUrl){
-    setStatus("Upload artwork first so the design is complete.", true);
-    return;
-  }
+  // allow submit even if no artwork; proof still useful
   try{
     setStatus("Uploading proof PNG…", false);
     const proofDataUrl = cv.toDataURL("image/png");
@@ -866,10 +1038,9 @@ function dataURLToBlob(dataURL){
 }
 
 /* =========================================================
-   CANVAS INTERACTION (PS-style box + handles + rotate)
+   CANVAS INTERACTION (aligned PS-style box + handles)
    ========================================================= */
 function getCanvasClientRect(){ return cv.getBoundingClientRect(); }
-
 function canvasToLocal(px, py){
   const r = getCanvasClientRect();
   return {
@@ -887,50 +1058,82 @@ function coasterGeom(){
 }
 
 function getSelectedObj(){
-  if(state.selected === "art") return state.artObj;
-  if(state.selected === "t1")  return state.line1;
-  if(state.selected === "t2")  return state.line2;
+  if(state.selected === "art")  return state.artObj;
+  if(state.selected === "icon") return state.iconObj;
+  if(state.selected === "t1")   return state.line1;
+  if(state.selected === "t2")   return state.line2;
   return null;
 }
 
 function cycleSelection(){
-  state.selected = (state.selected === "art") ? "t1" : (state.selected === "t1" ? "t2" : "art");
+  const order = ["art","icon","t1","t2"];
+  const i = order.indexOf(state.selected);
+  for(let k=1;k<=order.length;k++){
+    const next = order[(i+k)%order.length];
+    // skip if not available
+    if(next==="art"  && !state.artImage) continue;
+    if(next==="icon" && !state.iconImage) continue;
+    state.selected = next;
+    return;
+  }
 }
 
-function pickObjectAt(canvasX, canvasY){
+function pickObjectAt(x, y){
   const {cx, cy, r} = coasterGeom();
   const box = getSafeBox(cx, cy, r, state.shape);
 
-  function centerOf(obj){
+  // Build candidates (only if they exist)
+  const cand = [];
+  if(state.artImage) cand.push({id:"art"});
+  if(state.iconImage) cand.push({id:"icon"});
+  cand.push({id:"t1"});
+  cand.push({id:"t2"});
+
+  // Pick nearest center within threshold; otherwise keep current
+  let best = {id: state.selected, d: 1e9};
+  const thr = Math.min(box.w, box.h) * 0.16;
+
+  for(const c of cand){
+    const obj = (c.id==="t1") ? state.line1 :
+                (c.id==="t2") ? state.line2 :
+                (c.id==="art") ? state.artObj : state.iconObj;
     const p = normToLocalBox(obj.x, obj.y, box);
-    return p;
+    const d = Math.hypot(x - p.x, y - p.y);
+    if(d < best.d){ best = {id:c.id, d}; }
   }
+  if(best.d < thr) return best.id;
 
-  // choose nearest text center if close; else art
-  const p1 = centerOf(state.line1);
-  const p2 = centerOf(state.line2);
-  const d1 = Math.hypot(canvasX - p1.x, canvasY - p1.y);
-  const d2 = Math.hypot(canvasX - p2.x, canvasY - p2.y);
-  const thresh = Math.min(box.w, box.h) * 0.14;
-
-  if(d1 < thresh || d2 < thresh){
-    return d1 <= d2 ? "t1" : "t2";
-  }
-  // if inside safe box, pick art
-  if(canvasX >= box.x && canvasX <= box.x+box.w && canvasY >= box.y && canvasY <= box.y+box.h){
-    return "art";
+  // If click inside safe box, prefer art/icon if exists
+  if(x >= box.x && x <= box.x+box.w && y >= box.y && y <= box.y+box.h){
+    if(state.artImage) return "art";
+    if(state.iconImage) return "icon";
   }
   return state.selected;
 }
 
-function getObjectRectInCanvas(box, obj){
+function getObjectRectInCanvas(box, id){
+  const obj = (id==="t1") ? state.line1 :
+              (id==="t2") ? state.line2 :
+              (id==="art") ? state.artObj : state.iconObj;
+
   const c = normToLocalBox(obj.x, obj.y, box);
   const rot = obj.rot || 0;
 
-  if(obj === state.artObj){
-    return { cx:c.x, cy:c.y, w: box.w * 0.62 * obj.s, h: box.h * 0.62 * obj.s, rot };
+  // Art/icon: use rendered draw size (cover fit) * s
+  if(id==="art" || id==="icon"){
+    const img = (id==="art") ? state.artImage : state.iconImage;
+    if(!img) return { cx:c.x, cy:c.y, w:140, h:140, rot };
+
+    // keep icon visually square-ish but still respect image ratio
+    const base = cover(img.width, img.height, box.w, box.h);
+    // icons shouldn't cover full box; scale base down a bit so fit feels right
+    const baseScale = (id==="icon") ? 0.55 : 1.00;
+    const w = base.w * baseScale * obj.s;
+    const h = base.h * baseScale * obj.s;
+    return { cx:c.x, cy:c.y, w, h, rot };
   }
 
+  // Text: measure straight text width; arch doesn't affect selection much (keep simple)
   const basePx = 120;
   const px = clamp(Math.round(basePx * obj.s), 12, 220);
 
@@ -940,8 +1143,12 @@ function getObjectRectInCanvas(box, obj){
   const tw = txt ? ctx.measureText(txt).width : 120;
   ctx.restore();
 
-  const pad = 26;
-  return { cx:c.x, cy:c.y, w: Math.max(90, tw + pad), h: Math.max(54, px + pad), rot };
+  // if vertical orientation, swap proportions
+  const isV = obj.orient === "v";
+  const w = isV ? Math.max(54, px + 30) : Math.max(90, tw + 30);
+  const h = isV ? Math.max(90, tw + 30) : Math.max(54, px + 30);
+
+  return { cx:c.x, cy:c.y, w, h, rot };
 }
 
 function rotRectHandlePoints(cx, cy, w, h, rot){
@@ -967,107 +1174,33 @@ function hitTestHandle(px, py, hx, hy, r=14){
 }
 
 function hitTestSelection(loc, box){
-  const obj = getSelectedObj();
-  if(!obj) return { action:null };
-
-  const r = getObjectRectInCanvas(box, obj);
-  const handles = rotRectHandlePoints(r.cx, r.cy, r.w, r.h, obj.rot || 0);
+  const id = state.selected;
+  const r = getObjectRectInCanvas(box, id);
+  const handles = rotRectHandlePoints(r.cx, r.cy, r.w, r.h, r.rot || 0);
 
   // rotate handle
   const topMid = handles[1];
   const rotH = rotateHandlePoint(topMid.x, topMid.y, r.cx, r.cy, 26);
   if(hitTestHandle(loc.x,loc.y, rotH.x, rotH.y, 16)){
-    return { action:"rotate", cx:r.cx, cy:r.cy, rect:r };
+    return { action:"rotate", rect:r };
   }
 
   // resize handles
   for(let i=0;i<handles.length;i++){
     if(hitTestHandle(loc.x,loc.y, handles[i].x, handles[i].y, 14)){
-      return { action:"scale", handleIndex:i, rect:r };
+      return { action:"scale", rect:r };
     }
   }
 
-  // approximate inside
+  // inside (rough)
   const d = Math.hypot(loc.x-r.cx, loc.y-r.cy);
   if(d < Math.max(r.w,r.h)*0.65){
     return { action:"move", rect:r };
   }
-
-  return { action:null };
+  return { action:null, rect:r };
 }
 
-/* ---------------------------
-   Crop hit/drag
---------------------------- */
-function drawCropOverlay(box){
-  const obj = state.artObj;
-  if(!obj.crop) return;
-
-  // crop overlay dimensions based on displayed art rect (axis-aligned)
-  const center = normToLocalBox(obj.x, obj.y, box);
-  const dispW = box.w * 0.62 * obj.s;
-  const dispH = box.h * 0.62 * obj.s;
-
-  const c = obj.crop;
-  const rx = center.x - dispW/2 + c.x*dispW;
-  const ry = center.y - dispH/2 + c.y*dispH;
-  const rw = c.w*dispW;
-  const rh = c.h*dispH;
-
-  ctx.save();
-  // dim whole
-  ctx.fillStyle = "rgba(0,0,0,.22)";
-  ctx.fillRect(0,0,cv.width,cv.height);
-
-  // clear inside crop rect
-  ctx.globalCompositeOperation = "destination-out";
-  ctx.fillRect(rx,ry,rw,rh);
-  ctx.globalCompositeOperation = "source-over";
-
-  // border + handles
-  ctx.strokeStyle = "rgba(255,255,255,.95)";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(rx,ry,rw,rh);
-
-  const hs = [
-    {x:rx,y:ry},{x:rx+rw/2,y:ry},{x:rx+rw,y:ry},
-    {x:rx+rw,y:ry+rh/2},
-    {x:rx+rw,y:ry+rh},{x:rx+rw/2,y:ry+rh},{x:rx,y:ry+rh},
-    {x:rx,y:ry+rh/2},
-  ];
-  hs.forEach(p=>drawHandle(p.x,p.y));
-  ctx.restore();
-
-  state._cropUI = { rx,ry,rw,rh, dispW, dispH, center };
-}
-
-function cropHitTest(loc){
-  const ui = state._cropUI;
-  if(!ui) return { hit:false };
-
-  const hs = [
-    {x:ui.rx,y:ui.ry},{x:ui.rx+ui.rw/2,y:ui.ry},{x:ui.rx+ui.rw,y:ui.ry},
-    {x:ui.rx+ui.rw,y:ui.ry+ui.rh/2},
-    {x:ui.rx+ui.rw,y:ui.ry+ui.rh},{x:ui.rx+ui.rw/2,y:ui.ry+ui.rh},{x:ui.rx,y:ui.ry+ui.rh},
-    {x:ui.rx,y:ui.ry+ui.rh/2},
-  ];
-
-  let hi = -1;
-  for(let i=0;i<hs.length;i++){
-    if(hitTestHandle(loc.x,loc.y, hs[i].x, hs[i].y, 16)){ hi=i; break; }
-  }
-  if(hi !== -1){
-    return { hit:true, kind:"handle", handleIndex:hi };
-  }
-  if(loc.x>=ui.rx && loc.x<=ui.rx+ui.rw && loc.y>=ui.ry && loc.y<=ui.ry+ui.rh){
-    return { hit:true, kind:"move" };
-  }
-  return { hit:false };
-}
-
-/* ---------------------------
-   Pointer events
---------------------------- */
+/* Pointer events */
 canvasWrap.addEventListener("pointerdown", (e)=>{
   cv.setPointerCapture(e.pointerId);
 
@@ -1087,35 +1220,19 @@ canvasWrap.addEventListener("pointerdown", (e)=>{
     render();
   }
 
-  // crop mode interaction first (single pointer)
-  if(state.mode === "crop" && state.selected === "art"){
-    const hit = cropHitTest(loc);
-    if(hit.hit){
-      transformState.action = "crop";
-      transformState.handleIndex = (hit.kind === "move") ? 99 : hit.handleIndex;
-      transformState.start = { x: loc.x, y: loc.y, crop: {...state.artObj.crop} };
-      pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
-      return;
-    }
+  const ht = hitTestSelection(loc, box);
+  if(ht.action){
+    const obj = getSelectedObj();
+    transformState.action = ht.action;
+    transformState.start = {
+      x: loc.x, y: loc.y,
+      obj: { x: obj.x, y: obj.y, s: obj.s, rot: obj.rot || 0 }
+    };
+  }else{
+    transformState.action = null;
+    transformState.start = null;
   }
 
-  // edit mode selection box
-  if(state.mode === "edit"){
-    const ht = hitTestSelection(loc, box);
-    if(ht.action){
-      transformState.action = ht.action;
-      transformState.handleIndex = ht.handleIndex ?? -1;
-      const obj = getSelectedObj();
-      transformState.start = {
-        x: loc.x, y: loc.y,
-        obj: { x: obj.x, y: obj.y, s: obj.s, rot: obj.rot || 0 },
-      };
-      pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
-      return;
-    }
-  }
-
-  // otherwise allow pinch pan/scale with two fingers
   pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
   if(pointerState.active.size === 2){
     const pts = [...pointerState.active.values()];
@@ -1135,45 +1252,8 @@ canvasWrap.addEventListener("pointermove", (e)=>{
   const {cx, cy, r} = coasterGeom();
   const box = getSafeBox(cx, cy, r, state.shape);
 
-  // Crop drag
-  if(transformState.action === "crop"){
-    const ui = state._cropUI;
-    if(!ui) return;
-
-    const dx = loc.x - transformState.start.x;
-    const dy = loc.y - transformState.start.y;
-    const c0 = transformState.start.crop;
-    const c = {...c0};
-
-    const ndx = dx / ui.dispW;
-    const ndy = dy / ui.dispH;
-
-    if(transformState.handleIndex === 99){
-      c.x = clamp(c0.x + ndx, 0, 1 - c0.w);
-      c.y = clamp(c0.y + ndy, 0, 1 - c0.h);
-    }else{
-      const i = transformState.handleIndex;
-      const isL = [0,6,7].includes(i);
-      const isR = [2,3,4].includes(i);
-      const isT = [0,1,2].includes(i);
-      const isB = [4,5,6].includes(i);
-
-      let x1 = c0.x, y1 = c0.y, x2 = c0.x + c0.w, y2 = c0.y + c0.h;
-      if(isL) x1 = clamp(x1 + ndx, 0, x2 - 0.05);
-      if(isR) x2 = clamp(x2 + ndx, x1 + 0.05, 1);
-      if(isT) y1 = clamp(y1 + ndy, 0, y2 - 0.05);
-      if(isB) y2 = clamp(y2 + ndy, y1 + 0.05, 1);
-
-      c.x = x1; c.y = y1; c.w = x2 - x1; c.h = y2 - y1;
-    }
-
-    state.artObj.crop = c;
-    render();
-    return;
-  }
-
-  // Transform drag (single pointer)
-  if(transformState.action){
+  // Single pointer transforms
+  if(transformState.action && transformState.start && pointerState.active.size === 1){
     const obj = getSelectedObj();
     if(!obj) return;
 
@@ -1201,16 +1281,16 @@ canvasWrap.addEventListener("pointermove", (e)=>{
       const d1 = Math.hypot(loc.x - c.x, loc.y - c.y);
       const factor = (d0>2) ? (d1/d0) : 1;
 
-      const minS = (state.selected==="art") ? 0.25 : 0.10;
-      const maxS = (state.selected==="art") ? 4.0  : 1.10;
+      const minS = (state.selected==="art") ? 0.25 : (state.selected==="icon") ? 0.15 : 0.10;
+      const maxS = (state.selected==="art") ? 4.0  : (state.selected==="icon") ? 3.0  : 1.10;
       obj.s = clamp(transformState.start.obj.s * factor, minS, maxS);
       render();
       return;
     }
   }
 
-  // Pinch move/scale (two pointers) — edit mode only
-  if(pointerState.active.size === 2 && state.mode === "edit"){
+  // Pinch pan/zoom with 2 pointers
+  if(pointerState.active.size === 2){
     const obj = getSelectedObj();
     if(!obj) return;
 
@@ -1224,14 +1304,13 @@ canvasWrap.addEventListener("pointermove", (e)=>{
       const rect = getCanvasClientRect();
       const dxCanvas = dx * (cv.width / rect.width);
       const dyCanvas = dy * (cv.height / rect.height);
-
       obj.x = clamp(obj.x + dxCanvas/(box.w/2), -1.2, 1.2);
       obj.y = clamp(obj.y + dyCanvas/(box.h/2), -1.2, 1.2);
     }
     if(pointerState.lastDist > 0){
       const ratio = dNow / pointerState.lastDist;
-      const minS = (state.selected==="art") ? 0.25 : 0.10;
-      const maxS = (state.selected==="art") ? 4.0  : 1.10;
+      const minS = (state.selected==="art") ? 0.25 : (state.selected==="icon") ? 0.15 : 0.10;
+      const maxS = (state.selected==="art") ? 4.0  : (state.selected==="icon") ? 3.0  : 1.10;
       obj.s = clamp(obj.s * ratio, minS, maxS);
     }
 
@@ -1244,65 +1323,63 @@ canvasWrap.addEventListener("pointermove", (e)=>{
 
 canvasWrap.addEventListener("pointerup", (e)=>{
   pointerState.active.delete(e.pointerId);
-
   if(pointerState.active.size < 2){
     pointerState.lastCentroid = null;
     pointerState.lastDist = 0;
   }
-
-  // clear transforms when last pointer released
   if(pointerState.active.size === 0){
     transformState.action = null;
-    transformState.handleIndex = -1;
     transformState.start = null;
   }
 });
 
 canvasWrap.addEventListener("wheel", (e)=>{
   e.preventDefault();
-  if(state.mode !== "edit") return;
   const obj = getSelectedObj();
   if(!obj) return;
-
   const delta = Math.sign(e.deltaY);
   const factor = (delta > 0) ? 0.94 : 1.06;
 
-  const minS = (state.selected==="art") ? 0.25 : 0.10;
-  const maxS = (state.selected==="art") ? 4.0  : 1.10;
+  const minS = (state.selected==="art") ? 0.25 : (state.selected==="icon") ? 0.15 : 0.10;
+  const maxS = (state.selected==="art") ? 4.0  : (state.selected==="icon") ? 3.0  : 1.10;
   obj.s = clamp(obj.s * factor, minS, maxS);
 
   render();
 },{passive:false});
 
 /* =========================================================
-   ORDER CODE (no URLs shown)
+   ORDER CODE (no URLs)
    ========================================================= */
 function buildOrderCode(){
   const safe = (s)=>String(s||"").replace(/\|/g,"/").trim().slice(0,80);
   const f1 = shortenFont(state.line1.font);
   const f2 = shortenFont(state.line2.font);
 
-  const crop = state.artObj.crop ? `${state.artObj.crop.x.toFixed(3)},${state.artObj.crop.y.toFixed(3)},${state.artObj.crop.w.toFixed(3)},${state.artObj.crop.h.toFixed(3)}` : "none";
-
   return [
-    "COASTER3",
+    "COASTER4",
     `mat:${state.material}`,
     `shape:${state.shape}`,
     `size:${state.size.toFixed(1)}`,
 
+    `art:${state.artImage ? 1:0}`,
     `ax:${state.artObj.x.toFixed(3)}`,
     `ay:${state.artObj.y.toFixed(3)}`,
     `as:${state.artObj.s.toFixed(3)}`,
-    `ar:${state.artObj.rot.toFixed(3)}`,
-    `ac:${crop}`,
+    `ar:${(state.artObj.rot||0).toFixed(3)}`,
+
+    `ic:${state.iconImage ? safe(state.iconName):"none"}`,
+    `ix:${state.iconObj.x.toFixed(3)}`,
+    `iy:${state.iconObj.y.toFixed(3)}`,
+    `is:${state.iconObj.s.toFixed(3)}`,
+    `ir:${(state.iconObj.rot||0).toFixed(3)}`,
 
     `f1:${f1}`,`t1:${safe(state.line1.text)}`,
     `x1:${state.line1.x.toFixed(3)}`,`y1:${state.line1.y.toFixed(3)}`,`s1:${state.line1.s.toFixed(3)}`,
-    `r1:${state.line1.rot.toFixed(3)}`,`c1:${(state.line1.curveDeg||0).toFixed(0)}`,`a1:${(state.line1.arcRadius||0).toFixed(0)}`,
+    `r1:${(state.line1.rot||0).toFixed(3)}`,`a1:${(state.line1.arch||0).toFixed(2)}`,`o1:${state.line1.orient}`,
 
     `f2:${f2}`,`t2:${safe(state.line2.text)}`,
     `x2:${state.line2.x.toFixed(3)}`,`y2:${state.line2.y.toFixed(3)}`,`s2:${state.line2.s.toFixed(3)}`,
-    `r2:${state.line2.rot.toFixed(3)}`,`c2:${(state.line2.curveDeg||0).toFixed(0)}`,`a2:${(state.line2.arcRadius||0).toFixed(0)}`
+    `r2:${(state.line2.rot||0).toFixed(3)}`,`a2:${(state.line2.arch||0).toFixed(2)}`,`o2:${state.line2.orient}`
   ].join("|");
 }
 function shortenFont(font){
@@ -1314,7 +1391,7 @@ function shortenFont(font){
    ========================================================= */
 function render(){
   const mat = MATERIALS.find(m=>m.id===state.material) || MATERIALS[0];
-  summary.textContent = `${mat.name} · ${state.shape} · ${state.size.toFixed(1)}" · ${state.mode.toUpperCase()} · ${state.selected.toUpperCase()}`;
+  summary.textContent = `${mat.name} · ${state.shape} · ${state.size.toFixed(1)}" · sel:${state.selected}`;
 
   ctx.clearRect(0,0,cv.width,cv.height);
 
@@ -1336,35 +1413,19 @@ function render(){
 
   const box = getSafeBox(cx, cy, r, state.shape);
 
-  // Artwork (cover safe box, then scale/rotate/position, and apply crop)
+  // Artwork
   if (state.artImage){
-    const obj = state.artObj;
-    const base = cover(state.artImage.width, state.artImage.height, box.w, box.h);
-    const w = base.w * obj.s;
-    const h = base.h * obj.s;
-
-    const center = normToLocalBox(obj.x, obj.y, box);
-
-    ectx.save();
-    ectx.translate(center.x, center.y);
-    ectx.rotate(obj.rot || 0);
-
-    if(obj.crop){
-      const c = obj.crop;
-      const sx = c.x * state.artImage.width;
-      const sy = c.y * state.artImage.height;
-      const sw = c.w * state.artImage.width;
-      const sh = c.h * state.artImage.height;
-      ectx.drawImage(state.artImage, sx, sy, sw, sh, -w/2, -h/2, w, h);
-    }else{
-      ectx.drawImage(state.artImage, -w/2, -h/2, w, h);
-    }
-
-    ectx.restore();
+    drawImageObj(ectx, box, state.artImage, state.artObj, 1.00);
   }
 
-  drawTextObj(ectx, box, state.line1);
-  drawTextObj(ectx, box, state.line2);
+  // Icon (scaled down base)
+  if(state.iconImage){
+    drawImageObj(ectx, box, state.iconImage, state.iconObj, 0.55);
+  }
+
+  // Text
+  drawTextSimpleArch(ectx, box, state.line1);
+  drawTextSimpleArch(ectx, box, state.line2);
 
   ectx.restore();
 
@@ -1373,16 +1434,12 @@ function render(){
   applyEngraving(mask, cx, cy, r, state.shape);
   drawEdge(cx, cy, r, state.shape);
 
-  // crop overlay or selection box
-  if(state.mode === "crop" && state.selected === "art"){
-    drawCropOverlay(box);
-  }else{
-    drawSelectionBox(box);
-  }
+  // selection box
+  drawSelectionBox(box);
 
   // signature
   ctx.save();
-  ctx.globalAlpha = 0.25;
+  ctx.globalAlpha = 0.22;
   ctx.fillStyle = "#1f1a15";
   ctx.font = `14px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
   ctx.textAlign = "center";
@@ -1390,7 +1447,25 @@ function render(){
   ctx.restore();
 }
 
-function drawTextObj(ectx, box, line){
+function drawImageObj(ectx, box, img, obj, baseScale){
+  const base = cover(img.width, img.height, box.w, box.h);
+  const w = base.w * baseScale * obj.s;
+  const h = base.h * baseScale * obj.s;
+  const center = normToLocalBox(obj.x, obj.y, box);
+
+  ectx.save();
+  ectx.translate(center.x, center.y);
+  ectx.rotate(obj.rot || 0);
+  ectx.drawImage(img, -w/2, -h/2, w, h);
+  ectx.restore();
+}
+
+/* Simpler arch:
+   - arch in [-1..1]
+   - if arch ~ 0 => straight
+   - else place characters along a gentle arc with auto radius based on text width
+*/
+function drawTextSimpleArch(ectx, box, line){
   const t = (line.text || "").trim();
   if(!t) return;
 
@@ -1398,9 +1473,11 @@ function drawTextObj(ectx, box, line){
   const basePx = 120;
   const px = clamp(Math.round(basePx * line.s), 12, 220);
 
-  const rot = line.rot || 0;
-  const curveDeg = line.curveDeg || 0;
-  const arcR = line.arcRadius || 0;
+  // orientation button: horizontal or vertical
+  const orientRot = (line.orient === "v") ? Math.PI/2 : 0;
+
+  const rot = (line.rot || 0) + orientRot;
+  const arch = clamp(line.arch || 0, -1, 1);
 
   ectx.save();
   ectx.translate(p.x, p.y);
@@ -1411,30 +1488,34 @@ function drawTextObj(ectx, box, line){
   ectx.textBaseline = "middle";
   ectx.font = `${px}px ${line.font}`;
 
-  // straight text
-  if(Math.abs(curveDeg) < 1 || arcR <= 0){
+  if(Math.abs(arch) < 0.02){
     ectx.fillText(t, 0, 0);
     ectx.fillText(t, 0.6, 0);
     ectx.restore();
     return;
   }
 
-  // Curved text along arc
-  const sweep = degToRad(curveDeg);
   const chars = [...t];
-
   const widths = chars.map(ch => ectx.measureText(ch).width);
   const totalW = widths.reduce((a,b)=>a+b,0);
-  const arcLen = Math.max(1, arcR * Math.abs(sweep));
-  const scale = Math.max(0.45, Math.min(1, totalW / arcLen)); // keep stable
+
+  // Set sweep up to ~140° max based on arch
+  const sweep = degToRad(140 * arch);
+  // Auto radius so arc length ~ totalW * 1.05 (nice spacing)
+  const targetArcLen = Math.max(10, totalW * 1.05);
+  const R = Math.max(30, targetArcLen / Math.max(0.15, Math.abs(sweep)));
 
   let ang = -sweep/2;
   const dir = sweep >= 0 ? 1 : -1;
-  const baseline = -arcR;
+  const baseline = -R;
+
+  // spacing scale to match arc
+  const arcLen = R * Math.abs(sweep);
+  const scale = Math.max(0.60, Math.min(1.25, totalW / Math.max(10, arcLen)));
 
   for(let i=0;i<chars.length;i++){
     const w = widths[i] / scale;
-    const step = (w / arcR) * dir;
+    const step = (w / R) * dir;
     const mid = ang + step/2;
 
     ectx.save();
@@ -1451,11 +1532,14 @@ function drawTextObj(ectx, box, line){
 }
 
 function drawSelectionBox(box){
-  const obj = getSelectedObj();
-  if(!obj) return;
+  const id = state.selected;
 
-  const r = getObjectRectInCanvas(box, obj);
-  const rot = obj.rot || 0;
+  // If selected object doesn't exist, don't draw
+  if(id==="art" && !state.artImage) return;
+  if(id==="icon" && !state.iconImage) return;
+
+  const r = getObjectRectInCanvas(box, id);
+  const rot = r.rot || 0;
 
   ctx.save();
   ctx.lineWidth = 2;
@@ -1464,7 +1548,6 @@ function drawSelectionBox(box){
   strokeRotRect(r.cx, r.cy, r.w, r.h, rot);
   ctx.setLineDash([]);
 
-  // handles
   const pts = rotRectHandlePoints(r.cx, r.cy, r.w, r.h, rot);
   pts.forEach(p => drawHandle(p.x,p.y));
 
@@ -1609,7 +1692,6 @@ function clipShape(c, cx, cy, r, shape){
   c.closePath();
   c.clip();
 }
-
 function drawShapePath(c, cx, cy, r, shape){
   c.beginPath();
   if(shape === "round"){
@@ -1622,7 +1704,6 @@ function drawShapePath(c, cx, cy, r, shape){
   }
   c.closePath();
 }
-
 function getSafeBox(cx, cy, r, shape){
   if(shape === "round") return { x: cx - r*0.78, y: cy - r*0.78, w: r*1.56, h: r*1.56 };
   if(shape === "square"){
@@ -1631,7 +1712,6 @@ function getSafeBox(cx, cy, r, shape){
   }
   return { x: cx - r*0.78, y: cy - r*0.70, w: r*1.56, h: r*1.40 };
 }
-
 function normToLocalBox(nx, ny, box){
   return {
     x: box.x + box.w/2 + nx*(box.w/2),
@@ -1751,9 +1831,6 @@ function fileToDataURL(file){
 }
 function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
 function clamp01(v){ return Math.max(0, Math.min(1, v)); }
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-}
 function degToRad(d){ return d * Math.PI / 180; }
 
 async function copyText(text, btn, label){
@@ -1771,12 +1848,14 @@ async function copyText(text, btn, label){
     alert(t);
   }
 }
-
 function setStatus(msg, isError){
   statusBox.innerHTML = `<b>Status:</b> ${escapeHtml(msg)}`;
   statusBox.style.borderColor = isError ? "rgba(198,90,46,.35)" : "rgba(231,220,207,1)";
   statusBox.style.background  = isError ? "rgba(198,90,46,.08)" : "rgba(255,255,255,.6)";
   statusBox.style.color       = isError ? "#6d2d17" : "var(--muted)";
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
 }
 
 // Texture storage
@@ -1791,8 +1870,15 @@ function saveTextureMap(map){
    START
    ========================================================= */
 renderTextureManager();
+setOrient("t1","h");
+setOrient("t2","h");
 render();
-setStatus("Ready. Click Upload to open the Uploadcare box.", false);
+setStatus("Ready. Click Upload to open the Uploadcare box. Or search icons.", false);
+
+// small convenience: initial icon examples
+iconSearch.value = "coffee";
+iconSearchRun();
+
 </script>
 </body>
 </html>

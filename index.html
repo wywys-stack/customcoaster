@@ -5,291 +5,291 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Custom Coasters — Designer</title>
 
-  <!-- Mid-century modern + modern -->
   <style>
     :root{
-      --bg: #fbf6ee;
+      --bg:#fbf6ee;
       --ink:#1f1a15;
       --muted:#6b5f55;
       --card:#fffaf2;
       --line:#e7dccf;
-      --shadow: 0 12px 28px rgba(31,26,21,.10);
+      --shadow:0 12px 28px rgba(31,26,21,.10);
       --accent:#c65a2e;
-      --accent2:#1e6f5c;
       --chip:#f3e7d8;
-      --focus: 0 0 0 3px rgba(198,90,46,.22);
-      --radius2: 24px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      --focus:0 0 0 3px rgba(198,90,46,.22);
+      --radius2:24px;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
     }
-    *{ box-sizing:border-box; }
+    *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: var(--sans);
-      color: var(--ink);
+      font-family:var(--sans);
+      color:var(--ink);
       background:
         radial-gradient(1100px 700px at 10% -10%, #ffe8cf 0%, transparent 60%),
         radial-gradient(900px 650px at 105% 0%, #d6f0ea 0%, transparent 55%),
         var(--bg);
     }
     header{
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: blur(8px);
-      background: rgba(251,246,238,.78);
+      position:sticky; top:0; z-index:10;
+      backdrop-filter:blur(8px);
+      background:rgba(251,246,238,.78);
       border-bottom:1px solid var(--line);
     }
-    .wrap{ max-width:1200px; margin:0 auto; padding: 16px 16px; }
-    .brand{ display:flex; align-items:center; gap:12px; justify-content:space-between; }
-    .brand-left{ display:flex; align-items:center; gap:12px; }
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    .brand{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand-left{display:flex;align-items:center;gap:12px}
     .mark{
-      width:42px; height:42px; border-radius: 14px;
-      background: linear-gradient(145deg, rgba(198,90,46,.95), rgba(30,111,92,.9));
-      box-shadow: 0 10px 22px rgba(31,26,21,.12);
+      width:42px;height:42px;border-radius:14px;
+      background:linear-gradient(145deg, rgba(198,90,46,.95), rgba(30,111,92,.9));
+      box-shadow:0 10px 22px rgba(31,26,21,.12);
       position:relative;
     }
     .mark:after{
-      content:"";
-      position:absolute; inset:9px;
-      border-radius: 12px;
-      background: rgba(251,246,238,.65);
-      transform: rotate(10deg);
+      content:""; position:absolute; inset:9px;
+      border-radius:12px; background:rgba(251,246,238,.65);
+      transform:rotate(10deg);
     }
-    h1{ font-size: 16px; letter-spacing:.2px; margin:0; }
-    .sub{ margin:0; font-size: 12px; color: var(--muted); }
-    .cta-mini{ display:flex; gap:10px; align-items:center; font-size: 12px; color: var(--muted); }
+    h1{font-size:16px;margin:0}
+    .sub{margin:0;font-size:12px;color:var(--muted)}
+    .cta-mini{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--muted)}
     .pill{
-      padding:8px 10px;
-      border-radius: 999px;
-      background: var(--chip);
-      border: 1px solid var(--line);
-      font-family: var(--mono);
+      padding:8px 10px;border-radius:999px;background:var(--chip);
+      border:1px solid var(--line);font-family:var(--mono)
     }
 
     main .wrap{
-      padding: 18px 16px 36px;
+      padding:18px 16px 36px;
       display:grid;
       grid-template-columns: 460px 1fr;
-      gap: 18px;
+      gap:18px;
       align-items:start;
     }
-    @media (max-width: 980px){ main .wrap{ grid-template-columns: 1fr; } }
+    @media (max-width:980px){ main .wrap{grid-template-columns:1fr} }
 
     .card{
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius2);
-      box-shadow: var(--shadow);
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
       overflow:hidden;
     }
     .card-head{
-      padding: 14px 16px;
+      padding:14px 16px;
       border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap: 12px;
+      display:flex;align-items:baseline;justify-content:space-between;gap:12px;
     }
-    .card-head h2{ margin:0; font-size: 14px; letter-spacing:.2px; }
-    .card-head .hint{ font-size: 12px; color: var(--muted); }
-    .card-body{ padding: 14px 16px 16px; }
+    .card-head h2{margin:0;font-size:14px}
+    .card-head .hint{font-size:12px;color:var(--muted)}
+    .card-body{padding:14px 16px 16px}
 
-    .grid{ display:grid; gap: 12px; }
-    label{ font-size: 12px; color: var(--muted); display:block; margin-bottom: 6px; }
-    select, input[type="text"], input[type="number"], input[type="range"], input[type="email"]{
+    .grid{display:grid;gap:12px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+
+    select,input[type="text"],input[type="number"],input[type="range"]{
       width:100%;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--ink);
-      outline: none;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--ink);
+      outline:none;
     }
-    input[type="range"]{ padding: 10px 10px; height: 42px; }
-    select:focus, input:focus{ box-shadow: var(--focus); border-color: rgba(198,90,46,.55); }
+    input[type="range"]{height:42px;padding:10px}
+    select:focus,input:focus{box-shadow:var(--focus);border-color:rgba(198,90,46,.55)}
 
-    .row2{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .row3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-    @media (max-width: 560px){ .row2, .row3{ grid-template-columns: 1fr; } }
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    @media (max-width:560px){ .row2,.row3{grid-template-columns:1fr} }
 
-    .divider{ height:1px; background: var(--line); margin: 12px 0; }
+    .divider{height:1px;background:var(--line);margin:12px 0}
 
     .btn{
       appearance:none;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--ink);
-      border-radius: 999px;
-      padding: 10px 12px;
-      font-weight: 600;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--ink);
+      border-radius:999px;
+      padding:10px 12px;
+      font-weight:600;
       cursor:pointer;
-      transition: transform .05s ease, box-shadow .2s ease;
+      transition:transform .05s ease, box-shadow .2s ease;
       user-select:none;
       white-space:nowrap;
     }
-    .btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 20px rgba(31,26,21,.10); }
-    .btn:active{ transform: translateY(0px); box-shadow:none; }
+    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(31,26,21,.10)}
+    .btn:active{transform:translateY(0);box-shadow:none}
     .btn.primary{
-      border-color: rgba(198,90,46,.4);
-      background: linear-gradient(135deg, rgba(198,90,46,.95), rgba(198,90,46,.78));
-      color: #fff;
+      border-color:rgba(198,90,46,.4);
+      background:linear-gradient(135deg, rgba(198,90,46,.95), rgba(198,90,46,.78));
+      color:#fff;
     }
-    .btn.ghost{ background: transparent; }
+    .btn.ghost{background:transparent}
     .btn.danger{
-      border-color: rgba(198,90,46,.25);
-      background: rgba(198,90,46,.08);
-      color: #6d2d17;
+      border-color:rgba(198,90,46,.25);
+      background:rgba(198,90,46,.08);
+      color:#6d2d17;
     }
 
     .uploader{
-      border: 1px dashed rgba(31,26,21,.25);
-      background: rgba(255,255,255,.6);
-      border-radius: 16px;
-      padding: 12px;
+      border:1px dashed rgba(31,26,21,.25);
+      background:rgba(255,255,255,.6);
+      border-radius:16px;
+      padding:12px;
       display:flex;
-      gap: 10px;
+      gap:10px;
       align-items:center;
       justify-content:space-between;
     }
-    .uploader .meta{ display:flex; flex-direction:column; gap:3px; min-width:0; }
-    .uploader .meta b{ font-size: 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .uploader .meta span{ font-size: 12px; color: var(--muted); }
+    .uploader .meta{display:flex;flex-direction:column;gap:3px;min-width:0}
+    .uploader .meta b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .uploader .meta span{font-size:12px;color:var(--muted)}
 
-    .chips{ display:flex; flex-wrap:wrap; gap: 8px; }
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
     .chip{
-      display:flex; align-items:center; gap: 8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: #fff;
-      cursor:pointer;
-      font-size: 12px;
+      display:flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid var(--line);background:#fff;
+      cursor:pointer;font-size:12px;
     }
-    .chip input{ accent-color: var(--accent); }
-    .swatch{
-      width: 12px; height: 12px; border-radius: 999px;
-      border:1px solid rgba(31,26,21,.18);
-    }
+    .chip input{accent-color:var(--accent)}
+    .swatch{width:12px;height:12px;border-radius:999px;border:1px solid rgba(31,26,21,.18)}
 
     details summary{
-      cursor:pointer;
-      user-select:none;
-      list-style:none;
-      font-size: 12px;
-      color: var(--muted);
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.45);
-      border-radius: 16px;
+      cursor:pointer; user-select:none; list-style:none;
+      font-size:12px; color:var(--muted);
+      padding:10px 12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.45);
+      border-radius:16px;
     }
-    details summary::-webkit-details-marker{ display:none; }
-    details[open] summary{ box-shadow: var(--focus); border-color: rgba(198,90,46,.35); }
+    details summary::-webkit-details-marker{display:none}
+    details[open] summary{box-shadow:var(--focus);border-color:rgba(198,90,46,.35)}
 
     .note{
-      background: rgba(30,111,92,.08);
-      border: 1px solid rgba(30,111,92,.18);
-      padding: 10px 12px;
-      border-radius: 16px;
-      color: #164b3f;
-      font-size: 12px;
-      line-height: 1.35;
+      background:rgba(30,111,92,.08);
+      border:1px solid rgba(30,111,92,.18);
+      padding:10px 12px;
+      border-radius:16px;
+      color:#164b3f;
+      font-size:12px;
+      line-height:1.35;
     }
     .warn{
-      background: rgba(198,90,46,.08);
-      border: 1px solid rgba(198,90,46,.18);
-      color: #6d2d17;
+      background:rgba(198,90,46,.08);
+      border:1px solid rgba(198,90,46,.18);
+      color:#6d2d17;
     }
-    .small{ font-size: 12px; color: var(--muted); }
-    .mono{ font-family: var(--mono); }
+
+    .small{font-size:12px;color:var(--muted)}
+    .mono{font-family:var(--mono)}
+    .sr{position:absolute;left:-9999px}
 
     /* Preview */
-    .preview{ display:grid; gap: 14px; }
-    .stage{ padding: 16px; }
-    .stage-top{ display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-bottom: 10px; }
-    .stage-top .title{ display:flex; flex-direction:column; gap: 2px; }
-    .stage-top .title b{ font-size: 14px; }
-    .stage-top .title span{ font-size: 12px; color: var(--muted); }
+    .preview{display:grid;gap:14px}
+    .stage{padding:16px}
+    .stage-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .stage-top .title{display:flex;flex-direction:column;gap:2px}
+    .stage-top .title b{font-size:14px}
+    .stage-top .title span{font-size:12px;color:var(--muted)}
 
     .canvas-shell{
-      border-radius: 26px;
-      border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.25));
-      padding: 14px;
+      border-radius:26px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.25));
+      padding:14px;
     }
     .canvas-inner{
-      display:grid;
-      place-items:center;
-      background: rgba(31,26,21,.04);
-      border-radius: 20px;
-      padding: 18px;
+      display:grid;place-items:center;
+      background:rgba(31,26,21,.04);
+      border-radius:20px;
+      padding:18px;
       overflow:hidden;
     }
     canvas{
       width:min(520px, 92vw);
       height:auto;
       display:block;
-      border-radius: 18px;
-      box-shadow: 0 16px 28px rgba(31,26,21,.14);
-      background: #fff;
+      border-radius:18px;
+      box-shadow:0 16px 28px rgba(31,26,21,.14);
+      background:#fff;
     }
 
     .stage-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-      align-items:center;
-      justify-content:space-between;
-      margin-top: 12px;
+      display:flex;flex-wrap:wrap;gap:10px;
+      align-items:center;justify-content:space-between;
+      margin-top:12px;
     }
-    .stage-actions .left{ display:flex; flex-wrap:wrap; gap: 10px; align-items:center; }
+    .stage-actions .left{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 
     .status{
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.6);
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.35;
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.6);
+      font-size:12px;color:var(--muted);line-height:1.35;
     }
-    .status b{ color: var(--ink); }
+    .status b{color:var(--ink)}
+    .status a{color:inherit}
 
-    /* Material texture manager */
-    .texture-list{ display:grid; gap: 10px; margin-top: 10px; }
-    .tex-row{
+    .linkbox{
+      margin-top:10px;
+      display:grid;
+      gap:10px;
+    }
+    .linkrow{
       display:grid;
       grid-template-columns: 1fr auto;
-      gap: 10px;
+      gap:10px;
       align-items:center;
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(255,255,255,.55);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:10px;
+      background:rgba(255,255,255,.55);
     }
-    .tex-left{ display:flex; gap: 10px; align-items:center; min-width:0; }
-    .tex-thumb{
-      width: 44px; height: 44px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: #fff;
+    .linkrow .meta{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+    .linkrow .meta b{font-size:12px;color:var(--muted)}
+    .linkrow .meta .val{
+      font-family:var(--mono);
+      font-size:12px;
+      white-space:nowrap;
       overflow:hidden;
-      flex: 0 0 auto;
+      text-overflow:ellipsis;
     }
-    .tex-thumb img{ width:100%; height:100%; object-fit: cover; display:block; }
-    .tex-meta{ display:flex; flex-direction:column; gap: 2px; min-width:0; }
-    .tex-meta b{ font-size: 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .tex-meta span{ font-size: 12px; color: var(--muted); }
-    .tex-actions{ display:flex; gap: 8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+
+    /* Material texture manager */
+    .texture-list{display:grid;gap:10px;margin-top:10px}
+    .tex-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:rgba(255,255,255,.55);
+    }
+    .tex-left{display:flex;gap:10px;align-items:center;min-width:0}
+    .tex-thumb{
+      width:44px;height:44px;border-radius:14px;
+      border:1px solid var(--line);background:#fff;overflow:hidden;flex:0 0 auto;
+    }
+    .tex-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .tex-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .tex-meta b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tex-meta span{font-size:12px;color:var(--muted)}
+    .tex-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
   </style>
 
   <!-- Uploadcare (hosts files) -->
-  <script>UPLOADCARE_LOCALE = "en";</script>
+  <script>UPLOADCARE_LOCALE="en";</script>
   <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
-
-  <!-- EmailJS (emails links) -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 
 <body>
@@ -305,7 +305,7 @@
       </div>
       <div class="cta-mini">
         <span class="pill">hosted uploads</span>
-        <span class="pill">email links</span>
+        <span class="pill">no email</span>
         <span class="pill">1-page</span>
       </div>
     </div>
@@ -319,7 +319,7 @@
     <section class="card">
       <div class="card-head">
         <h2>Design</h2>
-        <div class="hint">Simple & customer-friendly</div>
+        <div class="hint">Fast + clean</div>
       </div>
 
       <div class="card-body">
@@ -356,19 +356,19 @@
             </div>
             <div class="texture-list" id="textureList"></div>
             <div class="note" style="margin-top:10px;">
-              Tip: square-ish photos (800×800+) look best. Walnut grain looks awesome behind the engraving.
+              Tip: square-ish photos (800×800+) look best.
             </div>
           </details>
 
           <div class="divider"></div>
 
-          <!-- Upload artwork (hosted) -->
+          <!-- Hosted artwork upload -->
           <div>
             <label>Logo / Artwork overlay</label>
             <div class="uploader">
               <div class="meta">
                 <b id="artName">No file uploaded yet</b>
-                <span>Upload is hosted (we email you the link)</span>
+                <span>Upload is hosted — you’ll get a shareable link</span>
               </div>
               <div>
                 <button type="button" class="btn" id="artPick">Upload</button>
@@ -459,17 +459,9 @@
 
           <div class="divider"></div>
 
-          <!-- Optional customer email (so you can CC them a confirmation) -->
-          <div class="row2">
-            <div>
-              <label for="customerEmail">Customer email (optional)</label>
-              <input id="customerEmail" type="email" placeholder="so we can send a confirmation link" />
-            </div>
-            <div class="note">
-              If provided, we can email the customer their proof + design code too.
-            </div>
+          <div class="note">
+            This page hosts your uploads and proof image. You can paste the hosted links into Big Cartel order notes or keep them for production.
           </div>
-
         </div>
       </div>
     </section>
@@ -495,22 +487,43 @@
           <div class="left">
             <button type="button" class="btn" id="downloadPng">Download proof PNG</button>
             <button type="button" class="btn" id="copyCode">Copy design code</button>
-            <button type="button" class="btn primary" id="submitDesign">Submit design (host + email)</button>
+            <button type="button" class="btn primary" id="submitDesign">Submit (host proof)</button>
           </div>
           <div class="small">
-            Submitting uploads the proof + sends you links.
+            Submit uploads the proof PNG and shows hosted links below.
           </div>
         </div>
 
         <div class="status" id="statusBox">
-          <b>Status:</b> Ready. Upload artwork, tweak your design, then click <b>Submit design</b>.
+          <b>Status:</b> Ready. Upload artwork, tweak your design, then click <b>Submit</b>.
         </div>
 
-        <div class="divider"></div>
-        <div class="note">
-          You can link this page from your Big Cartel product page as the “Design tool.”
-          If Big Cartel also collects an upload at checkout, that’s fine — this page gives you a clean proof + a hosted link immediately.
+        <div class="linkbox" id="linkBox" style="display:none;">
+          <div class="linkrow">
+            <div class="meta">
+              <b>Hosted artwork URL</b>
+              <div class="val" id="artUrlVal">—</div>
+            </div>
+            <button type="button" class="btn" id="copyArtUrl">Copy</button>
+          </div>
+
+          <div class="linkrow">
+            <div class="meta">
+              <b>Hosted proof PNG URL</b>
+              <div class="val" id="proofUrlVal">—</div>
+            </div>
+            <button type="button" class="btn" id="copyProofUrl">Copy</button>
+          </div>
+
+          <div class="linkrow">
+            <div class="meta">
+              <b>Design code</b>
+              <div class="val" id="codeVal">—</div>
+            </div>
+            <button type="button" class="btn" id="copyCode2">Copy</button>
+          </div>
         </div>
+
       </section>
     </section>
 
@@ -521,23 +534,11 @@
 /* =========================================================
    CONFIG — REQUIRED
    ========================================================= */
-
-// 1) Uploadcare: create an account → get a PUBLIC KEY
-const UPLOADCARE_PUBLIC_KEY = "PASTE_PUBLIC_KEY_HERE";
-
-// 2) EmailJS: create EmailJS → add Email Service → create template
-// You will need these three values:
-const EMAILJS_PUBLIC_KEY  = "PASTE_EMAILJS_PUBLIC_KEY";
-const EMAILJS_SERVICE_ID  = "PASTE_EMAILJS_SERVICE_ID";
-const EMAILJS_TEMPLATE_ID = "PASTE_EMAILJS_TEMPLATE_ID";
-
-// Where you want the email to go:
-const MERCHANT_EMAIL = "you@yourdomain.com"; // change to your email
+const UPLOADCARE_PUBLIC_KEY = "PASTE_PUBLIC_KEY_HERE"; // <-- set this
 
 /* =========================================================
    APP
    ========================================================= */
-
 const MATERIALS = [
   { id:"birch",  name:"Birch",  tone:"#e7d2b3" },
   { id:"walnut", name:"Walnut", tone:"#6a4b34" },
@@ -549,9 +550,11 @@ const MATERIALS = [
 const KEYS = { textures: "coaster_material_textures_v1" };
 const $ = (id)=>document.getElementById(id);
 
+// Canvas
 const cv = $("cv");
 const ctx = cv.getContext("2d");
 
+// Controls
 const elShape = $("shape");
 const elSize  = $("size");
 const summary = $("summary");
@@ -573,14 +576,20 @@ const t2Font = $("t2Font");
 const t2Pos  = $("t2Pos");
 const t2Size = $("t2Size");
 
-const customerEmail = $("customerEmail");
-
+// Actions
 const downloadPng = $("downloadPng");
-const copyCode = $("copyCode");
+const copyCodeBtn = $("copyCode");
 const submitDesign = $("submitDesign");
 const statusBox = $("statusBox");
 
-const textureList = $("textureList");
+// Link box
+const linkBox = $("linkBox");
+const artUrlVal = $("artUrlVal");
+const proofUrlVal = $("proofUrlVal");
+const codeVal = $("codeVal");
+const copyArtUrl = $("copyArtUrl");
+const copyProofUrl = $("copyProofUrl");
+const copyCode2 = $("copyCode2");
 
 // State
 const state = {
@@ -588,10 +597,10 @@ const state = {
   shape: "round",
   size: 4.0,
 
-  // hosted upload (customer artwork)
-  artUrl: "",          // Uploadcare CDN URL of original file
-  artPreviewUrl: "",   // possibly a transformed URL for preview
-  artImage: null,      // Image()
+  // hosted artwork
+  artUrl: "",          // Uploadcare CDN URL
+  artPreviewUrl: "",   // scaled preview URL
+  artImage: null,
 
   logoPos: "center",
   logoScale: 1.00,
@@ -604,10 +613,7 @@ const state = {
   textureImgCache: {}                  // { materialId: Image() }
 };
 
-// Init Uploadcare + EmailJS
-if (EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.includes("PASTE_")) {
-  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-}
+// Init Uploadcare
 if (UPLOADCARE_PUBLIC_KEY && !UPLOADCARE_PUBLIC_KEY.includes("PASTE_")) {
   uploadcare.publicKey = UPLOADCARE_PUBLIC_KEY;
 }
@@ -629,7 +635,8 @@ MATERIALS.forEach((m, idx)=>{
   materialsWrap.appendChild(lab);
 });
 
-// Build texture manager UI
+// Texture manager UI
+const textureList = $("textureList");
 function renderTextureManager(){
   textureList.innerHTML = "";
   MATERIALS.forEach((m)=>{
@@ -664,7 +671,7 @@ function renderTextureManager(){
       const url = await fileToDataURL(file);
       state.textureMap[m.id] = url;
       saveTextureMap(state.textureMap);
-      state.textureImgCache[m.id] = null; // reset
+      state.textureImgCache[m.id] = null;
       renderTextureManager();
       render();
     });
@@ -701,34 +708,34 @@ t2Font.addEventListener("change", ()=>{ state.line2.font = t2Font.value; render(
 t2Pos .addEventListener("change", ()=>{ state.line2.pos  = t2Pos.value; render(); });
 t2Size.addEventListener("input", ()=>{ state.line2.size = clamp(parseInt(t2Size.value||"28",10),10,90); render(); });
 
-// Upload artwork via Uploadcare (hosted)
+// Hosted artwork upload
 artPick.addEventListener("click", async (e)=>{
   e.preventDefault();
   if (!UPLOADCARE_PUBLIC_KEY || UPLOADCARE_PUBLIC_KEY.includes("PASTE_")) {
-    setStatus("Missing Uploadcare public key in CONFIG. Add it, then reload.", true);
+    setStatus("Add your Uploadcare public key in CONFIG and reload.", true);
     return;
   }
 
-  setStatus("Opening upload…", false);
+  setStatus("Opening uploader…", false);
 
-  // open dialog
   const dialog = uploadcare.openDialog(null, {
     publicKey: UPLOADCARE_PUBLIC_KEY,
     imagesOnly: false,
-    // You can restrict if you want: 'imagesOnly: true'
     multiple: false
   });
 
   dialog.done((file)=>{
     setStatus("Uploading artwork…", false);
     file.done(async (info)=>{
-      // Hosted URL:
-      state.artUrl = info.cdnUrl; // original upload
-      // For preview: scale down (optional)
+      state.artUrl = info.cdnUrl;
       state.artPreviewUrl = info.cdnUrl + "-/preview/1024x1024/";
       artName.textContent = info.name || "Artwork uploaded";
 
-      await loadArtImage(state.artPreviewUrl);
+      // show links immediately
+      linkBox.style.display = "grid";
+      artUrlVal.textContent = state.artUrl;
+
+      await loadImageIntoState(state.artPreviewUrl);
       setStatus("Artwork uploaded & hosted. Preview updated.", false);
       render();
     }).fail(()=>{
@@ -739,7 +746,7 @@ artPick.addEventListener("click", async (e)=>{
   });
 });
 
-// Export / code / submit
+// Preview export
 downloadPng.addEventListener("click", ()=>{
   const a = document.createElement("a");
   a.download = "coaster-proof.png";
@@ -747,105 +754,45 @@ downloadPng.addEventListener("click", ()=>{
   a.click();
 });
 
-copyCode.addEventListener("click", async ()=>{
-  const code = buildDesignCode();
-  try{
-    await navigator.clipboard.writeText(code);
-    copyCode.textContent = "Copied!";
-    setTimeout(()=>copyCode.textContent="Copy design code", 900);
-  }catch{
-    alert(code);
-  }
-});
+copyCodeBtn.addEventListener("click", ()=> copyText(buildDesignCode(), copyCodeBtn, "Copied!"));
+copyArtUrl.addEventListener("click", ()=> copyText(state.artUrl || "", copyArtUrl, "Copied!"));
+copyProofUrl.addEventListener("click", ()=> copyText(proofUrlVal.textContent || "", copyProofUrl, "Copied!"));
+copyCode2.addEventListener("click", ()=> copyText(buildDesignCode(), copyCode2, "Copied!"));
 
+// Submit: upload proof PNG to Uploadcare
 submitDesign.addEventListener("click", async ()=>{
-  // Requirements: hosted + emailed
-  if (!state.artUrl) {
-    setStatus("Please upload artwork first (hosted) before submitting.", true);
-    return;
-  }
   if (!UPLOADCARE_PUBLIC_KEY || UPLOADCARE_PUBLIC_KEY.includes("PASTE_")) {
-    setStatus("Missing Uploadcare public key in CONFIG.", true);
+    setStatus("Add your Uploadcare public key in CONFIG and reload.", true);
     return;
   }
-  if (
-    !EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY.includes("PASTE_") ||
-    !EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID.includes("PASTE_") ||
-    !EMAILJS_TEMPLATE_ID || EMAILJS_TEMPLATE_ID.includes("PASTE_")
-  ) {
-    setStatus("Missing EmailJS keys in CONFIG. Add them to enable emailing.", true);
-    return;
-  }
-  if (!MERCHANT_EMAIL || MERCHANT_EMAIL.includes("@yourdomain.com")) {
-    setStatus("Set MERCHANT_EMAIL in CONFIG.", true);
+  if (!state.artUrl) {
+    setStatus("Upload artwork first so the design is complete.", true);
     return;
   }
 
   try{
-    setStatus("Uploading proof image…", false);
+    setStatus("Uploading proof PNG…", false);
 
-    // Upload proof PNG to Uploadcare too
+    // Create proof and upload to Uploadcare
     const proofDataUrl = cv.toDataURL("image/png");
     const proofFile = uploadcare.fileFrom("base64", proofDataUrl, "coaster-proof.png");
     const proofInfo = await proofFile.done();
     const proofUrl = proofInfo.cdnUrl;
 
-    setStatus("Sending email…", false);
+    linkBox.style.display = "grid";
+    proofUrlVal.textContent = proofUrl;
+    codeVal.textContent = buildDesignCode();
 
-    const code = buildDesignCode();
-    const customer = (customerEmail.value || "").trim();
-
-    // Send one email to you (merchant)
-    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-      to_email: MERCHANT_EMAIL,
-      customer_email: customer || "(not provided)",
-      design_code: code,
-      artwork_url: state.artUrl,
-      proof_url: proofUrl,
-      shape: state.shape,
-      size: state.size.toFixed(1),
-      material: state.material,
-      line1: state.line1.text || "",
-      line2: state.line2.text || ""
-    });
-
-    // Optional: also email customer a copy (only if they entered email)
-    if (customer) {
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        to_email: customer,
-        customer_email: customer,
-        design_code: code,
-        artwork_url: state.artUrl,
-        proof_url: proofUrl,
-        shape: state.shape,
-        size: state.size.toFixed(1),
-        material: state.material,
-        line1: state.line1.text || "",
-        line2: state.line2.text || ""
-      });
-    }
-
-    setStatus(`Submitted! Hosted links emailed. Proof: ${proofUrl}`, false);
-
-  } catch(err){
+    setStatus("Done. Proof hosted — copy the links below.", false);
+  }catch(err){
     console.error(err);
-    setStatus("Submit failed. Check console + EmailJS/Uploadcare settings.", true);
+    setStatus("Proof upload failed. Check console and Uploadcare settings.", true);
   }
 });
 
-// Helpers
-function setStatus(msg, isError){
-  statusBox.innerHTML = `<b>Status:</b> ${escapeHtml(msg)}`;
-  statusBox.style.borderColor = isError ? "rgba(198,90,46,.35)" : "rgba(231,220,207,1)";
-  statusBox.style.background = isError ? "rgba(198,90,46,.08)" : "rgba(255,255,255,.6)";
-  statusBox.style.color = isError ? "#6d2d17" : "var(--muted)";
-}
-
-async function loadArtImage(url){
+async function loadImageIntoState(url){
   return new Promise((resolve, reject)=>{
     const img = new Image();
-    // allow reading canvas if the server sends proper CORS headers.
-    // Uploadcare does (generally), and canvas export is fine since we create the final PNG locally.
     img.crossOrigin = "anonymous";
     img.onload = ()=>{ state.artImage = img; resolve(); };
     img.onerror = reject;
@@ -853,30 +800,56 @@ async function loadArtImage(url){
   });
 }
 
+function setStatus(msg, isError){
+  statusBox.innerHTML = `<b>Status:</b> ${escapeHtml(msg)}`;
+  statusBox.style.borderColor = isError ? "rgba(198,90,46,.35)" : "rgba(231,220,207,1)";
+  statusBox.style.background  = isError ? "rgba(198,90,46,.08)" : "rgba(255,255,255,.6)";
+  statusBox.style.color       = isError ? "#6d2d17" : "var(--muted)";
+}
+
+async function copyText(text, btn, label){
+  const t = (text || "").trim();
+  if(!t){
+    setStatus("Nothing to copy yet.", true);
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(t);
+    const old = btn.textContent;
+    btn.textContent = label || "Copied!";
+    setTimeout(()=>btn.textContent = old, 800);
+  }catch{
+    alert(t);
+  }
+}
+
 function buildDesignCode(){
   const mat = state.material;
   const shp = state.shape;
   const sz  = state.size.toFixed(1);
+  const lp  = state.logoPos;
+  const ls  = state.logoScale.toFixed(2);
   const t1  = (state.line1.text||"").trim().slice(0,60);
   const t2  = (state.line2.text||"").trim().slice(0,60);
   const f1  = shortenFont(state.line1.font);
   const f2  = shortenFont(state.line2.font);
-  const lp  = state.logoPos;
-  const ls  = state.logoScale.toFixed(2);
-  return `COASTER|mat:${mat}|shape:${shp}|size:${sz}|logoPos:${lp}|logoScale:${ls}|f1:${f1}|t1:${t1}|f2:${f2}|t2:${t2}|art:${state.artUrl}`;
+  const art = state.artUrl ? state.artUrl : "";
+  return `COASTER|mat:${mat}|shape:${shp}|size:${sz}|logoPos:${lp}|logoScale:${ls}|f1:${f1}|t1:${t1}|f2:${f2}|t2:${t2}|art:${art}`;
 }
 function shortenFont(font){
   return (font||"").split(",")[0].replace(/['"]/g,"").trim().slice(0,18);
 }
 
-// Rendering
+/* ============================
+   Rendering (laser preview)
+   ============================ */
 function render(){
   const mat = MATERIALS.find(m=>m.id===state.material) || MATERIALS[0];
   summary.textContent = `${mat.name} · ${state.shape} · ${state.size.toFixed(1)}"`;
 
   ctx.clearRect(0,0,cv.width,cv.height);
 
-  // Table/paper background
+  // Background
   ctx.fillStyle = "#f7efe4";
   ctx.fillRect(0,0,cv.width,cv.height);
 
@@ -885,10 +858,8 @@ function render(){
   const cy = cv.height/2 + 10;
   const r  = (cv.width - pad*2) * 0.43;
 
-  // Draw material base (tone or texture)
   drawMaterialBase(cx, cy, r, mat);
 
-  // Offscreen engraving content (art + text)
   const engr = document.createElement("canvas");
   engr.width = cv.width;
   engr.height= cv.height;
@@ -902,7 +873,6 @@ function render(){
     const box = getSafeBox(cx, cy, r, state.shape);
     const logoBox = getLogoBox(box, state.logoPos);
 
-    // scale by slider
     const bw = logoBox.w * 0.86 * state.logoScale;
     const bh = logoBox.h * 0.86 * state.logoScale;
 
@@ -912,18 +882,17 @@ function render(){
     ectx.drawImage(state.artImage, x, y, fit.w, fit.h);
   }
 
-  // Text lines
+  // Text
   drawTextLine(ectx, cx, cy, r, state.shape, state.line1);
   drawTextLine(ectx, cx, cy, r, state.shape, state.line2);
 
   ectx.restore();
 
-  // Convert to burn mask + composite
   const mask = toEngraveMask(engr);
   applyEngraving(mask, cx, cy, r, state.shape);
   drawEdge(cx, cy, r, state.shape);
 
-  // Signature
+  // signature
   ctx.save();
   ctx.globalAlpha = 0.30;
   ctx.fillStyle = "#1f1a15";
@@ -945,7 +914,6 @@ function drawTextLine(ectx, cx, cy, r, shape, line){
   ectx.textAlign = "center";
   ectx.textBaseline = "middle";
   ectx.font = `${clamp(parseInt(line.size||"28",10),10,90)}px ${line.font}`;
-  // tiny “ink spread” feel
   ectx.fillText(t, cx, ty);
   ectx.fillText(t, cx+0.5, ty);
   ectx.restore();
@@ -958,7 +926,6 @@ function textPosY(box, pos){
 }
 
 function getLogoBox(box, pos){
-  // A sub-box for logo placement; leaves room for text
   if(pos === "top")    return { x: box.x, y: box.y + box.h*0.06, w: box.w, h: box.h*0.38 };
   if(pos === "bottom") return { x: box.x, y: box.y + box.h*0.56, w: box.w, h: box.h*0.38 };
   return { x: box.x, y: box.y + box.h*0.18, w: box.w, h: box.h*0.44 };
@@ -970,19 +937,13 @@ function drawMaterialBase(cx, cy, r, mat){
 
   const tex = state.textureMap[mat.id];
   if (tex){
-    // cached image
     const cached = state.textureImgCache[mat.id];
     if (cached){
       drawCover(ctx, cached, 0,0, cv.width, cv.height);
     } else {
-      // load once then re-render
       const img = new Image();
-      img.onload = ()=>{
-        state.textureImgCache[mat.id] = img;
-        render();
-      };
+      img.onload = ()=>{ state.textureImgCache[mat.id] = img; render(); };
       img.src = tex;
-      // fallback while loading
       ctx.fillStyle = mat.tone;
       ctx.fillRect(0,0,cv.width,cv.height);
     }
@@ -991,12 +952,10 @@ function drawMaterialBase(cx, cy, r, mat){
     ctx.fillRect(0,0,cv.width,cv.height);
   }
 
-  // subtle grain/noise
   const noise = makeNoisePattern(240, 240, 0.12);
   ctx.globalAlpha = 0.28;
   ctx.drawImage(noise, 0,0, cv.width, cv.height);
 
-  // vignette
   const grad = ctx.createRadialGradient(cx, cy, r*0.2, cx, cy, r*1.25);
   grad.addColorStop(0, "rgba(255,255,255,0.10)");
   grad.addColorStop(1, "rgba(0,0,0,0.14)");
@@ -1023,7 +982,6 @@ function applyEngraving(maskCanvas, cx, cy, r, shape){
   ctx.globalAlpha = 0.92;
   ctx.drawImage(darkLayer, 0,0);
 
-  // subtle char texture
   ctx.globalAlpha = 0.16;
   ctx.globalCompositeOperation = "multiply";
   const charNoise = makeNoisePattern(420, 420, 0.26);
@@ -1088,7 +1046,7 @@ function getSafeBox(cx, cy, r, shape){
   return { x: cx - r*0.78, y: cy - r*0.70, w: r*1.56, h: r*1.40 };
 }
 
-// Engrave mask (remove whites)
+// Engrave mask: remove whites
 function toEngraveMask(srcCanvas){
   const w = srcCanvas.width, h = srcCanvas.height;
   const out = document.createElement("canvas");
@@ -1119,8 +1077,8 @@ function toEngraveMask(srcCanvas){
     }
     alpha = Math.pow(alpha, 0.85);
 
-    d[i] = 0; d[i+1]=0; d[i+2]=0;
-    d[i+3] = Math.round(alpha * 255);
+    d[i]=0; d[i+1]=0; d[i+2]=0;
+    d[i+3]=Math.round(alpha*255);
   }
   octx.putImageData(img,0,0);
 
@@ -1136,7 +1094,9 @@ function toEngraveMask(srcCanvas){
   return out;
 }
 
-// Utils
+/* ============================
+   Utils
+   ============================ */
 function roundRectPath(c, x,y,w,h,r){
   const rr = Math.min(r, w/2, h/2);
   c.moveTo(x+rr, y);
@@ -1155,7 +1115,7 @@ function polygonPath(c, cx, cy, radius, sides, rot){
 }
 function contain(w,h, maxW, maxH){
   const s = Math.min(maxW/w, maxH/h);
-  return { w: w*s, h: h*s };
+  return { w:w*s, h:h*s };
 }
 function makeNoisePattern(w,h, strength){
   const c = document.createElement("canvas");
@@ -1179,7 +1139,7 @@ function drawCover(c, img, x,y,w,h){
     dh = h;
     dw = h*ir;
     dx = x - (dw - w)/2;
-  } else {
+  }else{
     dw = w;
     dh = w/ir;
     dy = y - (dh - h)/2;
@@ -1208,10 +1168,13 @@ function saveTextureMap(map){
   localStorage.setItem(KEYS.textures, JSON.stringify(map || {}));
 }
 
-// Start
+/* ============================
+   Start
+   ============================ */
 renderTextureManager();
 render();
-setStatus("Ready. Upload artwork, tweak your design, then click Submit design.", false);
+setStatus("Ready. Upload artwork, tweak your design, then click Submit.", false);
 </script>
 </body>
 </html>
+

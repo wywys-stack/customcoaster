@@ -31,7 +31,7 @@
         var(--bg);
     }
     header{
-      position:sticky; top:0; z-index:10;
+      position:sticky; top:0; z-index:20;
       backdrop-filter:blur(8px);
       background:rgba(251,246,238,.78);
       border-bottom:1px solid var(--line);
@@ -86,7 +86,7 @@
     .grid{display:grid;gap:12px}
     label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
 
-    select,input[type="text"],input[type="number"],input[type="range"],input[type="search"]{
+    select,input[type="text"],input[type="number"],input[type="range"],input[type="search"],textarea{
       width:100%;
       padding:12px;
       border-radius:14px;
@@ -95,8 +95,9 @@
       color:var(--ink);
       outline:none;
     }
+    textarea{min-height:44px;resize:vertical}
     input[type="range"]{height:42px;padding:10px}
-    select:focus,input:focus{box-shadow:var(--focus);border-color:rgba(198,90,46,.55)}
+    select:focus,input:focus,textarea:focus{box-shadow:var(--focus);border-color:rgba(198,90,46,.55)}
 
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
@@ -125,6 +126,11 @@
       color:#fff;
     }
     .btn.ghost{background:transparent}
+    .btn.danger{
+      border-color:rgba(198,90,46,.25);
+      background:rgba(198,90,46,.08);
+      color:#6d2d17;
+    }
     .btn.toggle-on{
       border-color:rgba(198,90,46,.35);
       background:rgba(198,90,46,.10);
@@ -233,6 +239,16 @@
     }
     .status b{color:var(--ink)}
 
+    /* Sticky preview */
+    .preview-sticky{
+      position:sticky;
+      top:92px; /* below header */
+      align-self:start;
+    }
+    @media (max-width:980px){
+      .preview-sticky{position:static; top:auto;}
+    }
+
     /* Texture manager */
     .texture-list{display:grid;gap:10px;margin-top:10px}
     .tex-row{
@@ -283,6 +299,39 @@
       display:flex;justify-content:space-between;gap:8px;
     }
 
+    /* Layers */
+    .layers{
+      display:grid;
+      gap:8px;
+      margin-top:8px;
+    }
+    .layer{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.55);
+      border-radius:16px;
+      padding:10px;
+      display:grid;
+      gap:8px;
+    }
+    .layer-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .layer-top b{font-size:13px}
+    .layer-top .tag{
+      font-size:12px;
+      color:var(--muted);
+      font-family:var(--mono);
+    }
+    .layer-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
     /* Uploadcare hidden input */
     .uc-hidden{ position:absolute; left:-9999px; }
   </style>
@@ -292,9 +341,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Raleway:wght@400;600;700&family=Oswald:wght@400;600&family=Bebas+Neue&family=Pacifico&family=Great+Vibes&family=Roboto+Slab:wght@400;600;700&family=Source+Serif+4:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 
-  <!-- Uploadcare Widget (shows Uploadcare box) -->
+  <!-- Uploadcare Widget -->
   <script>
-    UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8"; // <-- your key
+    UPLOADCARE_PUBLIC_KEY = "53eeccec14419f6dd5c8";
     UPLOADCARE_LOCALE = "en";
     UPLOADCARE_TABS = "file url camera";
   </script>
@@ -309,13 +358,13 @@
         <div class="mark" aria-hidden="true"></div>
         <div>
           <h1>Custom Coasters</h1>
-          <p class="sub">Tap to select · Drag to move · Handles resize · Rotate handle rotates · Mouse wheel zoom</p>
+          <p class="sub">Tap to select · Drag to move · Handles resize · Rotate handle rotates · Wheel/pinch zoom</p>
         </div>
       </div>
       <div class="cta-mini">
-        <span class="pill">Uploadcare</span>
-        <span class="pill">Icon library</span>
-        <span class="pill">Simple arch</span>
+        <span class="pill">Sticky preview</span>
+        <span class="pill">Multi icons</span>
+        <span class="pill">Text boxes</span>
       </div>
     </div>
   </div>
@@ -328,7 +377,7 @@
     <section class="card">
       <div class="card-head">
         <h2>Design</h2>
-        <div class="hint">Select objects in preview</div>
+        <div class="hint">Add layers → edit in preview</div>
       </div>
 
       <div class="card-body">
@@ -364,9 +413,7 @@
               Upload your real wood/slate photos here (saved in your browser). These textures appear behind the engraving preview.
             </div>
             <div class="texture-list" id="textureList"></div>
-            <div class="note" style="margin-top:10px;">
-              Tip: square-ish photos (800×800+) look best.
-            </div>
+            <div class="note" style="margin-top:10px;">Tip: square-ish photos (800×800+) look best.</div>
           </details>
 
           <div class="divider"></div>
@@ -384,8 +431,7 @@
           />
 
           <div>
-            <label>Logo / Artwork overlay</label>
-
+            <label>Artwork layer (optional)</label>
             <div class="uploader">
               <div class="meta">
                 <b id="artName">No file uploaded yet</b>
@@ -395,96 +441,51 @@
                 <button type="button" class="btn" id="artPick">Upload</button>
               </div>
             </div>
-
             <div class="row2" style="margin-top:10px;">
               <button type="button" class="btn ghost" id="fitArtwork">Fit</button>
-              <button type="button" class="btn ghost" id="clearArtwork">Clear</button>
-            </div>
-
-            <div class="note warn" style="margin-top:10px;">
-              Best results: high-contrast artwork. Light/white areas won't "burn" and can disappear (like a real laser).
+              <button type="button" class="btn danger" id="clearArtwork">Clear</button>
             </div>
           </div>
 
           <div class="divider"></div>
 
           <div>
-            <label>SVG-style icons (hundreds via Tabler icons)</label>
+            <label>Icons (SVG-style, add multiple)</label>
             <div class="row2">
-              <input id="iconSearch" type="search" placeholder="Search icons… (e.g., coffee, heart, leaf, star)" />
+              <input id="iconSearch" type="search" placeholder="Search icons… (coffee, heart, leaf, star)" />
               <button type="button" class="btn" id="iconSearchBtn">Search</button>
             </div>
 
             <div class="icon-grid" id="iconGrid"></div>
-
             <div class="icon-meta">
               <span id="iconStatus">Search to load icons.</span>
               <span class="mono" id="iconPicked">—</span>
             </div>
 
             <div class="row2" style="margin-top:10px;">
-              <button type="button" class="btn ghost" id="fitIcon">Fit icon</button>
-              <button type="button" class="btn ghost" id="clearIcon">Clear icon</button>
+              <button type="button" class="btn primary" id="addIcon">Add selected icon</button>
+              <button type="button" class="btn danger" id="deleteSelected">Delete selected</button>
             </div>
 
             <div class="note" style="margin-top:10px;">
-              These are <b>SVG icons</b> fetched from Iconify (Tabler set). Pick one, then move/resize/rotate it in the preview.
+              Pick an icon, click <b>Add selected icon</b> (you can add many), then move/resize/rotate each one in the preview.
             </div>
           </div>
 
           <div class="divider"></div>
 
           <div>
-            <label>Text line 1</label>
+            <label>Text boxes (add as many as you want)</label>
             <div class="row2">
-              <input id="t1Text" type="text" placeholder="e.g., WY WY MAKES" value="" />
-              <select id="t1Font"></select>
+              <button type="button" class="btn primary" id="addText">Add text box</button>
+              <button type="button" class="btn ghost" id="duplicateSelected">Duplicate selected</button>
             </div>
 
-            <div class="row2" style="margin-top:10px;">
-              <div>
-                <label for="t1Arch">Arch</label>
-                <input id="t1Arch" type="range" min="-100" max="100" value="0" />
-              </div>
-              <div>
-                <label>Orientation</label>
-                <div class="row2" style="gap:8px">
-                  <button type="button" class="btn toggle-on" id="t1Horiz">Horizontal</button>
-                  <button type="button" class="btn" id="t1Vert">Vertical</button>
-                </div>
-              </div>
-            </div>
+            <div class="layers" id="layers"></div>
 
-            <div class="row2" style="margin-top:10px;">
-              <button type="button" class="btn ghost" id="resetT1">Reset line 1</button>
-              <div class="small">Tap the text in preview to select it.</div>
-            </div>
-          </div>
-
-          <div>
-            <label>Text line 2</label>
-            <div class="row2">
-              <input id="t2Text" type="text" placeholder="e.g., EST. 2026 / CHULA VISTA" value="" />
-              <select id="t2Font"></select>
-            </div>
-
-            <div class="row2" style="margin-top:10px;">
-              <div>
-                <label for="t2Arch">Arch</label>
-                <input id="t2Arch" type="range" min="-100" max="100" value="0" />
-              </div>
-              <div>
-                <label>Orientation</label>
-                <div class="row2" style="gap:8px">
-                  <button type="button" class="btn toggle-on" id="t2Horiz">Horizontal</button>
-                  <button type="button" class="btn" id="t2Vert">Vertical</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="row2" style="margin-top:10px;">
-              <button type="button" class="btn ghost" id="resetT2">Reset line 2</button>
-              <div class="small">Keep it short for clean engraving.</div>
+            <div class="note" style="margin-top:10px;">
+              <b>Arch comes from the box shape:</b> when you resize the text box taller vs wider, the text arches more.
+              Use “Arc Up / Arc Down / Arc Off” per text layer.
             </div>
           </div>
 
@@ -499,7 +500,7 @@
     </section>
 
     <!-- Preview -->
-    <section class="preview">
+    <section class="preview preview-sticky">
       <section class="card stage">
         <div class="stage-top">
           <div class="title">
@@ -521,11 +522,11 @@
             <button type="button" class="btn" id="copyCode">Copy order code</button>
             <button type="button" class="btn primary" id="submitDesign">Submit (host proof)</button>
           </div>
-          <div class="small">Tip: double-click/tap to cycle selection</div>
+          <div class="small">Tip: double-click/tap cycles selection</div>
         </div>
 
         <div class="status" id="statusBox">
-          <b>Status:</b> Ready. Upload artwork or pick an icon.
+          <b>Status:</b> Ready.
         </div>
       </section>
     </section>
@@ -535,7 +536,7 @@
 
 <script>
 /* =========================================================
-   CONFIG / DATA
+   DATA
    ========================================================= */
 const MATERIALS = [
   { id:"birch",  name:"Birch",  tone:"#e7d2b3" },
@@ -563,6 +564,7 @@ const FONT_OPTIONS = [
 
 const KEYS = { textures: "coaster_material_textures_v1" };
 const $ = (id)=>document.getElementById(id);
+const uid = ()=>Math.random().toString(16).slice(2) + Date.now().toString(16);
 
 /* =========================================================
    DOM
@@ -588,22 +590,12 @@ const iconSearchBtn = $("iconSearchBtn");
 const iconGrid = $("iconGrid");
 const iconStatus = $("iconStatus");
 const iconPicked = $("iconPicked");
-const fitIconBtn = $("fitIcon");
-const clearIconBtn = $("clearIcon");
+const addIconBtn = $("addIcon");
 
-const t1Text = $("t1Text");
-const t1Font = $("t1Font");
-const t1Arch = $("t1Arch");
-const t1Horiz = $("t1Horiz");
-const t1Vert  = $("t1Vert");
-const resetT1 = $("resetT1");
-
-const t2Text = $("t2Text");
-const t2Font = $("t2Font");
-const t2Arch = $("t2Arch");
-const t2Horiz = $("t2Horiz");
-const t2Vert  = $("t2Vert");
-const resetT2 = $("resetT2");
+const addTextBtn = $("addText");
+const layersEl = $("layers");
+const deleteSelectedBtn = $("deleteSelected");
+const duplicateSelectedBtn = $("duplicateSelected");
 
 const downloadPng = $("downloadPng");
 const copyCodeBtn = $("copyCode");
@@ -618,26 +610,22 @@ const state = {
   shape: "round",
   size: 4.0,
 
-  // Artwork
+  // artwork (single)
   artUrl: "",
   artPreviewUrl: "",
   artImage: null,
+  artLayer: { id:"art", type:"art", name:"Artwork", x:0, y:0, w:1.4, h:1.4, rot:0 },
 
-  // Icon (SVG rasterized)
-  iconName: "",
-  iconSvg: "",
-  iconImage: null,
+  // icon picking
+  iconCatalogSelected: { name:"", svg:"", img:null },
 
-  // Objects (normalized in safe box coords)
-  artObj:  { x:0, y:0, s:1.10, rot:0 },
-  iconObj: { x:0, y:0, s:0.70, rot:0 },
+  // layers
+  layers: [
+    // {id, type:"icon"|"text", ...}
+  ],
+  selectedId: "art",
 
-  // Text objects: arch is -1..1 (simple), orientation is "h"|"v"
-  line1: { text:"", font: FONT_OPTIONS[4].css, x:0, y:-0.25, s:0.35, rot:0, arch:0, orient:"h" },
-  line2: { text:"", font: FONT_OPTIONS[2].css, x:0, y: 0.45, s:0.26, rot:0, arch:0, orient:"h" },
-
-  selected: "art",  // "art" | "icon" | "t1" | "t2"
-
+  // textures
   textureMap: loadTextureMap(),
   textureImgCache: {}
 };
@@ -651,45 +639,33 @@ const pointerState = {
 
 const transformState = {
   action: null,     // "move" | "scale" | "rotate"
-  start: null
+  start: null,
+  handleIndex: -1
 };
 
 /* =========================================================
    UI BUILD
    ========================================================= */
-function populateFontSelect(sel, selectedCss){
-  sel.innerHTML = "";
-  FONT_OPTIONS.forEach((f)=>{
-    const opt = document.createElement("option");
-    opt.value = f.css;
-    opt.textContent = f.name;
-    opt.style.fontFamily = f.css;
-    sel.appendChild(opt);
+function buildMaterials(){
+  const materialsWrap = $("materials");
+  materialsWrap.innerHTML = "";
+  MATERIALS.forEach((m, idx)=>{
+    const lab = document.createElement("label");
+    lab.className = "chip";
+    lab.innerHTML = `
+      <input type="radio" name="mat" value="${m.id}" ${idx===0?"checked":""} />
+      <span class="swatch" style="background:${m.tone}"></span>
+      <span>${m.name}</span>
+    `;
+    lab.addEventListener("change", ()=>{
+      state.material = m.id;
+      render();
+    });
+    materialsWrap.appendChild(lab);
   });
-  sel.value = selectedCss || FONT_OPTIONS[0].css;
-  sel.style.fontFamily = sel.value;
 }
-populateFontSelect(t1Font, state.line1.font);
-populateFontSelect(t2Font, state.line2.font);
+buildMaterials();
 
-// Materials chips
-const materialsWrap = $("materials");
-MATERIALS.forEach((m, idx)=>{
-  const lab = document.createElement("label");
-  lab.className = "chip";
-  lab.innerHTML = `
-    <input type="radio" name="mat" value="${m.id}" ${idx===0?"checked":""} />
-    <span class="swatch" style="background:${m.tone}"></span>
-    <span>${m.name}</span>
-  `;
-  lab.addEventListener("change", ()=>{
-    state.material = m.id;
-    render();
-  });
-  materialsWrap.appendChild(lab);
-});
-
-// Texture manager
 const textureList = $("textureList");
 function renderTextureManager(){
   textureList.innerHTML = "";
@@ -740,64 +716,158 @@ function renderTextureManager(){
   });
 }
 
+function fontSelectHTML(selectedCss){
+  const opts = FONT_OPTIONS.map(f=>{
+    const sel = f.css === selectedCss ? "selected" : "";
+    return `<option value="${escapeHtml(f.css)}" style="font-family:${escapeHtml(f.css)}" ${sel}>${escapeHtml(f.name)}</option>`;
+  }).join("");
+  return `<select class="fontSel">${opts}</select>`;
+}
+
+function renderLayersPanel(){
+  layersEl.innerHTML = "";
+
+  // Artwork row
+  const artRow = document.createElement("div");
+  artRow.className = "layer";
+  artRow.innerHTML = `
+    <div class="layer-top">
+      <div>
+        <b>Artwork</b> <span class="tag mono">${state.artImage ? "loaded" : "none"}</span>
+      </div>
+      <div class="layer-actions">
+        <button type="button" class="btn ghost selArt ${state.selectedId==="art"?"toggle-on":""}">Select</button>
+        <button type="button" class="btn ghost fitArt">Fit</button>
+      </div>
+    </div>
+    <div class="small">Drag/resize/rotate in preview.</div>
+  `;
+  artRow.querySelector(".selArt").addEventListener("click", ()=>{
+    state.selectedId = "art";
+    render();
+    renderLayersPanel();
+  });
+  artRow.querySelector(".fitArt").addEventListener("click", ()=>{
+    fitArtworkToCoaster();
+    state.selectedId = "art";
+    render();
+    renderLayersPanel();
+  });
+  layersEl.appendChild(artRow);
+
+  // Other layers (icons + text)
+  state.layers.forEach((layer, idx)=>{
+    const row = document.createElement("div");
+    row.className = "layer";
+
+    if(layer.type === "icon"){
+      row.innerHTML = `
+        <div class="layer-top">
+          <div>
+            <b>Icon ${idx+1}</b> <span class="tag">${escapeHtml(layer.name || "icon")}</span>
+          </div>
+          <div class="layer-actions">
+            <button type="button" class="btn ghost sel ${state.selectedId===layer.id?"toggle-on":""}">Select</button>
+            <button type="button" class="btn ghost fit">Fit</button>
+          </div>
+        </div>
+        <div class="small">Drag/resize/rotate in preview.</div>
+      `;
+      row.querySelector(".sel").addEventListener("click", ()=>{
+        state.selectedId = layer.id;
+        render();
+        renderLayersPanel();
+      });
+      row.querySelector(".fit").addEventListener("click", ()=>{
+        fitIconLayer(layer);
+        state.selectedId = layer.id;
+        render();
+        renderLayersPanel();
+      });
+    }
+
+    if(layer.type === "text"){
+      row.innerHTML = `
+        <div class="layer-top">
+          <div>
+            <b>Text ${idx+1}</b> <span class="tag">${escapeHtml(layer.arcMode.toUpperCase())}</span>
+          </div>
+          <div class="layer-actions">
+            <button type="button" class="btn ghost sel ${state.selectedId===layer.id?"toggle-on":""}">Select</button>
+            <button type="button" class="btn ghost fit">Fit</button>
+          </div>
+        </div>
+
+        <div class="row2">
+          <textarea class="txt" placeholder="Type text…">${escapeHtml(layer.text||"")}</textarea>
+          <div>
+            <label style="margin-bottom:6px">Font</label>
+            ${fontSelectHTML(layer.font)}
+          </div>
+        </div>
+
+        <div class="row3" style="gap:8px;">
+          <button type="button" class="btn arcOff ${layer.arcMode==="off"?"toggle-on":""}">Arc off</button>
+          <button type="button" class="btn arcUp ${layer.arcMode==="up"?"toggle-on":""}">Arc up</button>
+          <button type="button" class="btn arcDown ${layer.arcMode==="down"?"toggle-on":""}">Arc down</button>
+        </div>
+
+        <div class="small">Resize the <b>box</b> in preview — arch strength auto follows box proportions.</div>
+      `;
+
+      row.querySelector(".sel").addEventListener("click", ()=>{
+        state.selectedId = layer.id;
+        render(); renderLayersPanel();
+      });
+
+      row.querySelector(".fit").addEventListener("click", ()=>{
+        fitTextLayer(layer);
+        state.selectedId = layer.id;
+        render(); renderLayersPanel();
+      });
+
+      const ta = row.querySelector(".txt");
+      ta.addEventListener("input", ()=>{
+        layer.text = ta.value;
+        state.selectedId = layer.id;
+        render();
+      });
+
+      const sel = row.querySelector(".fontSel");
+      sel.addEventListener("change", ()=>{
+        layer.font = sel.value;
+        sel.style.fontFamily = sel.value;
+        state.selectedId = layer.id;
+        render();
+      });
+      sel.style.fontFamily = sel.value;
+
+      row.querySelector(".arcOff").addEventListener("click", ()=>{
+        layer.arcMode = "off";
+        state.selectedId = layer.id;
+        render(); renderLayersPanel();
+      });
+      row.querySelector(".arcUp").addEventListener("click", ()=>{
+        layer.arcMode = "up";
+        state.selectedId = layer.id;
+        render(); renderLayersPanel();
+      });
+      row.querySelector(".arcDown").addEventListener("click", ()=>{
+        layer.arcMode = "down";
+        state.selectedId = layer.id;
+        render(); renderLayersPanel();
+      });
+    }
+
+    layersEl.appendChild(row);
+  });
+}
+
 /* =========================================================
    INPUTS
    ========================================================= */
 elShape.addEventListener("change", ()=>{ state.shape = elShape.value; render(); });
 elSize.addEventListener("change", ()=>{ state.size = parseFloat(elSize.value); render(); });
-
-t1Text.addEventListener("input", ()=>{ state.line1.text = t1Text.value; render(); });
-t2Text.addEventListener("input", ()=>{ state.line2.text = t2Text.value; render(); });
-
-t1Font.addEventListener("change", ()=>{ state.line1.font = t1Font.value; t1Font.style.fontFamily = t1Font.value; render(); });
-t2Font.addEventListener("change", ()=>{ state.line2.font = t2Font.value; t2Font.style.fontFamily = t2Font.value; render(); });
-
-t1Arch.addEventListener("input", ()=>{ state.line1.arch = parseInt(t1Arch.value,10)/100; render(); });
-t2Arch.addEventListener("input", ()=>{ state.line2.arch = parseInt(t2Arch.value,10)/100; render(); });
-
-function setOrient(which, orient){
-  const line = (which==="t1") ? state.line1 : state.line2;
-  line.orient = orient;
-  // keep UI buttons in sync
-  const hBtn = (which==="t1") ? t1Horiz : t2Horiz;
-  const vBtn = (which==="t1") ? t1Vert  : t2Vert;
-  hBtn.classList.toggle("toggle-on", orient==="h");
-  vBtn.classList.toggle("toggle-on", orient==="v");
-  render();
-}
-t1Horiz.addEventListener("click", ()=>setOrient("t1","h"));
-t1Vert .addEventListener("click", ()=>setOrient("t1","v"));
-t2Horiz.addEventListener("click", ()=>setOrient("t2","h"));
-t2Vert .addEventListener("click", ()=>setOrient("t2","v"));
-
-resetT1.addEventListener("click", ()=>{
-  state.selected = "t1";
-  state.line1.x = 0; state.line1.y = -0.25; state.line1.s = 0.35; state.line1.rot = 0;
-  state.line1.arch = 0; t1Arch.value = "0";
-  setOrient("t1","h");
-  render();
-});
-resetT2.addEventListener("click", ()=>{
-  state.selected = "t2";
-  state.line2.x = 0; state.line2.y = 0.45; state.line2.s = 0.26; state.line2.rot = 0;
-  state.line2.arch = 0; t2Arch.value = "0";
-  setOrient("t2","h");
-  render();
-});
-
-fitArtworkBtn.addEventListener("click", ()=>{
-  state.selected = "art";
-  fitArtworkToCoaster();
-  render();
-});
-clearArtworkBtn.addEventListener("click", ()=>{
-  state.artUrl = "";
-  state.artPreviewUrl = "";
-  state.artImage = null;
-  artName.textContent = "No file uploaded yet";
-  if(state.selected==="art") state.selected = state.iconImage ? "icon" : "t1";
-  render();
-});
 
 /* =========================================================
    UPLOADCARE
@@ -821,40 +891,44 @@ ucWidget.onUploadComplete(async (info)=>{
     state.artUrl = cdn;
     state.artPreviewUrl = cdn + "-/preview/1800x1800/";
     artName.textContent = (info.name || "Artwork uploaded");
-    await loadImageIntoState(state.artPreviewUrl, "art");
-    state.selected = "art";
+    state.artImage = await loadImage(state.artPreviewUrl);
+
+    state.selectedId = "art";
     fitArtworkToCoaster();
     setStatus("Artwork loaded. Drag/resize/rotate in preview.", false);
     render();
+    renderLayersPanel();
   }catch(err){
     console.error(err);
     setStatus("Could not load uploaded image into preview.", true);
   }
 });
 
-async function loadImageIntoState(url, which){
-  return new Promise((resolve, reject)=>{
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = ()=>{
-      if(which==="art") state.artImage = img;
-      resolve();
-    };
-    img.onerror = ()=>reject(new Error("Could not load image."));
-    img.src = url;
-  });
-}
-
-function fitArtworkToCoaster(){
-  state.artObj.x = 0;
-  state.artObj.y = 0;
-  state.artObj.s = 1.10;
-  state.artObj.rot = 0;
-}
+fitArtworkBtn.addEventListener("click", ()=>{
+  state.selectedId = "art";
+  fitArtworkToCoaster();
+  render();
+  renderLayersPanel();
+});
+clearArtworkBtn.addEventListener("click", ()=>{
+  state.artUrl = "";
+  state.artPreviewUrl = "";
+  state.artImage = null;
+  artName.textContent = "No file uploaded yet";
+  if(state.selectedId==="art"){
+    // pick first layer if any
+    state.selectedId = state.layers[0]?.id || "art";
+  }
+  render();
+  renderLayersPanel();
+});
 
 /* =========================================================
-   ICONS (Hundreds via Iconify Search API, Tabler set)
+   ICONS (Iconify search + add multiple)
    ========================================================= */
+iconSearchBtn.addEventListener("click", iconSearchRun);
+iconSearch.addEventListener("keydown", (e)=>{ if(e.key==="Enter"){ e.preventDefault(); iconSearchRun(); } });
+
 async function iconSearchRun(){
   const q = (iconSearch.value || "").trim();
   if(!q){
@@ -878,25 +952,18 @@ async function iconSearchRun(){
     }
     iconStatus.textContent = `Results: ${Math.min(icons.length,48)} (Tabler)`;
 
-    // render buttons
     const frag = document.createDocumentFragment();
     for(const full of icons.slice(0,48)){
-      const name = full.split(":")[1] || full; // tabler:icon-name
+      const name = full.split(":")[1] || full;
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "icon-btn";
       btn.title = `tabler:${name}`;
       btn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d=""/></svg>`;
 
-      // quick fetch svg for thumbnail
       fetch(`https://api.iconify.design/tabler/${encodeURIComponent(name)}.svg?color=%231f1a15`)
         .then(r=>r.ok ? r.text() : "")
-        .then(svg=>{
-          if(svg){
-            // inject svg directly (safe for iconify endpoint)
-            btn.innerHTML = svg;
-          }
-        });
+        .then(svg=>{ if(svg) btn.innerHTML = svg; });
 
       btn.addEventListener("click", ()=> pickIcon(name));
       frag.appendChild(btn);
@@ -908,9 +975,6 @@ async function iconSearchRun(){
   }
 }
 
-iconSearchBtn.addEventListener("click", iconSearchRun);
-iconSearch.addEventListener("keydown", (e)=>{ if(e.key==="Enter"){ e.preventDefault(); iconSearchRun(); } });
-
 async function pickIcon(name){
   try{
     setStatus("Loading icon…", false);
@@ -918,65 +982,704 @@ async function pickIcon(name){
     const res = await fetch(svgUrl);
     if(!res.ok) throw new Error("Icon fetch failed.");
     const svg = await res.text();
-
-    // rasterize svg to Image for canvas drawing
     const img = await svgToImage(svg);
 
-    state.iconName = `tabler:${name}`;
-    state.iconSvg = svg;
-    state.iconImage = img;
+    state.iconCatalogSelected = { name:`tabler:${name}`, svg, img };
+    iconPicked.textContent = state.iconCatalogSelected.name;
 
-    iconPicked.textContent = state.iconName;
-
-    state.selected = "icon";
-    fitIconToCoaster();
-
-    setStatus("Icon loaded. Drag/resize/rotate in preview.", false);
-    render();
+    setStatus("Icon selected. Click “Add selected icon”.", false);
   }catch(e){
     console.error(e);
     setStatus("Could not load icon.", true);
   }
 }
 
-function fitIconToCoaster(){
-  state.iconObj.x = 0;
-  state.iconObj.y = 0;
-  state.iconObj.s = 0.70;
-  state.iconObj.rot = 0;
+addIconBtn.addEventListener("click", ()=>{
+  if(!state.iconCatalogSelected.img){
+    setStatus("Select an icon first (search + click one).", true);
+    return;
+  }
+  const id = uid();
+  const layer = {
+    id,
+    type:"icon",
+    name: state.iconCatalogSelected.name,
+    img: state.iconCatalogSelected.img,
+    x: 0,
+    y: 0,
+    w: 0.60,
+    h: 0.60,
+    rot: 0
+  };
+  fitIconLayer(layer);
+  state.layers.push(layer);
+  state.selectedId = id;
+  setStatus("Icon added. Drag/resize/rotate in preview.", false);
+  render();
+  renderLayersPanel();
+});
+
+/* =========================================================
+   TEXT BOXES (add unlimited)
+   ========================================================= */
+addTextBtn.addEventListener("click", ()=>{
+  const id = uid();
+  const layer = {
+    id,
+    type:"text",
+    text:"YOUR TEXT",
+    font: FONT_OPTIONS[4].css,
+    x: 0,
+    y: 0,
+    w: 0.90,
+    h: 0.26,
+    rot: 0,
+    arcMode: "up" // off|up|down
+  };
+  fitTextLayer(layer);
+  state.layers.push(layer);
+  state.selectedId = id;
+  setStatus("Text box added. Resize the box in preview to control arch.", false);
+  render();
+  renderLayersPanel();
+});
+
+function fitTextLayer(layer){
+  layer.x = 0;
+  layer.y = 0.35;
+  layer.w = 0.95;
+  layer.h = 0.26;
+  layer.rot = 0;
+}
+function fitIconLayer(layer){
+  layer.x = 0;
+  layer.y = 0;
+  layer.w = 0.55;
+  layer.h = 0.55;
+  layer.rot = 0;
+}
+function fitArtworkToCoaster(){
+  state.artLayer.x = 0;
+  state.artLayer.y = 0;
+  state.artLayer.w = 1.35;
+  state.artLayer.h = 1.35;
+  state.artLayer.rot = 0;
 }
 
-fitIconBtn.addEventListener("click", ()=>{
-  if(!state.iconImage){ setStatus("Pick an icon first.", true); return; }
-  state.selected = "icon";
-  fitIconToCoaster();
-  render();
-});
-clearIconBtn.addEventListener("click", ()=>{
-  state.iconName = "";
-  state.iconSvg = "";
-  state.iconImage = null;
-  iconPicked.textContent = "—";
-  if(state.selected==="icon") state.selected = state.artImage ? "art" : "t1";
-  render();
+/* Duplicate/Delete selected */
+duplicateSelectedBtn.addEventListener("click", ()=>{
+  const sel = getSelectedLayer();
+  if(!sel || sel.id==="art"){ setStatus("Select an icon or text layer to duplicate.", true); return; }
+  const copy = structuredCloneLayer(sel);
+  copy.id = uid();
+  copy.x += 0.06;
+  copy.y += 0.06;
+  state.layers.push(copy);
+  state.selectedId = copy.id;
+  setStatus("Duplicated.", false);
+  render(); renderLayersPanel();
 });
 
-function svgToImage(svgText){
-  return new Promise((resolve, reject)=>{
-    const blob = new Blob([svgText], {type:"image/svg+xml;charset=utf-8"});
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = ()=>{
-      URL.revokeObjectURL(url);
-      resolve(img);
+deleteSelectedBtn.addEventListener("click", ()=>{
+  if(state.selectedId==="art"){
+    setStatus("Artwork can be cleared with the Clear button.", true);
+    return;
+  }
+  const idx = state.layers.findIndex(l=>l.id===state.selectedId);
+  if(idx === -1){
+    setStatus("Nothing selected.", true);
+    return;
+  }
+  state.layers.splice(idx,1);
+  state.selectedId = state.layers[idx-1]?.id || state.layers[0]?.id || "art";
+  setStatus("Deleted layer.", false);
+  render(); renderLayersPanel();
+});
+
+function structuredCloneLayer(layer){
+  if(layer.type==="icon"){
+    return {
+      id: layer.id,
+      type:"icon",
+      name: layer.name,
+      img: layer.img,  // keep same Image reference
+      x: layer.x, y: layer.y, w: layer.w, h: layer.h, rot: layer.rot
     };
-    img.onerror = ()=>{
-      URL.revokeObjectURL(url);
-      reject(new Error("SVG decode failed."));
-    };
-    img.src = url;
+  }
+  return {
+    id: layer.id,
+    type:"text",
+    text: layer.text,
+    font: layer.font,
+    x: layer.x, y: layer.y, w: layer.w, h: layer.h, rot: layer.rot,
+    arcMode: layer.arcMode
+  };
+}
+
+function getSelectedLayer(){
+  if(state.selectedId === "art") return state.artLayer;
+  return state.layers.find(l=>l.id===state.selectedId) || null;
+}
+
+/* =========================================================
+   CANVAS INTERACTION (PS-style box + 8 resize handles + rotate handle)
+   - For any layer, we store x,y,w,h in "safe box normalized units"
+     x,y are -1..1 centered
+     w,h are 0..2-ish (relative to safe box)
+   ========================================================= */
+function getCanvasClientRect(){ return cv.getBoundingClientRect(); }
+function canvasToLocal(px, py){
+  const r = getCanvasClientRect();
+  return {
+    x: (px - r.left) * (cv.width / r.width),
+    y: (py - r.top)  * (cv.height / r.height),
+  };
+}
+function coasterGeom(){
+  const pad = 85;
+  const cx = cv.width/2;
+  const cy = cv.height/2 + 10;
+  const rr  = (cv.width - pad*2) * 0.43;
+  return {cx, cy, r: rr};
+}
+function normToLocalBox(nx, ny, box){
+  return {
+    x: box.x + box.w/2 + nx*(box.w/2),
+    y: box.y + box.h/2 + ny*(box.h/2),
+  };
+}
+function normSizeToLocal(nw, nh, box){
+  return {
+    w: nw*(box.w/2),
+    h: nh*(box.h/2),
+  };
+}
+
+function getSafeBox(cx, cy, r, shape){
+  if(shape === "round") return { x: cx - r*0.78, y: cy - r*0.78, w: r*1.56, h: r*1.56 };
+  if(shape === "square"){
+    const s = r*1.58;
+    return { x: cx - s*0.42, y: cy - s*0.42, w: s*0.84, h: s*0.84 };
+  }
+  return { x: cx - r*0.78, y: cy - r*0.70, w: r*1.56, h: r*1.40 };
+}
+
+function getLayerRectInCanvas(layer, box){
+  const c = normToLocalBox(layer.x, layer.y, box);
+  const sz = normSizeToLocal(layer.w, layer.h, box);
+  return { cx:c.x, cy:c.y, w:Math.max(10, sz.w), h:Math.max(10, sz.h), rot: layer.rot || 0 };
+}
+
+function rotRectHandlePoints(cx, cy, w, h, rot){
+  const pts = [
+    {x:-w/2,y:-h/2}, {x:0,y:-h/2}, {x:w/2,y:-h/2},
+    {x:w/2,y:0},
+    {x:w/2,y:h/2}, {x:0,y:h/2}, {x:-w/2,y:h/2},
+    {x:-w/2,y:0},
+  ];
+  return pts.map(p=>{
+    const xr = p.x*Math.cos(rot) - p.y*Math.sin(rot);
+    const yr = p.x*Math.sin(rot) + p.y*Math.cos(rot);
+    return { x: cx + xr, y: cy + yr };
   });
+}
+function rotateHandlePoint(x,y,cx,cy,offset){
+  const vx = x - cx, vy = y - cy;
+  const len = Math.max(1, Math.hypot(vx,vy));
+  return { x: x + (vx/len)*offset, y: y + (vy/len)*offset };
+}
+function hitTestHandle(px, py, hx, hy, r=14){
+  return Math.hypot(px-hx, py-hy) <= r;
+}
+
+function pointToRotatedLocal(px, py, rect){
+  // convert canvas point to rect local coordinates (rotated frame)
+  const dx = px - rect.cx;
+  const dy = py - rect.cy;
+  const c = Math.cos(-rect.rot), s = Math.sin(-rect.rot);
+  const lx = dx*c - dy*s;
+  const ly = dx*s + dy*c;
+  return { x: lx, y: ly };
+}
+
+function pickLayerAt(loc, box){
+  // Prioritize topmost (last in array) and artwork treated as bottom-ish unless selected
+  const candidates = [];
+
+  // icons + text, topmost last
+  for(let i=state.layers.length-1;i>=0;i--){
+    candidates.push(state.layers[i]);
+  }
+  // add artwork as a candidate if exists
+  candidates.push(state.artLayer);
+
+  for(const layer of candidates){
+    if(layer.type==="art" && !state.artImage) continue;
+    if(layer.type==="icon" && !layer.img) continue;
+
+    const rect = getLayerRectInCanvas(layer, box);
+    const p = pointToRotatedLocal(loc.x, loc.y, rect);
+
+    if(Math.abs(p.x) <= rect.w/2 && Math.abs(p.y) <= rect.h/2){
+      return layer.id;
+    }
+  }
+  return state.selectedId;
+}
+
+function hitTestSelection(loc, box){
+  const layer = getSelectedLayer();
+  if(!layer) return { action:null };
+  if(layer.id==="art" && !state.artImage) return { action:null };
+
+  const rect = getLayerRectInCanvas(layer, box);
+  const handles = rotRectHandlePoints(rect.cx, rect.cy, rect.w, rect.h, rect.rot);
+
+  // rotate handle
+  const topMid = handles[1];
+  const rotH = rotateHandlePoint(topMid.x, topMid.y, rect.cx, rect.cy, 26);
+  if(hitTestHandle(loc.x,loc.y, rotH.x, rotH.y, 16)){
+    return { action:"rotate", rect, handleIndex:-1 };
+  }
+
+  // resize handles (8)
+  for(let i=0;i<handles.length;i++){
+    if(hitTestHandle(loc.x,loc.y, handles[i].x, handles[i].y, 14)){
+      return { action:"scale", rect, handleIndex:i };
+    }
+  }
+
+  // inside -> move
+  const p = pointToRotatedLocal(loc.x, loc.y, rect);
+  if(Math.abs(p.x) <= rect.w/2 && Math.abs(p.y) <= rect.h/2){
+    return { action:"move", rect, handleIndex:-1 };
+  }
+  return { action:null, rect, handleIndex:-1 };
+}
+
+/* Pointer events */
+canvasWrap.addEventListener("pointerdown", (e)=>{
+  cv.setPointerCapture(e.pointerId);
+
+  const now = performance.now();
+  const isDouble = (now - pointerState.lastTapTime) < 320;
+  pointerState.lastTapTime = now;
+
+  const loc = canvasToLocal(e.clientX, e.clientY);
+  const {cx, cy, r} = coasterGeom();
+  const box = getSafeBox(cx, cy, r, state.shape);
+
+  if(isDouble){
+    cycleSelection();
+    render();
+    renderLayersPanel();
+  }else{
+    state.selectedId = pickLayerAt(loc, box);
+    render();
+    renderLayersPanel();
+  }
+
+  const ht = hitTestSelection(loc, box);
+  if(ht.action){
+    const layer = getSelectedLayer();
+    transformState.action = ht.action;
+    transformState.handleIndex = ht.handleIndex;
+    transformState.start = {
+      x: loc.x, y: loc.y,
+      layer: { x: layer.x, y: layer.y, w: layer.w, h: layer.h, rot: layer.rot || 0 },
+      rect: ht.rect
+    };
+  }else{
+    transformState.action = null;
+    transformState.start = null;
+    transformState.handleIndex = -1;
+  }
+
+  pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if(pointerState.active.size === 2){
+    const pts = [...pointerState.active.values()];
+    pointerState.lastCentroid = {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2};
+    pointerState.lastDist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
+  }else{
+    pointerState.lastCentroid = {x:e.clientX, y:e.clientY};
+    pointerState.lastDist = 0;
+  }
+});
+
+canvasWrap.addEventListener("pointermove", (e)=>{
+  if(!pointerState.active.has(e.pointerId)) return;
+  pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+  const loc = canvasToLocal(e.clientX, e.clientY);
+  const {cx, cy, r} = coasterGeom();
+  const box = getSafeBox(cx, cy, r, state.shape);
+
+  const layer = getSelectedLayer();
+  if(!layer) return;
+
+  // Single pointer transforms
+  if(transformState.action && transformState.start && pointerState.active.size === 1){
+    if(transformState.action === "move"){
+      const dx = loc.x - transformState.start.x;
+      const dy = loc.y - transformState.start.y;
+      layer.x = clamp(transformState.start.layer.x + dx/(box.w/2), -1.3, 1.3);
+      layer.y = clamp(transformState.start.layer.y + dy/(box.h/2), -1.3, 1.3);
+      render();
+      return;
+    }
+
+    if(transformState.action === "rotate"){
+      const c = normToLocalBox(transformState.start.layer.x, transformState.start.layer.y, box);
+      const a0 = Math.atan2(transformState.start.y - c.y, transformState.start.x - c.x);
+      const a1 = Math.atan2(loc.y - c.y, loc.x - c.x);
+      layer.rot = transformState.start.layer.rot + (a1 - a0);
+      render();
+      return;
+    }
+
+    if(transformState.action === "scale"){
+      const rect0 = transformState.start.rect;
+      const p0 = pointToRotatedLocal(transformState.start.x, transformState.start.y, rect0);
+      const p1 = pointToRotatedLocal(loc.x, loc.y, rect0);
+
+      // Determine which sides are being dragged by handle index
+      const hi = transformState.handleIndex;
+
+      // base from starting layer size
+      let w = transformState.start.layer.w;
+      let h = transformState.start.layer.h;
+
+      // Convert local pixel delta to normalized w/h delta
+      const dxLocal = (p1.x - p0.x);
+      const dyLocal = (p1.y - p0.y);
+
+      const dW = dxLocal / (box.w/2);
+      const dH = dyLocal / (box.h/2);
+
+      // Handle mapping:
+      // 0 TL,1 TM,2 TR,3 RM,4 BR,5 BM,6 BL,7 LM
+      if(hi===0){ w -= dW; h -= dH; }
+      if(hi===1){ h -= dH; }
+      if(hi===2){ w += dW; h -= dH; }
+      if(hi===3){ w += dW; }
+      if(hi===4){ w += dW; h += dH; }
+      if(hi===5){ h += dH; }
+      if(hi===6){ w -= dW; h += dH; }
+      if(hi===7){ w -= dW; }
+
+      const minWH = (layer.type==="text") ? 0.14 : 0.10;
+      const maxWH = (layer.id==="art") ? 2.2 : 1.8;
+
+      layer.w = clamp(w, minWH, maxWH);
+      layer.h = clamp(h, minWH, maxWH);
+
+      render();
+      return;
+    }
+  }
+
+  // Pinch pan/zoom with 2 pointers (move+scale)
+  if(pointerState.active.size === 2){
+    const pts = [...pointerState.active.values()];
+    const cNow = {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2};
+    const dNow = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
+
+    if(pointerState.lastCentroid){
+      const dx = cNow.x - pointerState.lastCentroid.x;
+      const dy = cNow.y - pointerState.lastCentroid.y;
+      const rect = getCanvasClientRect();
+      const dxCanvas = dx * (cv.width / rect.width);
+      const dyCanvas = dy * (cv.height / rect.height);
+      layer.x = clamp(layer.x + dxCanvas/(box.w/2), -1.3, 1.3);
+      layer.y = clamp(layer.y + dyCanvas/(box.h/2), -1.3, 1.3);
+    }
+    if(pointerState.lastDist > 0){
+      const ratio = dNow / pointerState.lastDist;
+      layer.w = clamp(layer.w * ratio, 0.08, layer.id==="art" ? 2.2 : 1.8);
+      layer.h = clamp(layer.h * ratio, 0.08, layer.id==="art" ? 2.2 : 1.8);
+    }
+
+    pointerState.lastCentroid = cNow;
+    pointerState.lastDist = dNow;
+    render();
+    return;
+  }
+});
+
+canvasWrap.addEventListener("pointerup", (e)=>{
+  pointerState.active.delete(e.pointerId);
+  if(pointerState.active.size < 2){
+    pointerState.lastCentroid = null;
+    pointerState.lastDist = 0;
+  }
+  if(pointerState.active.size === 0){
+    transformState.action = null;
+    transformState.start = null;
+    transformState.handleIndex = -1;
+  }
+});
+
+canvasWrap.addEventListener("wheel", (e)=>{
+  e.preventDefault();
+  const layer = getSelectedLayer();
+  if(!layer) return;
+  const factor = (Math.sign(e.deltaY) > 0) ? 0.94 : 1.06;
+  layer.w = clamp(layer.w * factor, 0.08, layer.id==="art" ? 2.2 : 1.8);
+  layer.h = clamp(layer.h * factor, 0.08, layer.id==="art" ? 2.2 : 1.8);
+  render();
+},{passive:false});
+
+function cycleSelection(){
+  const ids = [];
+  // topmost: last layers first, then art
+  for(let i=state.layers.length-1;i>=0;i--) ids.push(state.layers[i].id);
+  ids.push("art");
+
+  const i = ids.indexOf(state.selectedId);
+  state.selectedId = ids[(i+1) % ids.length] || "art";
+}
+
+/* =========================================================
+   RENDER (laser preview)
+   ========================================================= */
+function render(){
+  const mat = MATERIALS.find(m=>m.id===state.material) || MATERIALS[0];
+  summary.textContent = `${mat.name} · ${state.shape} · ${state.size.toFixed(1)}" · sel:${state.selectedId}`;
+
+  ctx.clearRect(0,0,cv.width,cv.height);
+
+  // background
+  ctx.fillStyle = "#f7efe4";
+  ctx.fillRect(0,0,cv.width,cv.height);
+
+  const {cx, cy, r} = coasterGeom();
+  drawMaterialBase(cx, cy, r, mat);
+
+  // engraving canvas
+  const engr = document.createElement("canvas");
+  engr.width = cv.width;
+  engr.height= cv.height;
+  const ectx = engr.getContext("2d");
+
+  ectx.save();
+  clipShape(ectx, cx, cy, r, state.shape);
+
+  const box = getSafeBox(cx, cy, r, state.shape);
+
+  // Artwork
+  if(state.artImage){
+    drawImageLayer(ectx, state.artImage, state.artLayer, box);
+  }
+
+  // Icons + text (in order of layers array)
+  for(const layer of state.layers){
+    if(layer.type==="icon" && layer.img){
+      drawImageLayer(ectx, layer.img, layer, box);
+    }else if(layer.type==="text"){
+      drawTextBox(ectx, layer, box);
+    }
+  }
+
+  ectx.restore();
+
+  // mask & apply burn
+  const mask = toEngraveMask(engr);
+  applyEngraving(mask, cx, cy, r, state.shape);
+  drawEdge(cx, cy, r, state.shape);
+
+  // selection box
+  drawSelectionBox(box);
+
+  // signature
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = "#1f1a15";
+  ctx.font = `14px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
+  ctx.textAlign = "center";
+  ctx.fillText("preview", cx, cv.height - 28);
+  ctx.restore();
+}
+
+function drawImageLayer(ectx, img, layer, box){
+  const rect = getLayerRectInCanvas(layer, box);
+
+  ectx.save();
+  ectx.translate(rect.cx, rect.cy);
+  ectx.rotate(rect.rot || 0);
+  // cover the layer box
+  const fit = cover(img.width, img.height, rect.w, rect.h);
+  ectx.drawImage(img, -fit.w/2, -fit.h/2, fit.w, fit.h);
+  ectx.restore();
+}
+
+function drawTextBox(ectx, layer, box){
+  const rect = getLayerRectInCanvas(layer, box);
+  const t = (layer.text || "").trim();
+  if(!t) return;
+
+  // Arch strength from box shape: taller vs wider => more arch
+  // strength 0..1 from aspect ratio, then apply arc mode sign
+  const aspect = rect.h / Math.max(1, rect.w); // bigger => more arch
+  const mag = clamp01((aspect - 0.18) / 0.55); // tuned for nice response
+  let sign = 0;
+  if(layer.arcMode === "up") sign = 1;
+  if(layer.arcMode === "down") sign = -1;
+
+  const arch = (layer.arcMode === "off") ? 0 : sign * mag;
+
+  // auto font size to fit in box: start big and shrink
+  const pad = 14;
+  const maxW = Math.max(10, rect.w - pad*2);
+  const maxH = Math.max(10, rect.h - pad*2);
+
+  ectx.save();
+  ectx.translate(rect.cx, rect.cy);
+  ectx.rotate(rect.rot || 0);
+
+  // choose base font size from box height
+  let px = Math.max(10, Math.floor(maxH * 0.62));
+  ectx.font = `${px}px ${layer.font}`;
+  let tw = ectx.measureText(t).width;
+
+  // shrink-to-fit width if straight, or give extra slack if arched
+  const slack = (Math.abs(arch) > 0.01) ? 0.78 : 1.00;
+  while(px > 10 && tw > maxW * slack){
+    px -= 2;
+    ectx.font = `${px}px ${layer.font}`;
+    tw = ectx.measureText(t).width;
+  }
+
+  ectx.fillStyle = "#000";
+  ectx.textAlign = "center";
+  ectx.textBaseline = "middle";
+  ectx.font = `${px}px ${layer.font}`;
+
+  if(Math.abs(arch) < 0.02){
+    ectx.fillText(t, 0, 0);
+    ectx.fillText(t, 0.6, 0);
+    ectx.restore();
+    return;
+  }
+
+  // Simple arc using characters along sweep; sweep based on arch magnitude
+  const chars = [...t];
+  const widths = chars.map(ch => ectx.measureText(ch).width);
+  const totalW = widths.reduce((a,b)=>a+b,0);
+
+  const sweep = degToRad(120 * arch); // +/- 120°
+  const targetArcLen = Math.max(10, totalW * 1.02);
+  const R = Math.max(30, targetArcLen / Math.max(0.18, Math.abs(sweep)));
+
+  let ang = -sweep/2;
+  const dir = sweep >= 0 ? 1 : -1;
+  const baseline = -R;
+
+  // keep in box vertically: if arc too tall, increase radius
+  const arcHeight = R - Math.cos(Math.abs(sweep)/2)*R;
+  const maxArcHeight = maxH * 0.45;
+  if(arcHeight > maxArcHeight){
+    const scale = arcHeight / Math.max(1, maxArcHeight);
+    // increase radius to flatten
+    // (bigger R => smaller height)
+    // rough adjust:
+    const R2 = R * scale;
+    // recompute with R2
+    const Ruse = R2;
+    ang = -sweep/2;
+
+    for(let i=0;i<chars.length;i++){
+      const w = widths[i];
+      const step = (w / Ruse) * dir;
+      const mid = ang + step/2;
+
+      ectx.save();
+      ectx.rotate(mid);
+      ectx.translate(0, -Ruse);
+      ectx.rotate(dir > 0 ? Math.PI/2 : -Math.PI/2);
+      ectx.fillText(chars[i], 0, 0);
+      ectx.restore();
+
+      ang += step;
+    }
+    ectx.restore();
+    return;
+  }
+
+  for(let i=0;i<chars.length;i++){
+    const w = widths[i];
+    const step = (w / R) * dir;
+    const mid = ang + step/2;
+
+    ectx.save();
+    ectx.rotate(mid);
+    ectx.translate(0, baseline);
+    ectx.rotate(dir > 0 ? Math.PI/2 : -Math.PI/2);
+    ectx.fillText(chars[i], 0, 0);
+    ectx.restore();
+
+    ang += step;
+  }
+
+  ectx.restore();
+}
+
+/* Selection box */
+function drawSelectionBox(box){
+  const layer = getSelectedLayer();
+  if(!layer) return;
+  if(layer.id==="art" && !state.artImage) return;
+
+  const rect = getLayerRectInCanvas(layer, box);
+  const rot = rect.rot || 0;
+
+  ctx.save();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "rgba(31,26,21,.55)";
+  ctx.setLineDash([6,4]);
+  strokeRotRect(rect.cx, rect.cy, rect.w, rect.h, rot);
+  ctx.setLineDash([]);
+
+  const pts = rotRectHandlePoints(rect.cx, rect.cy, rect.w, rect.h, rot);
+  pts.forEach(p => drawHandle(p.x,p.y));
+
+  const t = pts[1];
+  const rh = rotateHandlePoint(t.x,t.y, rect.cx, rect.cy, 26);
+  drawRotateHandle(rh.x, rh.y);
+
+  ctx.strokeStyle = "rgba(31,26,21,.35)";
+  ctx.beginPath();
+  ctx.moveTo(t.x, t.y);
+  ctx.lineTo(rh.x, rh.y);
+  ctx.stroke();
+
+  ctx.restore();
+}
+function drawHandle(x,y){
+  ctx.save();
+  ctx.fillStyle = "rgba(255,255,255,.95)";
+  ctx.strokeStyle = "rgba(31,26,21,.55)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.rect(x-7,y-7,14,14);
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+function drawRotateHandle(x,y){
+  ctx.save();
+  ctx.fillStyle = "rgba(255,255,255,.95)";
+  ctx.strokeStyle = "rgba(31,26,21,.55)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x,y,8,0,Math.PI*2);
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
+function strokeRotRect(cx, cy, w, h, rot){
+  ctx.save();
+  ctx.translate(cx,cy);
+  ctx.rotate(rot);
+  ctx.strokeRect(-w/2, -h/2, w, h);
+  ctx.restore();
 }
 
 /* =========================================================
@@ -988,7 +1691,6 @@ downloadPng.addEventListener("click", ()=>{
   a.href = cv.toDataURL("image/png");
   a.click();
 });
-
 copyCodeBtn.addEventListener("click", ()=> copyText(buildOrderCode(), copyCodeBtn, "Copied!"));
 
 submitDesign.addEventListener("click", async ()=>{
@@ -996,7 +1698,6 @@ submitDesign.addEventListener("click", async ()=>{
     setStatus("Missing Uploadcare public key.", true);
     return;
   }
-  // allow submit even if no artwork; proof still useful
   try{
     setStatus("Uploading proof PNG…", false);
     const proofDataUrl = cv.toDataURL("image/png");
@@ -1026,7 +1727,6 @@ async function uploadToUploadcare(fileOrBlob, filename){
   if(!data || !data.file) throw new Error("Uploadcare response missing file UUID.");
   return `https://ucarecdn.com/${data.file}/`;
 }
-
 function dataURLToBlob(dataURL){
   const [head, body] = dataURL.split(",");
   const mime = (head.match(/data:(.*?);base64/)||[])[1] || "application/octet-stream";
@@ -1038,348 +1738,25 @@ function dataURLToBlob(dataURL){
 }
 
 /* =========================================================
-   CANVAS INTERACTION (aligned PS-style box + handles)
-   ========================================================= */
-function getCanvasClientRect(){ return cv.getBoundingClientRect(); }
-function canvasToLocal(px, py){
-  const r = getCanvasClientRect();
-  return {
-    x: (px - r.left) * (cv.width / r.width),
-    y: (py - r.top)  * (cv.height / r.height),
-  };
-}
-
-function coasterGeom(){
-  const pad = 85;
-  const cx = cv.width/2;
-  const cy = cv.height/2 + 10;
-  const rr  = (cv.width - pad*2) * 0.43;
-  return {cx, cy, r: rr};
-}
-
-function getSelectedObj(){
-  if(state.selected === "art")  return state.artObj;
-  if(state.selected === "icon") return state.iconObj;
-  if(state.selected === "t1")   return state.line1;
-  if(state.selected === "t2")   return state.line2;
-  return null;
-}
-
-function cycleSelection(){
-  const order = ["art","icon","t1","t2"];
-  const i = order.indexOf(state.selected);
-  for(let k=1;k<=order.length;k++){
-    const next = order[(i+k)%order.length];
-    // skip if not available
-    if(next==="art"  && !state.artImage) continue;
-    if(next==="icon" && !state.iconImage) continue;
-    state.selected = next;
-    return;
-  }
-}
-
-function pickObjectAt(x, y){
-  const {cx, cy, r} = coasterGeom();
-  const box = getSafeBox(cx, cy, r, state.shape);
-
-  // Build candidates (only if they exist)
-  const cand = [];
-  if(state.artImage) cand.push({id:"art"});
-  if(state.iconImage) cand.push({id:"icon"});
-  cand.push({id:"t1"});
-  cand.push({id:"t2"});
-
-  // Pick nearest center within threshold; otherwise keep current
-  let best = {id: state.selected, d: 1e9};
-  const thr = Math.min(box.w, box.h) * 0.16;
-
-  for(const c of cand){
-    const obj = (c.id==="t1") ? state.line1 :
-                (c.id==="t2") ? state.line2 :
-                (c.id==="art") ? state.artObj : state.iconObj;
-    const p = normToLocalBox(obj.x, obj.y, box);
-    const d = Math.hypot(x - p.x, y - p.y);
-    if(d < best.d){ best = {id:c.id, d}; }
-  }
-  if(best.d < thr) return best.id;
-
-  // If click inside safe box, prefer art/icon if exists
-  if(x >= box.x && x <= box.x+box.w && y >= box.y && y <= box.y+box.h){
-    if(state.artImage) return "art";
-    if(state.iconImage) return "icon";
-  }
-  return state.selected;
-}
-
-function getObjectRectInCanvas(box, id){
-  const obj = (id==="t1") ? state.line1 :
-              (id==="t2") ? state.line2 :
-              (id==="art") ? state.artObj : state.iconObj;
-
-  const c = normToLocalBox(obj.x, obj.y, box);
-  const rot = obj.rot || 0;
-
-  // Art/icon: use rendered draw size (cover fit) * s
-  if(id==="art" || id==="icon"){
-    const img = (id==="art") ? state.artImage : state.iconImage;
-    if(!img) return { cx:c.x, cy:c.y, w:140, h:140, rot };
-
-    // keep icon visually square-ish but still respect image ratio
-    const base = cover(img.width, img.height, box.w, box.h);
-    // icons shouldn't cover full box; scale base down a bit so fit feels right
-    const baseScale = (id==="icon") ? 0.55 : 1.00;
-    const w = base.w * baseScale * obj.s;
-    const h = base.h * baseScale * obj.s;
-    return { cx:c.x, cy:c.y, w, h, rot };
-  }
-
-  // Text: measure straight text width; arch doesn't affect selection much (keep simple)
-  const basePx = 120;
-  const px = clamp(Math.round(basePx * obj.s), 12, 220);
-
-  ctx.save();
-  ctx.font = `${px}px ${obj.font}`;
-  const txt = (obj.text||"").trim();
-  const tw = txt ? ctx.measureText(txt).width : 120;
-  ctx.restore();
-
-  // if vertical orientation, swap proportions
-  const isV = obj.orient === "v";
-  const w = isV ? Math.max(54, px + 30) : Math.max(90, tw + 30);
-  const h = isV ? Math.max(90, tw + 30) : Math.max(54, px + 30);
-
-  return { cx:c.x, cy:c.y, w, h, rot };
-}
-
-function rotRectHandlePoints(cx, cy, w, h, rot){
-  const pts = [
-    {x:-w/2,y:-h/2}, {x:0,y:-h/2}, {x:w/2,y:-h/2},
-    {x:w/2,y:0},
-    {x:w/2,y:h/2}, {x:0,y:h/2}, {x:-w/2,y:h/2},
-    {x:-w/2,y:0},
-  ];
-  return pts.map(p=>{
-    const xr = p.x*Math.cos(rot) - p.y*Math.sin(rot);
-    const yr = p.x*Math.sin(rot) + p.y*Math.cos(rot);
-    return { x: cx + xr, y: cy + yr };
-  });
-}
-function rotateHandlePoint(x,y,cx,cy,offset){
-  const vx = x - cx, vy = y - cy;
-  const len = Math.max(1, Math.hypot(vx,vy));
-  return { x: x + (vx/len)*offset, y: y + (vy/len)*offset };
-}
-function hitTestHandle(px, py, hx, hy, r=14){
-  return Math.hypot(px-hx, py-hy) <= r;
-}
-
-function hitTestSelection(loc, box){
-  const id = state.selected;
-  const r = getObjectRectInCanvas(box, id);
-  const handles = rotRectHandlePoints(r.cx, r.cy, r.w, r.h, r.rot || 0);
-
-  // rotate handle
-  const topMid = handles[1];
-  const rotH = rotateHandlePoint(topMid.x, topMid.y, r.cx, r.cy, 26);
-  if(hitTestHandle(loc.x,loc.y, rotH.x, rotH.y, 16)){
-    return { action:"rotate", rect:r };
-  }
-
-  // resize handles
-  for(let i=0;i<handles.length;i++){
-    if(hitTestHandle(loc.x,loc.y, handles[i].x, handles[i].y, 14)){
-      return { action:"scale", rect:r };
-    }
-  }
-
-  // inside (rough)
-  const d = Math.hypot(loc.x-r.cx, loc.y-r.cy);
-  if(d < Math.max(r.w,r.h)*0.65){
-    return { action:"move", rect:r };
-  }
-  return { action:null, rect:r };
-}
-
-/* Pointer events */
-canvasWrap.addEventListener("pointerdown", (e)=>{
-  cv.setPointerCapture(e.pointerId);
-
-  const now = performance.now();
-  const isDouble = (now - pointerState.lastTapTime) < 320;
-  pointerState.lastTapTime = now;
-
-  const loc = canvasToLocal(e.clientX, e.clientY);
-  const {cx, cy, r} = coasterGeom();
-  const box = getSafeBox(cx, cy, r, state.shape);
-
-  if(isDouble){
-    cycleSelection();
-    render();
-  }else{
-    state.selected = pickObjectAt(loc.x, loc.y);
-    render();
-  }
-
-  const ht = hitTestSelection(loc, box);
-  if(ht.action){
-    const obj = getSelectedObj();
-    transformState.action = ht.action;
-    transformState.start = {
-      x: loc.x, y: loc.y,
-      obj: { x: obj.x, y: obj.y, s: obj.s, rot: obj.rot || 0 }
-    };
-  }else{
-    transformState.action = null;
-    transformState.start = null;
-  }
-
-  pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
-  if(pointerState.active.size === 2){
-    const pts = [...pointerState.active.values()];
-    pointerState.lastCentroid = {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2};
-    pointerState.lastDist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
-  }else{
-    pointerState.lastCentroid = {x:e.clientX, y:e.clientY};
-    pointerState.lastDist = 0;
-  }
-});
-
-canvasWrap.addEventListener("pointermove", (e)=>{
-  if(!pointerState.active.has(e.pointerId)) return;
-  pointerState.active.set(e.pointerId, {x:e.clientX, y:e.clientY});
-
-  const loc = canvasToLocal(e.clientX, e.clientY);
-  const {cx, cy, r} = coasterGeom();
-  const box = getSafeBox(cx, cy, r, state.shape);
-
-  // Single pointer transforms
-  if(transformState.action && transformState.start && pointerState.active.size === 1){
-    const obj = getSelectedObj();
-    if(!obj) return;
-
-    if(transformState.action === "move"){
-      const dx = loc.x - transformState.start.x;
-      const dy = loc.y - transformState.start.y;
-      obj.x = clamp(transformState.start.obj.x + dx/(box.w/2), -1.2, 1.2);
-      obj.y = clamp(transformState.start.obj.y + dy/(box.h/2), -1.2, 1.2);
-      render();
-      return;
-    }
-
-    if(transformState.action === "rotate"){
-      const c = normToLocalBox(transformState.start.obj.x, transformState.start.obj.y, box);
-      const a0 = Math.atan2(transformState.start.y - c.y, transformState.start.x - c.x);
-      const a1 = Math.atan2(loc.y - c.y, loc.x - c.x);
-      obj.rot = transformState.start.obj.rot + (a1 - a0);
-      render();
-      return;
-    }
-
-    if(transformState.action === "scale"){
-      const c = normToLocalBox(transformState.start.obj.x, transformState.start.obj.y, box);
-      const d0 = Math.hypot(transformState.start.x - c.x, transformState.start.y - c.y);
-      const d1 = Math.hypot(loc.x - c.x, loc.y - c.y);
-      const factor = (d0>2) ? (d1/d0) : 1;
-
-      const minS = (state.selected==="art") ? 0.25 : (state.selected==="icon") ? 0.15 : 0.10;
-      const maxS = (state.selected==="art") ? 4.0  : (state.selected==="icon") ? 3.0  : 1.10;
-      obj.s = clamp(transformState.start.obj.s * factor, minS, maxS);
-      render();
-      return;
-    }
-  }
-
-  // Pinch pan/zoom with 2 pointers
-  if(pointerState.active.size === 2){
-    const obj = getSelectedObj();
-    if(!obj) return;
-
-    const pts = [...pointerState.active.values()];
-    const cNow = {x:(pts[0].x+pts[1].x)/2, y:(pts[0].y+pts[1].y)/2};
-    const dNow = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
-
-    if(pointerState.lastCentroid){
-      const dx = cNow.x - pointerState.lastCentroid.x;
-      const dy = cNow.y - pointerState.lastCentroid.y;
-      const rect = getCanvasClientRect();
-      const dxCanvas = dx * (cv.width / rect.width);
-      const dyCanvas = dy * (cv.height / rect.height);
-      obj.x = clamp(obj.x + dxCanvas/(box.w/2), -1.2, 1.2);
-      obj.y = clamp(obj.y + dyCanvas/(box.h/2), -1.2, 1.2);
-    }
-    if(pointerState.lastDist > 0){
-      const ratio = dNow / pointerState.lastDist;
-      const minS = (state.selected==="art") ? 0.25 : (state.selected==="icon") ? 0.15 : 0.10;
-      const maxS = (state.selected==="art") ? 4.0  : (state.selected==="icon") ? 3.0  : 1.10;
-      obj.s = clamp(obj.s * ratio, minS, maxS);
-    }
-
-    pointerState.lastCentroid = cNow;
-    pointerState.lastDist = dNow;
-    render();
-    return;
-  }
-});
-
-canvasWrap.addEventListener("pointerup", (e)=>{
-  pointerState.active.delete(e.pointerId);
-  if(pointerState.active.size < 2){
-    pointerState.lastCentroid = null;
-    pointerState.lastDist = 0;
-  }
-  if(pointerState.active.size === 0){
-    transformState.action = null;
-    transformState.start = null;
-  }
-});
-
-canvasWrap.addEventListener("wheel", (e)=>{
-  e.preventDefault();
-  const obj = getSelectedObj();
-  if(!obj) return;
-  const delta = Math.sign(e.deltaY);
-  const factor = (delta > 0) ? 0.94 : 1.06;
-
-  const minS = (state.selected==="art") ? 0.25 : (state.selected==="icon") ? 0.15 : 0.10;
-  const maxS = (state.selected==="art") ? 4.0  : (state.selected==="icon") ? 3.0  : 1.10;
-  obj.s = clamp(obj.s * factor, minS, maxS);
-
-  render();
-},{passive:false});
-
-/* =========================================================
    ORDER CODE (no URLs)
    ========================================================= */
 function buildOrderCode(){
-  const safe = (s)=>String(s||"").replace(/\|/g,"/").trim().slice(0,80);
-  const f1 = shortenFont(state.line1.font);
-  const f2 = shortenFont(state.line2.font);
+  const safe = (s)=>String(s||"").replace(/\|/g,"/").trim().slice(0,120);
+  const layerCodes = state.layers.map((l,i)=>{
+    if(l.type==="icon"){
+      return `I${i}:${safe(l.name)}@${l.x.toFixed(3)},${l.y.toFixed(3)},${l.w.toFixed(3)},${l.h.toFixed(3)},${(l.rot||0).toFixed(3)}`;
+    }
+    const f = shortenFont(l.font);
+    return `T${i}:${f}:${safe(l.text)}:${l.arcMode}@${l.x.toFixed(3)},${l.y.toFixed(3)},${l.w.toFixed(3)},${l.h.toFixed(3)},${(l.rot||0).toFixed(3)}`;
+  }).join("|");
 
   return [
-    "COASTER4",
+    "COASTER5",
     `mat:${state.material}`,
     `shape:${state.shape}`,
     `size:${state.size.toFixed(1)}`,
-
-    `art:${state.artImage ? 1:0}`,
-    `ax:${state.artObj.x.toFixed(3)}`,
-    `ay:${state.artObj.y.toFixed(3)}`,
-    `as:${state.artObj.s.toFixed(3)}`,
-    `ar:${(state.artObj.rot||0).toFixed(3)}`,
-
-    `ic:${state.iconImage ? safe(state.iconName):"none"}`,
-    `ix:${state.iconObj.x.toFixed(3)}`,
-    `iy:${state.iconObj.y.toFixed(3)}`,
-    `is:${state.iconObj.s.toFixed(3)}`,
-    `ir:${(state.iconObj.rot||0).toFixed(3)}`,
-
-    `f1:${f1}`,`t1:${safe(state.line1.text)}`,
-    `x1:${state.line1.x.toFixed(3)}`,`y1:${state.line1.y.toFixed(3)}`,`s1:${state.line1.s.toFixed(3)}`,
-    `r1:${(state.line1.rot||0).toFixed(3)}`,`a1:${(state.line1.arch||0).toFixed(2)}`,`o1:${state.line1.orient}`,
-
-    `f2:${f2}`,`t2:${safe(state.line2.text)}`,
-    `x2:${state.line2.x.toFixed(3)}`,`y2:${state.line2.y.toFixed(3)}`,`s2:${state.line2.s.toFixed(3)}`,
-    `r2:${(state.line2.rot||0).toFixed(3)}`,`a2:${(state.line2.arch||0).toFixed(2)}`,`o2:${state.line2.orient}`
+    `art:${state.artImage?1:0}@${state.artLayer.x.toFixed(3)},${state.artLayer.y.toFixed(3)},${state.artLayer.w.toFixed(3)},${state.artLayer.h.toFixed(3)},${(state.artLayer.rot||0).toFixed(3)}`,
+    layerCodes || "layers:none"
   ].join("|");
 }
 function shortenFont(font){
@@ -1387,216 +1764,8 @@ function shortenFont(font){
 }
 
 /* =========================================================
-   RENDER (laser preview)
+   LASER LOOK
    ========================================================= */
-function render(){
-  const mat = MATERIALS.find(m=>m.id===state.material) || MATERIALS[0];
-  summary.textContent = `${mat.name} · ${state.shape} · ${state.size.toFixed(1)}" · sel:${state.selected}`;
-
-  ctx.clearRect(0,0,cv.width,cv.height);
-
-  // background
-  ctx.fillStyle = "#f7efe4";
-  ctx.fillRect(0,0,cv.width,cv.height);
-
-  const {cx, cy, r} = coasterGeom();
-  drawMaterialBase(cx, cy, r, mat);
-
-  // engraving canvas
-  const engr = document.createElement("canvas");
-  engr.width = cv.width;
-  engr.height= cv.height;
-  const ectx = engr.getContext("2d");
-
-  ectx.save();
-  clipShape(ectx, cx, cy, r, state.shape);
-
-  const box = getSafeBox(cx, cy, r, state.shape);
-
-  // Artwork
-  if (state.artImage){
-    drawImageObj(ectx, box, state.artImage, state.artObj, 1.00);
-  }
-
-  // Icon (scaled down base)
-  if(state.iconImage){
-    drawImageObj(ectx, box, state.iconImage, state.iconObj, 0.55);
-  }
-
-  // Text
-  drawTextSimpleArch(ectx, box, state.line1);
-  drawTextSimpleArch(ectx, box, state.line2);
-
-  ectx.restore();
-
-  // mask & apply burn
-  const mask = toEngraveMask(engr);
-  applyEngraving(mask, cx, cy, r, state.shape);
-  drawEdge(cx, cy, r, state.shape);
-
-  // selection box
-  drawSelectionBox(box);
-
-  // signature
-  ctx.save();
-  ctx.globalAlpha = 0.22;
-  ctx.fillStyle = "#1f1a15";
-  ctx.font = `14px ${getComputedStyle(document.documentElement).getPropertyValue('--mono')}`;
-  ctx.textAlign = "center";
-  ctx.fillText("preview", cx, cv.height - 28);
-  ctx.restore();
-}
-
-function drawImageObj(ectx, box, img, obj, baseScale){
-  const base = cover(img.width, img.height, box.w, box.h);
-  const w = base.w * baseScale * obj.s;
-  const h = base.h * baseScale * obj.s;
-  const center = normToLocalBox(obj.x, obj.y, box);
-
-  ectx.save();
-  ectx.translate(center.x, center.y);
-  ectx.rotate(obj.rot || 0);
-  ectx.drawImage(img, -w/2, -h/2, w, h);
-  ectx.restore();
-}
-
-/* Simpler arch:
-   - arch in [-1..1]
-   - if arch ~ 0 => straight
-   - else place characters along a gentle arc with auto radius based on text width
-*/
-function drawTextSimpleArch(ectx, box, line){
-  const t = (line.text || "").trim();
-  if(!t) return;
-
-  const p = normToLocalBox(line.x, line.y, box);
-  const basePx = 120;
-  const px = clamp(Math.round(basePx * line.s), 12, 220);
-
-  // orientation button: horizontal or vertical
-  const orientRot = (line.orient === "v") ? Math.PI/2 : 0;
-
-  const rot = (line.rot || 0) + orientRot;
-  const arch = clamp(line.arch || 0, -1, 1);
-
-  ectx.save();
-  ectx.translate(p.x, p.y);
-  ectx.rotate(rot);
-
-  ectx.fillStyle = "#000";
-  ectx.textAlign = "center";
-  ectx.textBaseline = "middle";
-  ectx.font = `${px}px ${line.font}`;
-
-  if(Math.abs(arch) < 0.02){
-    ectx.fillText(t, 0, 0);
-    ectx.fillText(t, 0.6, 0);
-    ectx.restore();
-    return;
-  }
-
-  const chars = [...t];
-  const widths = chars.map(ch => ectx.measureText(ch).width);
-  const totalW = widths.reduce((a,b)=>a+b,0);
-
-  // Set sweep up to ~140° max based on arch
-  const sweep = degToRad(140 * arch);
-  // Auto radius so arc length ~ totalW * 1.05 (nice spacing)
-  const targetArcLen = Math.max(10, totalW * 1.05);
-  const R = Math.max(30, targetArcLen / Math.max(0.15, Math.abs(sweep)));
-
-  let ang = -sweep/2;
-  const dir = sweep >= 0 ? 1 : -1;
-  const baseline = -R;
-
-  // spacing scale to match arc
-  const arcLen = R * Math.abs(sweep);
-  const scale = Math.max(0.60, Math.min(1.25, totalW / Math.max(10, arcLen)));
-
-  for(let i=0;i<chars.length;i++){
-    const w = widths[i] / scale;
-    const step = (w / R) * dir;
-    const mid = ang + step/2;
-
-    ectx.save();
-    ectx.rotate(mid);
-    ectx.translate(0, baseline);
-    ectx.rotate(dir > 0 ? Math.PI/2 : -Math.PI/2);
-    ectx.fillText(chars[i], 0, 0);
-    ectx.restore();
-
-    ang += step;
-  }
-
-  ectx.restore();
-}
-
-function drawSelectionBox(box){
-  const id = state.selected;
-
-  // If selected object doesn't exist, don't draw
-  if(id==="art" && !state.artImage) return;
-  if(id==="icon" && !state.iconImage) return;
-
-  const r = getObjectRectInCanvas(box, id);
-  const rot = r.rot || 0;
-
-  ctx.save();
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = "rgba(31,26,21,.55)";
-  ctx.setLineDash([6,4]);
-  strokeRotRect(r.cx, r.cy, r.w, r.h, rot);
-  ctx.setLineDash([]);
-
-  const pts = rotRectHandlePoints(r.cx, r.cy, r.w, r.h, rot);
-  pts.forEach(p => drawHandle(p.x,p.y));
-
-  // rotate handle
-  const t = pts[1];
-  const rh = rotateHandlePoint(t.x,t.y, r.cx, r.cy, 26);
-  drawRotateHandle(rh.x, rh.y);
-
-  // connector
-  ctx.strokeStyle = "rgba(31,26,21,.35)";
-  ctx.beginPath();
-  ctx.moveTo(t.x, t.y);
-  ctx.lineTo(rh.x, rh.y);
-  ctx.stroke();
-
-  ctx.restore();
-}
-
-function drawHandle(x,y){
-  ctx.save();
-  ctx.fillStyle = "rgba(255,255,255,.95)";
-  ctx.strokeStyle = "rgba(31,26,21,.55)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.rect(x-7,y-7,14,14);
-  ctx.fill(); ctx.stroke();
-  ctx.restore();
-}
-function drawRotateHandle(x,y){
-  ctx.save();
-  ctx.fillStyle = "rgba(255,255,255,.95)";
-  ctx.strokeStyle = "rgba(31,26,21,.55)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(x,y,8,0,Math.PI*2);
-  ctx.fill(); ctx.stroke();
-  ctx.restore();
-}
-function strokeRotRect(cx, cy, w, h, rot){
-  ctx.save();
-  ctx.translate(cx,cy);
-  ctx.rotate(rot);
-  ctx.strokeRect(-w/2, -h/2, w, h);
-  ctx.restore();
-}
-
-/* ---------------------------
-   Laser look
---------------------------- */
 function drawMaterialBase(cx, cy, r, mat){
   ctx.save();
   clipShape(ctx, cx, cy, r, state.shape);
@@ -1677,7 +1846,7 @@ function drawEdge(cx, cy, r, shape){
 }
 
 /* =========================================================
-   SHAPES / SAFE BOX
+   SHAPES / MASK
    ========================================================= */
 function clipShape(c, cx, cy, r, shape){
   c.beginPath();
@@ -1704,24 +1873,6 @@ function drawShapePath(c, cx, cy, r, shape){
   }
   c.closePath();
 }
-function getSafeBox(cx, cy, r, shape){
-  if(shape === "round") return { x: cx - r*0.78, y: cy - r*0.78, w: r*1.56, h: r*1.56 };
-  if(shape === "square"){
-    const s = r*1.58;
-    return { x: cx - s*0.42, y: cy - s*0.42, w: s*0.84, h: s*0.84 };
-  }
-  return { x: cx - r*0.78, y: cy - r*0.70, w: r*1.56, h: r*1.40 };
-}
-function normToLocalBox(nx, ny, box){
-  return {
-    x: box.x + box.w/2 + nx*(box.w/2),
-    y: box.y + box.h/2 + ny*(box.h/2),
-  };
-}
-
-/* =========================================================
-   ENGRAVE MASK (remove whites)
-   ========================================================= */
 function toEngraveMask(srcCanvas){
   const w = srcCanvas.width, h = srcCanvas.height;
   const out = document.createElement("canvas");
@@ -1757,7 +1908,6 @@ function toEngraveMask(srcCanvas){
   }
   octx.putImageData(img,0,0);
 
-  // soften edges
   octx.filter = "blur(0.7px)";
   const temp = document.createElement("canvas");
   temp.width=w; temp.height=h;
@@ -1833,6 +1983,10 @@ function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
 function clamp01(v){ return Math.max(0, Math.min(1, v)); }
 function degToRad(d){ return d * Math.PI / 180; }
 
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+}
+
 async function copyText(text, btn, label){
   const t = (text || "").trim();
   if(!t){
@@ -1854,9 +2008,6 @@ function setStatus(msg, isError){
   statusBox.style.background  = isError ? "rgba(198,90,46,.08)" : "rgba(255,255,255,.6)";
   statusBox.style.color       = isError ? "#6d2d17" : "var(--muted)";
 }
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-}
 
 // Texture storage
 function loadTextureMap(){
@@ -1866,16 +2017,43 @@ function saveTextureMap(map){
   localStorage.setItem(KEYS.textures, JSON.stringify(map || {}));
 }
 
+// Image loaders
+function loadImage(url){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = ()=>resolve(img);
+    img.onerror = ()=>reject(new Error("Image load failed."));
+    img.src = url;
+  });
+}
+function svgToImage(svgText){
+  return new Promise((resolve, reject)=>{
+    const blob = new Blob([svgText], {type:"image/svg+xml;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = ()=>{
+      URL.revokeObjectURL(url);
+      reject(new Error("SVG decode failed."));
+    };
+    img.src = url;
+  });
+}
+
 /* =========================================================
    START
    ========================================================= */
 renderTextureManager();
-setOrient("t1","h");
-setOrient("t2","h");
+renderLayersPanel();
 render();
-setStatus("Ready. Click Upload to open the Uploadcare box. Or search icons.", false);
+setStatus("Ready. Add text boxes and icons, then edit in the preview.", false);
 
-// small convenience: initial icon examples
+// optional: preload a search
 iconSearch.value = "coffee";
 iconSearchRun();
 
